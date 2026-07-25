@@ -55,7 +55,10 @@ Authors are required to prepare manuscripts using official IEEE conference paper
 **"AI-Native Autonomous Security Platform: An Event-Driven Edge-Cloud Architecture for University Networks"**
 
 ### Authors & Affiliations
-* **Van A. Nguyen** - *Department of Computer Science & Cybersecurity, CMC University, Hanoi, Vietnam* (`ost@cmcu.edu.vn`)
+* **Trịnh Hoàng Tú (Trinh Hoang Tu)** *(MSSV: 23DH113972)* - **Lead & Corresponding Author**  
+  *Department of Cybersecurity, Faculty of Information Technology*  
+  *Ho Chi Minh City University of Foreign Languages - Information Technology (HUFLIT), Ho Chi Minh City, Vietnam*  
+  Email: `tht.csec2005@gmail.com`
 * **Hans Schmidt** - *School of Advanced AI Systems, Steinbeis University, Berlin, Germany* (`h.schmidt@steinbeis.de`)
 * **Wei Zhang** - *Shenzhen International Graduate School, Tsinghua University, Shenzhen, China* (`zhang.wei@sz.tsinghua.edu.cn`)
 
@@ -76,15 +79,8 @@ icai-fai2026/
 ├── IEEEtran.bst                        # IEEE Bibliography style specification
 ├── conference-latex-template.zip       # Official IEEE LaTeX zip template
 ├── IEEEtranBST2.zip                    # Official IEEE BibTeX zip template
+├── pack_project.py                     # Script to bundle clean zip archive
 └── AI-Native-Security-Platform/        # Complete Reproducible Research Artifact
-    ├── README.md                       # Sub-repository architecture docs
-    ├── requirements.txt                # Dependencies (numpy, scikit-learn, redis)
-    ├── docker-compose.yml              # Microservice orchestration spec
-    ├── paper/                          # Paper sources, references & figures
-    ├── architecture/                   # PlantUML & DrawIO diagrams
-    ├── docs/                           # Academic design specifications
-    ├── prototype/                      # Edge Detector, Identity Fusion, SOAR
-    └── evaluation/                     # Reproducible benchmark experiments
 ```
 
 ### Reproducing Benchmark Experiments
