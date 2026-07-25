@@ -17,7 +17,7 @@
 
 \title{AI-Native Autonomous Security Platform: An Event-Driven Edge-Cloud Architecture for University Networks*\\
 {\footnotesize \textsuperscript{*}Submitted to The Second International Conference on AI: AI Native for University (ICAI-2026 / ICAI-FAI 2026)}
-\thanks{This research is supported by the Department of Cybersecurity, Faculty of Information Technology, Ho Chi Minh City University of Foreign Languages - Information Technology (HUFLIT) in collaboration with international AI security initiatives.}
+\thanks{This research is supported by the Department of Cybersecurity, Faculty of Information Technology, Ho Chi Minh City University of Foreign Languages - Information Technology (HUFLIT).}
 }
 
 \author{
@@ -26,30 +26,12 @@
 \textit{Ho Chi Minh City University of Foreign Languages - Information Technology (HUFLIT)}\\
 Ho Chi Minh City, Vietnam \\
 tht.csec2005@gmail.com}
-\and
-\IEEEauthorblockN{Hans Schmidt}
-\IEEEauthorblockA{\textit{School of Advanced AI Systems} \\
-\textit{Steinbeis University}\\
-Berlin, Germany \\
-h.schmidt@steinbeis.de}
-\and
-\IEEEauthorblockN{Wei Zhang}
-\IEEEauthorblockA{\textit{Shenzhen International Graduate School} \\
-\textit{Tsinghua University}\\
-Shenzhen, China \\
-zhang.wei@sz.tsinghua.edu.cn}
-\and
-\IEEEauthorblockN{Van A. Nguyen}
-\IEEEauthorblockA{\textit{Department of Computer Science} \\
-\textit{CMC University}\\
-Hanoi, Vietnam \\
-ost@cmcu.edu.vn}
 }
 
 \maketitle
 
 \begin{abstract}
-Modern university campus networks present extreme device heterogeneity, open Wi-Fi topologies, high-density IoT deployments, and massive concurrent telemetry flows. Traditional Security Operations Center (SOC) architectures rely on centralized, human-in-the-loop incident response workflows that suffer from long Mean Time to Respond (MTTR $>$ 30 minutes) and severe analyst alert fatigue. In this paper, we propose an \textbf{AI-Native Autonomous Security Platform} engineered specifically for higher education campus networks. By decoupling threat detection into lightweight edge anomaly classifiers (Isolation Forests) and streaming high-confidence security events over a Redis Stream bus to a cloud-based dynamic risk resolver and automated SOAR engine, our platform achieves sub-10ms event-to-mitigation latency. We construct a fully reproducible prototype and evaluate it empirically across four rigorous experimental benchmarks using real-world baseline parameters. Experimental results demonstrate an end-to-end response latency of 4.218~ms, a 99.99\% reduction in MTTR compared to manual SOC triage (0.0085~s vs 1512.4~s), an F1-score of 0.940 (Precision=0.9482, Recall=0.9320, FPR=1.1\%) at optimal decision threshold ($\tau=0.65$), and minimal edge CPU overhead (14.3\% utilization and 49.0~MB RAM under 10,000 events/sec throughput).
+Modern university campus networks present extreme device heterogeneity, open Wi-Fi topologies, high-density IoT deployments, and massive concurrent telemetry flows. Traditional Security Operations Center (SOC) architectures rely on centralized, human-in-the-loop incident response workflows that suffer from long Mean Time to Respond (MTTR $>$ 30 minutes) and severe alert fatigue. In this paper, we propose an \textbf{AI-Native Autonomous Security Platform} engineered specifically for higher education campus networks. By decoupling threat detection into lightweight edge anomaly classifiers (Isolation Forests) and streaming high-confidence security events over a Redis Stream bus to a cloud-based dynamic risk resolver and automated SOAR engine, our platform achieves sub-10ms event-to-mitigation latency. We construct a fully reproducible prototype and evaluate it empirically across four rigorous experimental benchmarks using real-world baseline parameters. Experimental results demonstrate an end-to-end response latency of 4.218~ms, a 99.99\% reduction in MTTR compared to manual SOC triage (0.0085~s vs 1512.4~s), an F1-score of 0.940 (Precision=0.9482, Recall=0.9320, FPR=1.1\%) at optimal decision threshold ($\tau=0.65$), and minimal edge CPU overhead (14.3\% utilization and 49.0~MB RAM under 10,000 events/sec throughput).
 \end{abstract}
 
 \begin{IEEEkeywords}
@@ -75,6 +57,7 @@ University networks present unique vulnerabilities due to their open academic ma
 \caption{STRIDE \& MITRE ATT\&CK Campus Threat Matrix}
 \label{tab:stride}
 \begin{center}
+\resizebox{\columnwidth}{!}{%
 \begin{tabular}{|l|l|c|l|}
 \hline
 \textbf{Category} & \textbf{Target} & \textbf{MITRE ID} & \textbf{Mitigation Strategy} \\
@@ -85,7 +68,8 @@ Exfiltration & Research DB & T1048 & Role-aware flow byte-rate cap \\
 DoS & Campus Portal & T1498 & Automated BGP Flowspec rate limit \\
 Privilege & Campus LDAP & T1078 & Dynamic Risk Resolver escalation \\
 \hline
-\end{tabular}
+\end{tabular}%
+}
 \end{center}
 \end{table}
 
@@ -137,6 +121,7 @@ We measured execution latency across all four pipeline stages over 1,000 indepen
 \caption{End-to-End Latency Breakdown Across Pipeline Stages}
 \label{tab:latency_breakdown}
 \begin{center}
+\resizebox{\columnwidth}{!}{%
 \begin{tabular}{|l|c|c|}
 \hline
 \textbf{Pipeline Stage} & \textbf{Avg Latency (ms)} & \textbf{Pct of Total (\%)} \\
@@ -148,7 +133,8 @@ SOAR Playbook Execution & 1.633 & 38.7\% \\
 \hline
 \textbf{End-to-End Total} & \textbf{4.218} & \textbf{100.0\%} \\
 \hline
-\end{tabular}
+\end{tabular}%
+}
 \end{center}
 \end{table}
 
@@ -159,6 +145,7 @@ Fig.~\ref{fig_mttr} and Table~\ref{tab:mttr} compare the MTTR of our AI-Native A
 \caption{Mean Time to Respond (MTTR) Benchmark Comparison}
 \label{tab:mttr}
 \begin{center}
+\resizebox{\columnwidth}{!}{%
 \begin{tabular}{|l|c|c|c|}
 \hline
 \textbf{Operational Paradigm} & \textbf{Mean MTTR} & \textbf{Min MTTR} & \textbf{Max MTTR} \\
@@ -167,7 +154,8 @@ Manual SOC Triage & 1512.4 s & 1020.0 s & 2980.0 s \\
 Legacy Rule SIEM & 68.5 s & 36.2 s & 138.0 s \\
 \textbf{AI-Native Autonomous} & \textbf{0.0085 s (8.5 ms)} & \textbf{0.0031 s} & \textbf{0.0120 s} \\
 \hline
-\end{tabular}
+\end{tabular}%
+}
 \end{center}
 \end{table}
 
@@ -184,6 +172,7 @@ Fig.~\ref{fig_precision} and Table~\ref{tab:precision} illustrate Precision, Rec
 \caption{Anomaly Detection Metrics Across Decision Thresholds ($\tau$)}
 \label{tab:precision}
 \begin{center}
+\resizebox{\columnwidth}{!}{%
 \begin{tabular}{|c|c|c|c|c|c|}
 \hline
 \textbf{Threshold ($\tau$)} & \textbf{Precision} & \textbf{Recall} & \textbf{F1-Score} & \textbf{FPR (\%)} & \textbf{FNR (\%)} \\
@@ -194,7 +183,8 @@ Fig.~\ref{fig_precision} and Table~\ref{tab:precision} illustrate Precision, Rec
 0.75 & 0.9710 & 0.8410 & 0.9013 & 0.6\% & 15.9\% \\
 0.85 & 0.9890 & 0.6520 & 0.7858 & 0.2\% & 34.8\% \\
 \hline
-\end{tabular}
+\end{tabular}%
+}
 \end{center}
 \end{table}
 
@@ -211,6 +201,7 @@ Table~\ref{tab:resource} and Fig.~\ref{fig_resource} quantify CPU utilization (\
 \caption{Edge Resource Overhead Comparison Under Scaling Throughput}
 \label{tab:resource}
 \begin{center}
+\resizebox{\columnwidth}{!}{%
 \begin{tabular}{|c|c|c|c|c|}
 \hline
 \textbf{Throughput} & \multicolumn{2}{|c|}{\textbf{AI-Native Edge}} & \multicolumn{2}{|c|}{\textbf{Legacy Inline DPI}} \\
@@ -222,7 +213,8 @@ Table~\ref{tab:resource} and Fig.~\ref{fig_resource} quantify CPU utilization (\
 5,000 & 7.75\% & 47.2 MB & 47.00\% & 212.5 MB \\
 \textbf{10,000} & \textbf{14.30\%} & \textbf{49.0 MB} & \textbf{86.00\%} & \textbf{305.0 MB} \\
 \hline
-\end{tabular}
+\end{tabular}%
+}
 \end{center}
 \end{table}
 
@@ -236,7 +228,7 @@ Table~\ref{tab:resource} and Fig.~\ref{fig_resource} quantify CPU utilization (\
 In this work, we presented an AI-Native Autonomous Security Platform engineered for higher education campus networks. The platform achieves an average response latency of 4.218~ms and a $>99.99\%$ reduction in MTTR while maintaining minimal resource overhead (14.3\% CPU at 10,000 events/s). Future work will expand the platform to privacy-preserving multi-university federated learning consortiums and local LLM integration for automated root-cause reporting.
 
 \section*{Acknowledgment}
-The authors thank HUFLIT, CMC University, Steinbeis University, and Tsinghua University SIGS for academic collaboration. Microsoft CMT is acknowledged for providing peer-review services for ICAI-2026.
+The author thanks the Department of Cybersecurity, Faculty of Information Technology at HUFLIT for academic support. Microsoft CMT is acknowledged for providing peer-review services for ICAI-2026.
 
 \section*{References}
 \begin{thebibliography}{00}
@@ -244,7 +236,7 @@ The authors thank HUFLIT, CMC University, Steinbeis University, and Tsinghua Uni
 \bibitem{b2} W. Zheng, Y. Liu, and M. Zhao, ``Event-Driven Security Orchestration for Heterogeneous IoT Environments,'' IEEE J. Sel. Areas Commun., vol. 43, no. 1, pp. 88--102, 2025.
 \bibitem{b3} C. Alvarez and E. Garcia, ``Automated Incident Response with Zero-Trust Architecture in Higher Education,'' in Proc. IEEE Symp. Security and Privacy (S\&P), 2023, pp. 310--326.
 \bibitem{b4} K. Tan and P. Kumar, ``Lightweight Isolation Forest Ensembles for Streaming Network Telemetry,'' IEEE Trans. Inf. Forensics Security, vol. 19, pp. 512--525, 2024.
-\bibitem{b5} T. H. Tu, H. Schmidt, W. Zhang, and V. A. Nguyen, ``AI-Native Autonomous Security Platform: An Event-Driven Edge-Cloud Architecture for University Networks,'' in Proc. 2nd Int. Conf. AI Native for Univ. (ICAI-2026), Hanoi, Vietnam, 2026.
+\bibitem{b5} T. H. Tu, ``AI-Native Autonomous Security Platform: An Event-Driven Edge-Cloud Architecture for University Networks,'' in Proc. 2nd Int. Conf. AI Native for Univ. (ICAI-2026), Hanoi, Vietnam, 2026.
 \end{thebibliography}
 
 \end{document}
