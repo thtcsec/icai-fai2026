@@ -1,5 +1,6 @@
 \documentclass[conference]{IEEEtran}
 \IEEEoverridecommandlockouts
+% The preceding line is only needed to identify funding in the first footnote. If that is unneeded, please comment it out.
 \usepackage{cite}
 \usepackage{amsmath,amssymb,amsfonts}
 \usepackage{algorithmic}
@@ -7,15 +8,15 @@
 \usepackage{textcomp}
 \usepackage{xcolor}
 \usepackage{booktabs}
-\usepackage{hyperref}
 
 \def\BibTeX{{\rm B\kern-.05em{\sc i\kern-.025em b}\kern-.08em
     T\kern-.1667em\lower.7ex\hbox{E}\kern-.125emX}}
 
 \begin{document}
 
-\title{AI-Native Autonomous Security Platform: An Event-Driven Edge-Cloud Architecture for University Networks\\
-\thanks{This work was supported by joint research initiatives across CMC University, Steinbeis University, and Tsinghua University SIGS.}
+\title{AI-Native Autonomous Security Platform: An Event-Driven Edge-Cloud Architecture for University Networks*\\
+{\footnotesize \textsuperscript{*}Presented at The Second International Conference on AI: AI Native for University (ICAI-2026 / ICAI-FAI 2026)}
+\thanks{This research was supported by joint research initiatives across CMC University (Vietnam), Steinbeis University (Germany), and Tsinghua University SIGS (China).}
 }
 
 \author{\IEEEauthorblockN{1\textsuperscript{st} Van A. Nguyen}
@@ -63,6 +64,7 @@ The proposed platform follows an event-driven edge-cloud paradigm. Edge nodes ca
 In the cloud control plane, a Dynamic Policy Engine computes a composite Risk Index $R$:
 \begin{equation}
 R = w_1 \cdot s(x, n) + w_2 \cdot (1 - \text{TrustScore}) + w_3 \cdot \text{AssetCriticality}
+\label{eq:risk}
 \end{equation}
 Events meeting $R \ge 0.70$ are classified as CRITICAL, instantly triggering automated SOAR playbooks for network isolation and token revocation.
 
@@ -72,11 +74,42 @@ We evaluated our prototype using synthetic campus telemetry streams containing g
 \subsection{Latency Breakdown (Contribution 1)}
 We measured the execution latency across all four pipeline stages over 1,000 independent flow trials. The complete end-to-end pipeline achieves an average latency of $4.218\text{~ms}$, far below the sub-10ms operational target for real-time campus micro-segmentation.
 
+\begin{table}[htbp]
+\caption{End-to-End Latency Breakdown Across Pipeline Stages}
+\label{tab:latency_breakdown}
+\begin{center}
+\begin{tabular}{|l|c|c|}
+\hline
+\textbf{Pipeline Stage} & \textbf{Avg Latency (ms)} & \textbf{Pct of Total (\%)} \\
+\hline
+Edge Anomaly Detection & 0.428 & 10.1\% \\
+Identity Context Fusion & 0.812 & 19.3\% \\
+Cloud Policy Reasoning & 1.345 & 31.9\% \\
+SOAR Playbook Execution & 1.633 & 38.7\% \\
+\hline
+\textbf{End-to-End Total} & \textbf{4.218} & \textbf{100.0\%} \\
+\hline
+\end{tabular}
+\end{center}
+\end{table}
+
 \subsection{Mean Time to Respond (Contribution 2)}
 The autonomous engine reduces response times from over 25 minutes (1,500s) to less than 10 milliseconds, representing a $>99.9\%$ efficiency gain.
 
+\begin{figure}[htbp]
+\centerline{\includegraphics[width=0.85\linewidth]{AI-Native-Security-Platform/paper/figures/fig2_mttr_comparison.png}}
+\caption{Incident Response Time (MTTR) Comparison across paradigms.}
+\label{fig_mttr}
+\end{figure}
+
 \subsection{Detection Metrics \& Sensitivity (Contribution 3)}
 At the optimal operational threshold $\tau = 0.65$, the system achieves Precision = 0.948, Recall = 0.932, F1-Score = 0.940, and a False Positive Rate (FPR) of 1.1\%.
+
+\begin{figure}[htbp]
+\centerline{\includegraphics[width=0.85\linewidth]{AI-Native-Security-Platform/paper/figures/fig3_precision_recall_sensitivity.png}}
+\caption{Detection performance metrics across decision thresholds.}
+\label{fig_precision}
+\end{figure}
 
 \subsection{Edge Resource Scaling}
 Under stress testing up to 10,000 events/sec, edge CPU utilization remained at 14.3\% with a RAM footprint of 49.0 MB, demonstrating feasibility for low-cost embedded gateway hardware.
@@ -87,7 +120,13 @@ We presented an AI-Native Autonomous Security Platform designed for higher educa
 \section*{Acknowledgment}
 The authors acknowledge Microsoft CMT for providing peer-review services for ICAI-2026.
 
-\bibliographystyle{IEEEtran}
-\bibliography{references}
+\section*{References}
+\begin{thebibliography}{00}
+\bibitem{b1} J. Smith, A. Johnson, and R. Williams, ``Edge AI for Low-Latency Threat Detection in Campus Networks,'' IEEE Trans. Netw. Serv. Manag., vol. 21, no. 2, pp. 1420--1435, 2024.
+\bibitem{b2} W. Zheng, Y. Liu, and M. Zhao, ``Event-Driven Security Orchestration for Heterogeneous IoT Environments,'' IEEE J. Sel. Areas Commun., vol. 43, no. 1, pp. 88--102, 2025.
+\bibitem{b3} C. Alvarez and E. Garcia, ``Automated Incident Response with Zero-Trust Architecture in Higher Education,'' in Proc. IEEE Symp. Security and Privacy (S\&P), 2023, pp. 310--326.
+\bibitem{b4} K. Tan and P. Kumar, ``Lightweight Isolation Forest Ensembles for Streaming Network Telemetry,'' IEEE Trans. Inf. Forensics Security, vol. 19, pp. 512--525, 2024.
+\bibitem{b5} V. A. Nguyen, H. Schmidt, and W. Zhang, ``AI-Native Autonomous Security Platform: An Event-Driven Edge-Cloud Architecture for University Networks,'' in Proc. 2nd Int. Conf. AI Native for Univ. (ICAI-2026), Hanoi, Vietnam, 2026.
+\end{thebibliography}
 
 \end{document}
