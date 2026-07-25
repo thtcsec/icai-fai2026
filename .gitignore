@@ -1,0 +1,19 @@
+# LaTeX build outputs
+*.aux
+*.bbl
+*.blg
+*.fdb_latexmk
+*.fls
+*.log
+*.out
+*.synctex.gz
+*.toc
+*.nav
+*.snm
+
+# Python & System
+__pycache__/
+*.py[cod]
+.venv/
+.DS_Store
+Thumbs.db

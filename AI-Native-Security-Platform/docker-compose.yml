@@ -1,0 +1,59 @@
+version: '3.8'
+
+services:
+  # Event Bus (Redis Stream)
+  redis-broker:
+    image: redis:7.0-alpine
+    container_name: security-redis-broker
+    ports:
+      - "6379:6379"
+    command: redis-server --appendonly yes
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  # Edge Detection & Identity Fusion Module
+  edge-detector:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.edge
+    container_name: security-edge-detector
+    environment:
+      - REDIS_HOST=redis-broker
+      - REDIS_PORT=6379
+      - STREAM_KEY=security:telemetry:stream
+    depends_on:
+      redis-broker:
+        condition: service_healthy
+
+  # Cloud Policy Engine & Threat Reasoning
+  cloud-policy-engine:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.cloud
+    container_name: security-cloud-policy
+    environment:
+      - REDIS_HOST=redis-broker
+      - REDIS_PORT=6379
+      - INGEST_STREAM=security:telemetry:stream
+      - POLICY_STREAM=security:alerts:stream
+    depends_on:
+      redis-broker:
+        condition: service_healthy
+
+  # SOAR Autonomous Incident Response Engine
+  soar-engine:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.soar
+    container_name: security-soar-engine
+    environment:
+      - REDIS_HOST=redis-broker
+      - REDIS_PORT=6379
+      - POLICY_STREAM=security:alerts:stream
+      - ACTION_STREAM=security:mitigation:stream
+    depends_on:
+      redis-broker:
+        condition: service_healthy

@@ -1,0 +1,29 @@
+@startuml sequence-diagram
+title Autonomous Incident Response Sequence in University Edge-Cloud Platform
+
+autonumber
+actor "Attacker / Compromised IoT" as Attacker
+participant "Edge Network Tap" as EdgeTap
+participant "Edge Detector (IsolationForest)" as EdgeDetector
+participant "Identity Fusion Engine" as IdentityFusion
+queue "Redis Stream Broker" as EventBus
+participant "Cloud Policy Engine" as PolicyEngine
+participant "SOAR Autonomous Executor" as SOAR
+participant "University SDN Controller / Firewall" as Firewall
+
+Attacker -> EdgeTap: Send malicious payload / port scan / anomaly stream
+EdgeTap -> EdgeDetector: Stream raw telemetry packet features
+EdgeDetector -> EdgeDetector: Classify flow anomaly (Score > 0.75)
+EdgeDetector -> IdentityFusion: Enrich telemetry with IP/MAC
+IdentityFusion -> IdentityFusion: Match Campus LDAP / Role context (e.g. Student BYOD)
+IdentityFusion -> EventBus: Publish SecurityEvent (Stream: security:telemetry:stream)
+
+EventBus -> PolicyEngine: Consume security event
+PolicyEngine -> PolicyEngine: Evaluate threat matrix, confidence & impact
+PolicyEngine -> EventBus: Publish MitigationPolicy (Stream: security:alerts:stream)
+
+EventBus -> SOAR: Trigger Automated Playbook execution
+SOAR -> Firewall: Execute active containment (Revoke token / Block IP / Quarantine VLAN)
+Firewall --> SOAR: Return execution status (Success)
+SOAR -> EventBus: Log MitigationResult for feedback loop
+@enduml

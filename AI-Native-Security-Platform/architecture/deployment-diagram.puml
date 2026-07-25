@@ -1,0 +1,38 @@
+@startuml deployment-diagram
+title University Campus Deployment Diagram: AI-Native Edge-Cloud Infrastructure
+
+node "Campus Edge Location 1 (Academic Building)" {
+    component [Building Edge Router] as Router1
+    component [Edge Gateway Node (8-core ARM/x86)] as EdgeNode1 {
+        artifact [Edge Detector Microservice]
+        artifact [Identity Fusion Service]
+    }
+}
+
+node "Campus Edge Location 2 (Dormitory & IoT Cluster)" {
+    component [Dormitory Access Switch] as Switch2
+    component [Edge Gateway Node 2] as EdgeNode2 {
+        artifact [Edge Detector Microservice 2]
+    }
+}
+
+node "Central University Cloud Control Plane" {
+    database "Redis Stream Event Bus Cluster" as RedisBus
+    component [Cloud Policy & Threat Reasoner] as CloudPolicy
+    component [Autonomous SOAR Engine] as SOAR
+    component [Metrics & Observability Dashboard] as Observability
+}
+
+Router1 --> EdgeNode1 : Network Mirror / TAP
+Switch2 --> EdgeNode2 : Network Mirror / TAP
+
+EdgeNode1 --> RedisBus : TLS Encrypted Event Stream (Port 6379)
+EdgeNode2 --> RedisBus : TLS Encrypted Event Stream (Port 6379)
+
+RedisBus --> CloudPolicy : Subscribe Event Stream
+CloudPolicy --> SOAR : Trigger Mitigation Playbook
+SOAR --> Router1 : API Enforcement (BGP/ACL/VLAN)
+SOAR --> Switch2 : API Enforcement (802.1X Revocation)
+
+CloudPolicy --> Observability : Push Metrics (Prometheus)
+@enduml
