@@ -31,7 +31,7 @@ tht.csec2005@gmail.com}
 \maketitle
 
 \begin{abstract}
-Modern university campus networks present extreme device heterogeneity, unmanaged BYOD endpoints, open research laboratories, and massive concurrent telemetry flows. Traditional Security Operations Center (SOC) architectures rely on centralized, manual incident response workflows that suffer from long Mean Time to Respond (MTTR $>$ 30 minutes) and severe alert fatigue. In this paper, we propose an \textbf{AI-Native Autonomous Security and Resilience Platform} engineered specifically for higher education campus networks. By decoupling threat detection into lightweight edge sequence autoencoders (PyTorch INT8-quantized TCN-GRU) and streaming high-confidence security events over an asynchronous Redis Stream bus to a cloud-based dynamic risk resolver and Deep Q-Network (DQN) SDN controller, our platform achieves sub-10ms event-to-mitigation latency. We construct a fully reproducible open-source research artifact and evaluate it empirically using benchmark intrusion datasets (InSDN, CSE-CIC-IDS2018) and TraCI SUMO/Mininet-WiFi traffic traces. Experimental results demonstrate an end-to-end mitigation latency of $4.218 \pm 0.083$~ms, a 99.99\% reduction in MTTR compared to manual SOC triage ($0.0085 \pm 0.0006$~s vs $1512.4 \pm 350.0$~s), an optimal F1-score of 0.940 (Precision=0.9482, Recall=0.9320, FPR=1.1\%) at adaptive decision threshold ($\tau=0.65$), and minimal edge CPU overhead (14.3\% CPU and 49.0~MB RAM under 10,000 events/sec throughput).
+Modern university campus networks present extreme device heterogeneity, unmanaged BYOD endpoints, open research laboratories, and massive concurrent telemetry flows. Traditional Security Operations Center (SOC) architectures rely on centralized, manual incident response workflows that suffer from long Mean Time to Respond (MTTR $>$ 30 minutes) and severe alert fatigue. In this paper, we propose an \textbf{AI-Native Autonomous Security and Resilience Platform} engineered specifically for higher education campus networks. By decoupling threat detection into lightweight edge sequence autoencoders (PyTorch INT8-quantized TCN-GRU) and streaming high-confidence security events over an asynchronous Redis Stream bus to a cloud-based dynamic risk resolver and Deep Q-Network (DQN) SDN controller, our platform achieves sub-10ms event-to-mitigation latency. We construct a fully reproducible open-source research artifact and evaluate it empirically using benchmark intrusion datasets (InSDN, CSE-CIC-IDS2018) and TraCI SUMO/Mininet-WiFi traffic traces. Experimental results demonstrate an end-to-end mitigation latency of $4.218 \pm 0.083$~ms (Mean $\pm$ SD), a 99.99\% reduction in MTTR compared to manual SOC triage ($0.0085 \pm 0.0006$~s vs $1512.4 \pm 350.0$~s), an optimal F1-score of 0.9395 (Precision=0.9482, Recall=0.9320, FPR=1.1\%) at adaptive decision threshold ($\tau=0.65$), and minimal edge CPU overhead (14.3\% CPU and 49.0~MB RAM under 10,000 events/sec throughput).
 \end{abstract}
 
 \begin{IEEEkeywords}
@@ -47,7 +47,7 @@ To address these challenges, we introduce an AI-native autonomous security frame
 \begin{enumerate}
     \item \textbf{Lightweight AI-Native Event-Driven Architecture}: A decoupled edge-cloud pipeline featuring PyTorch INT8-quantized TCN-GRU sequence anomaly autoencoders at edge taps, spatial-temporal identity context fusion (IP/MAC-to-User/Role mapping), and distributed Redis Stream event pub/sub.
     \item \textbf{Closed-Loop Autonomous Incident Response Prototype}: A reproducible end-to-end prototype executing Deep Q-Network (DQN) SDN control and zero-trust playbooks (BGP Flowspec, 802.1X VLAN isolation, path rerouting, and active token revocation).
-    \item \textbf{Empirical Benchmark Evaluation \& Artifact Suite}: A quantitative experimental evaluation quantifying per-stage latency breakdown (with 95\% confidence intervals), MTTR reduction, threshold sensitivity curves $\tau \in [0.35, 0.85]$, and edge CPU/RAM scaling up to 10,000 events/sec. All code, raw execution logs, CSV datasets, and figure scripts are available at: \url{https://github.com/thtcsec/icai-fai2026}.
+    \item \textbf{Empirical Benchmark Evaluation \& Artifact Suite}: A quantitative experimental evaluation quantifying per-stage latency breakdown (with standard deviations, Mean $\pm$ SD), MTTR reduction, threshold sensitivity curves $\tau \in [0.35, 0.85]$, and edge CPU/RAM scaling up to 10,000 events/sec. All code, Docker configurations, raw execution logs, CSV datasets, and figure scripts are available at: \url{https://github.com/thtcsec/icai-fai2026}.
 \end{enumerate}
 
 \section{Threat Model \& Campus Attack Vectors}
@@ -157,16 +157,16 @@ Artifact Repository & \url{https://github.com/thtcsec/icai-fai2026} \\
 \end{table}
 
 \subsection{Experiment 1: Latency Breakdown (Contribution 1)}
-We measured execution latency across all four pipeline stages over 1,000 independent flow trials (seed=42). As detailed in Table~\ref{tab:latency_breakdown} (generated from \texttt{results/table2\_latency.csv}), the complete pipeline achieves a statistical response latency of $4.218 \pm 0.083\text{~ms}$, well within the sub-10ms target.
+We measured execution latency across all four pipeline stages over 1,000 independent flow trials (seed=42). As detailed in Table~\ref{tab:latency_breakdown} (generated from \texttt{results/table2\_latency.csv}), the complete pipeline achieves a statistical response latency of $4.218 \pm 0.083\text{~ms}$ ($\text{Mean} \pm \text{SD}$), well within the sub-10ms target.
 
 \begin{table}[htbp]
-\caption{End-to-End Latency Breakdown Across Pipeline Stages ($\text{Mean} \pm \text{Std Dev}$)}
+\caption{End-to-End Latency Breakdown Across Pipeline Stages ($\text{Mean} \pm \text{SD}$)}
 \label{tab:latency_breakdown}
 \begin{center}
 \resizebox{\columnwidth}{!}{%
 \begin{tabular}{|l|c|c|}
 \hline
-\textbf{Pipeline Stage} & \textbf{Latency (Mean $\pm$ Std ms)} & \textbf{Pct of Total (\%)} \\
+\textbf{Pipeline Stage} & \textbf{Latency (Mean $\pm$ SD ms)} & \textbf{Pct of Total (\%)} \\
 \hline
 Edge Telemetry \& TCN-GRU Inference & 0.428 $\pm$ 0.012 & 10.1\% \\
 Identity Context Fusion & 0.812 $\pm$ 0.024 & 19.3\% \\
@@ -184,7 +184,7 @@ SOAR Playbook Execution & 1.633 $\pm$ 0.052 & 38.7\% \\
 Fig.~\ref{fig_mttr} and Table~\ref{tab:mttr} (generated from \texttt{results/table3\_mttr.csv}) compare MTTR against manual SOC triage and legacy SIEM polling. The autonomous engine reduces response times from $1512.4 \pm 350.0\text{~s}$ (~25.2 minutes) to $0.0085 \pm 0.0006\text{~s}$ ($8.5 \pm 0.6$~ms), representing a $>99.99\%$ efficiency improvement.
 
 \begin{table}[htbp]
-\caption{Mean Time to Respond (MTTR) Benchmark Comparison}
+\caption{Mean Time to Respond (MTTR) Benchmark Comparison ($\text{Mean} \pm \text{SD}$)}
 \label{tab:mttr}
 \begin{center}
 \resizebox{\columnwidth}{!}{%
@@ -208,7 +208,7 @@ Legacy Rule SIEM & 68.5 s & 36.2 s & 138.0 s \\
 \end{figure}
 
 \subsection{Experiment 3: Detection Metrics Sensitivity (Contribution 3)}
-Fig.~\ref{fig_precision} and Table~\ref{tab:precision} (generated from \texttt{results/table4\_precision.csv}) illustrate Precision, Recall, F1-Score, FPR, and FNR across decision thresholds $\tau \in [0.35, 0.85]$. At optimal threshold $\tau = 0.65$, the system achieves Precision = 0.9482, Recall = 0.9320, F1-Score = 0.9400, and False Positive Rate (FPR) = 1.1\%.
+Fig.~\ref{fig_precision} and Table~\ref{tab:precision} (generated from \texttt{results/table4\_precision.csv}) illustrate Precision, Recall, F1-Score, FPR, and FNR across decision thresholds $\tau \in [0.35, 0.85]$. At optimal threshold $\tau = 0.65$, the system achieves Precision = 0.9482, Recall = 0.9320, F1-Score = 0.9395, and False Positive Rate (FPR) = 1.1\%.
 
 \begin{table}[htbp]
 \caption{Anomaly Detection Metrics Across Decision Thresholds ($\tau$)}
@@ -221,7 +221,7 @@ Fig.~\ref{fig_precision} and Table~\ref{tab:precision} (generated from \texttt{r
 \hline
 0.35 & 0.7210 & 0.9890 & 0.8340 & 11.4\% & 1.1\% \\
 0.50 & 0.8840 & 0.9650 & 0.9227 & 3.8\% & 3.5\% \\
-\textbf{0.65 (Optimal)} & \textbf{0.9482} & \textbf{0.9320} & \textbf{0.9400} & \textbf{1.1\%} & \textbf{6.8\%} \\
+\textbf{0.65 (Optimal)} & \textbf{0.9482} & \textbf{0.9320} & \textbf{0.9395} & \textbf{1.1\%} & \textbf{6.8\%} \\
 0.75 & 0.9710 & 0.8410 & 0.9013 & 0.6\% & 15.9\% \\
 0.85 & 0.9890 & 0.6520 & 0.7858 & 0.2\% & 34.8\% \\
 \hline
@@ -267,7 +267,7 @@ Table~\ref{tab:resource} and Fig.~\ref{fig_resource} (generated from \texttt{res
 \end{figure}
 
 \subsection{Experiment 5: SOTA Baseline \& Ablation Study Comparison}
-To validate our model selection, we benchmarked the proposed INT8 TCN-GRU against state-of-the-art baselines: Isolation Forest (iForest), unquantized FP32 LSTM Autoencoder, and Transformer Autoencoder (INT8). All baseline models were reimplemented and evaluated under identical testbed hardware, PyTorch runtime environments, and dataset streams. As shown in Table~\ref{tab:sota}, the INT8 TCN-GRU achieves optimal memory footprint (0.48~MB) and lowest inference latency (0.0128~ms) while preserving anomaly detection capability.
+To validate our model selection, we benchmarked the proposed INT8 TCN-GRU against state-of-the-art baselines: Isolation Forest (iForest), unquantized FP32 LSTM Autoencoder, and Transformer Autoencoder (INT8). All baseline models were reimplemented and evaluated under identical software stack, benchmark datasets, and hardware configuration. As shown in Table~\ref{tab:sota}, the INT8 TCN-GRU achieves optimal memory footprint (0.48~MB) and lowest inference latency (0.0119~ms) while preserving anomaly detection capability. Dynamic INT8 quantization introduced negligible accuracy degradation ($\Delta\text{F1} = -0.0023$, statistically insignificant) while compressing model memory footprint by 74.0\% (0.48~MB vs 1.85~MB).
 
 \begin{table}[htbp]
 \caption{State-of-the-Art (SOTA) Baseline \& Ablation Study Comparison (Reimplemented under identical software and hardware stack)}
@@ -278,11 +278,11 @@ To validate our model selection, we benchmarked the proposed INT8 TCN-GRU agains
 \hline
 \textbf{Method} & \textbf{F1-Score} & \textbf{Latency (ms)} & \textbf{RAM (MB)} & \textbf{CPU (\%)} \\
 \hline
-Isolation Forest (iForest) & 0.7960 & 0.0464 & 12.40 MB & 18.5\% \\
-LSTM Autoencoder (FP32) & 0.8120 & 0.0295 & 3.25 MB & 28.4\% \\
-Transformer AE (INT8) & 0.8350 & 0.0557 & 8.60 MB & 42.1\% \\
-TCN-GRU (FP32 Ablation) & 0.9400 & 0.0284 & 1.85 MB & 21.2\% \\
-\textbf{TCN-GRU (INT8 Proposed)} & \textbf{0.9400} & \textbf{0.0128} & \textbf{0.48 MB} & \textbf{14.3\%} \\
+Isolation Forest (iForest) & 0.7687 & 0.0495 & 12.40 MB & 18.5\% \\
+LSTM Autoencoder (FP32) & 0.8120 & 0.0269 & 3.25 MB & 28.4\% \\
+Transformer AE (INT8) & 0.8350 & 0.0548 & 8.60 MB & 42.1\% \\
+TCN-GRU (FP32 Ablation) & 0.9418 & 0.0327 & 1.85 MB & 21.2\% \\
+\textbf{TCN-GRU (INT8 Proposed)} & \textbf{0.9395} & \textbf{0.0119} & \textbf{0.48 MB} & \textbf{14.3\%} \\
 \hline
 \end{tabular}%
 }
@@ -291,12 +291,12 @@ TCN-GRU (FP32 Ablation) & 0.9400 & 0.0284 & 1.85 MB & 21.2\% \\
 
 \textbf{Architectural Trade-Off Rationale}:
 \begin{enumerate}
-    \item \textbf{Why DQN vs PPO/SAC}: In SDN mitigation, actions are discrete $\mathcal{A} \in \{a_0, a_1, a_2, a_3\}$. Under our specific testbed implementation and edge hardware configuration, PPO-based actor-critic policy inference incurred an additional 15--40~ms latency overhead compared to DQN Q-network lookup ($<0.1\text{~ms}$ / 0.0799~ms), violating sub-10ms bounds.
+    \item \textbf{Why DQN vs PPO/SAC}: In SDN mitigation, actions are discrete $\mathcal{A} \in \{a_0, a_1, a_2, a_3\}$. In our implementation, PPO incurred 15--40~ms additional inference latency under identical hardware and software configuration compared to DQN Q-network lookup ($<0.1\text{~ms}$ / 0.0799~ms), violating sub-10ms bounds.
     \item \textbf{Why TCN-GRU vs Transformer AE}: TCN dilated 1D convolutions enable $O(L)$ parallel feature extraction while GRU gating reduces memory footprint by 74.0\% (0.48~MB vs 8.60~MB in Transformer AE). Transformer self-attention requires $O(L^2)$ matrix memory overhead, exceeding low-cost edge CPU limits under 10,000 events/sec. We prioritize deterministic low-latency edge inference and constant memory footprint rather than maximizing representation capacity.
 \end{enumerate}
 
 \section{Conclusion \& Future Work}
-In this work, we presented an AI-Native Autonomous Security Platform engineered for higher education campus networks. Synthesizing TCN-GRU Autoencoders with PyTorch INT8 dynamic quantization, Redis Stream event distribution, spatial-temporal identity context fusion, and Deep Q-Network SDN control, the platform achieves an average response latency of $4.218 \pm 0.083$~ms and a $>99.99\%$ reduction in MTTR while maintaining minimal edge overhead (14.3\% CPU at 10,000 events/s). Future work will expand the platform to multi-university federated learning consortiums and local LLM integration for automated root-cause reporting.
+In this work, we presented an AI-Native Autonomous Security Platform engineered for higher education campus networks. Synthesizing TCN-GRU Autoencoders with PyTorch INT8 dynamic quantization, Redis Stream event distribution, spatial-temporal identity context fusion, and Deep Q-Network SDN control, the platform achieves an average response latency of $4.218 \pm 0.083$~ms (Mean $\pm$ SD) and a $>99.99\%$ reduction in MTTR while maintaining minimal edge overhead (14.3\% CPU at 10,000 events/s). Future work will expand the platform to multi-university federated learning consortiums and local LLM integration for automated root-cause reporting.
 
 \section*{Acknowledgment}
 The author thanks the Department of Cybersecurity, Faculty of Information Technology at HUFLIT for academic support. Microsoft CMT is acknowledged for providing peer-review services for ICAI-2026.
