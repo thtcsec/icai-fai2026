@@ -1,20 +1,26 @@
 cff-version: 1.2.0
-message: "If you use this research artifact or reference our methodology, please cite our paper as below."
-title: "AI-Native Autonomous Security Platform: An Event-Driven Edge-Cloud Architecture for University Networks"
+message: "If you use this research artifact or reference our paper, please cite it as below."
+title: "An AI-Native Event-Driven Edge-Cloud Architecture for Autonomous Network Security and Resilience in Campus Infrastructure"
 authors:
-  - family-names: "Nguyen"
-    given-names: "Van A"
-    affiliation: "CMC University"
-  - family-names: "Schmidt"
-    given-names: "Hans"
-    affiliation: "Steinbeis University"
-  - family-names: "Zhang"
-    given-names: "Wei"
-    affiliation: "Tsinghua University SIGS"
+  - family-names: "Tu"
+    given-names: "Trinh Hoang"
+    email: "tht.csec2005@gmail.com"
+    affiliation: "Department of Cybersecurity, Faculty of Information Technology, Ho Chi Minh City University of Foreign Languages - Information Technology (HUFLIT)"
+    orcid: "https://orcid.org/0000-0000-0000-0000"
+type: conference-paper
 conference:
   name: "The Second International Conference on AI: AI Native for University (ICAI-2026)"
   location: "Hanoi, Vietnam"
-  date-start: "2026-12-03"
-  date-end: "2026-12-03"
-year: 2026
-url: "https://icai.cmcu.edu.vn"
+  date-start: "2026-11-15"
+  date-end: "2026-11-17"
+date-released: 2026-07-27
+repository-code: "https://github.com/thtcsec/icai-fai2026"
+keywords:
+  - "AI-Native Security"
+  - "Edge Computing"
+  - "Event-Driven Architecture"
+  - "TCN-GRU Autoencoder"
+  - "Deep Reinforcement Learning"
+  - "Software-Defined Networking"
+license: MIT
+version: 1.0.0
