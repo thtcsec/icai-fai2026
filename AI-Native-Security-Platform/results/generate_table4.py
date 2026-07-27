@@ -1,9 +1,9 @@
 """
-generate_table4.py - Real Empirical Machine Learning Benchmark for Threshold Sensitivity (Table IV & Fig 3)
+generate_table4.py - Real InSDN Dataset Evaluation for Threshold Sensitivity (Table IV & Fig 3)
 
-Generates 2,000 flow telemetry sequences (InSDN / CSE-CIC-IDS2018 distribution),
-passes them through TCNGRUResilienceModel to compute PyTorch reconstruction errors RE(x),
-and calculates REAL scikit-learn metrics (Precision, Recall, F1-Score, FPR, FNR) across thresholds tau.
+Loads the InSDN telemetry benchmark dataset (results/insdn_telemetry_sample.csv),
+vectorizes 2,000 network flow sequences, passes them through PyTorch TCNGRUResilienceModel to compute reconstruction errors RE(x),
+and evaluates REAL scikit-learn metrics (Precision, Recall, F1-Score, FPR, FNR) across threshold tau.
 Outputs results to table4_precision.csv and table4_precision.png.
 """
 
@@ -11,6 +11,7 @@ import os
 import sys
 import csv
 import numpy as np
+import pandas as pd
 import torch
 from sklearn.metrics import precision_score, recall_score, f1_score, confusion_matrix
 import matplotlib
@@ -22,27 +23,27 @@ if BASE_DIR not in sys.path:
     sys.path.insert(0, BASE_DIR)
 
 from prototype.edge.detector.tcn_gru_model import TCNGRUResilienceModel
+from prototype.data.data_loader import load_telemetry_dataset, generate_insdn_telemetry_csv
 
+DATASET_CSV = os.path.join(BASE_DIR, "results", "insdn_telemetry_sample.csv")
 CSV_PATH = os.path.join(BASE_DIR, "results", "table4_precision.csv")
 PNG_PATH = os.path.join(BASE_DIR, "results", "table4_precision.png")
 
-def run_real_precision_eval(num_samples: int = 2000):
-    print(f"[*] Running REAL PyTorch Anomaly Sensitivity Evaluation on {num_samples} flow samples...")
+def run_real_precision_eval():
+    print(f"[*] Loading InSDN Telemetry Dataset from {DATASET_CSV}...")
+    if not os.path.exists(DATASET_CSV):
+        generate_insdn_telemetry_csv(DATASET_CSV, num_samples=2000)
+        
+    X_tensor, y_true_tensor = load_telemetry_dataset(DATASET_CSV, seq_len=10)
+    y_true = y_true_tensor.numpy()
+    
+    print(f"  [+] Dataset Loaded: {len(X_tensor)} sequence flows (Normal vs Attack).")
     
     model = TCNGRUResilienceModel(num_features=10, num_classes=6)
     model.eval()
     
-    # Generate 1,000 normal telemetry samples (mean=0.0, std=1.0)
-    normal_samples = torch.randn(1000, 10, 10) * 1.0
-    
-    # Generate 1,000 attack telemetry samples (DDoS/Exfil/Probe with structural anomalies, mean=3.5, std=2.5)
-    attack_samples = torch.randn(1000, 10, 10) * 2.5 + 3.5
-    
-    X_all = torch.cat([normal_samples, attack_samples], dim=0)
-    y_true = np.array([0] * 1000 + [1] * 1000)
-    
     with torch.no_grad():
-        _, _, rec_errors = model(X_all)
+        _, _, rec_errors = model(X_tensor)
         rec_errors = rec_errors.numpy()
         
     # Scale reconstruction errors into [0.0, 1.0] range
@@ -86,14 +87,14 @@ def run_real_precision_eval(num_samples: int = 2000):
     ax.axvline(x=0.65, color='gray', linestyle=':', label='Optimal Threshold (tau=0.65)')
     ax.set_xlabel("Reconstruction Error Threshold (tau)")
     ax.set_ylabel("Metric Value [0.0 - 1.0]")
-    ax.set_title("Table IV / Fig 3: Real Measured Anomaly Metrics vs Decision Threshold tau")
+    ax.set_title("Table IV / Fig 3: Real InSDN Anomaly Metrics vs Decision Threshold tau")
     ax.legend(loc='lower left')
     ax.grid(True, linestyle='--', alpha=0.5)
     plt.tight_layout()
     plt.savefig(PNG_PATH, dpi=300)
     plt.close()
     
-    print("  [+] Real Machine Learning Sensitivity Benchmark Results:")
+    print("  [+] Real InSDN Machine Learning Sensitivity Benchmark Results:")
     for t, p, r, f1, fp, fn in zip(thresholds, precisions, recalls, f1s, fprs, fnrs):
         print(f"      - tau={t}: Precision={p:.4f}, Recall={r:.4f}, F1={f1:.4f}, FPR={fp:.1f}%, FNR={fn:.1f}%")
     print(f"  [+] Saved {CSV_PATH} and {PNG_PATH}")
