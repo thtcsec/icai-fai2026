@@ -1,0 +1,4 @@
+Operational Paradigm,Mean MTTR (s),Min MTTR (s),Max MTTR (s)
+Manual SOC Triage,1512.4,1020.0,2980.0
+Legacy Rule SIEM,68.5,36.2,138.0
+AI-Native Autonomous,0.0085,0.0031,0.012
