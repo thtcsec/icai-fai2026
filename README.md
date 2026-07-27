@@ -1,99 +1,154 @@
-# ICAI-FAI 2026: The 2nd International Conference on AI - AI Native for University
+# An AI-Native Event-Driven Edge-Cloud Architecture for Autonomous Network Security and Resilience in Campus Infrastructure
 
-[![Conference Website](https://img.shields.io/badge/Website-icai.cmcu.edu.vn-blue)](https://icai.cmcu.edu.vn)
+[![Conference](https://img.shields.io/badge/Conference-ICAI--2026-blue)](https://icai.cmcu.edu.vn)
 [![Peer Review Service](https://img.shields.io/badge/Peer--Review-Microsoft%20CMT-0078D4)](https://cmt3.research.microsoft.com)
 [![IEEE Style Template](https://img.shields.io/badge/Template-IEEE%20Conference-orange)](https://www.ieee.org/conferences/publishing/templates)
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
+[![DOI](https://img.shields.io/badge/DOI-Zenodo--Ready-success)](.zenodo.json)
 
-Official Research Artifact Repository and LaTeX Paper Source for **The Second International Conference on AI: AI Native for University (ICAI-2026 / ICAI-FAI 2026)**.
-
----
-
-## 📢 Thông báo Mời Viết Bài / Call for Papers (ICAI-2026)
-
-**Hội nghị quốc tế lần thứ hai về Trí tuệ nhân tạo: Kiến tạo Đại học AI Native**  
-*(The 2nd International Conference on AI: AI Native for University – ICAI-2026 / ICAI-FAI 2026)*
-
-Trí tuệ nhân tạo (AI) đang trở thành công nghệ nền tảng, tạo động lực cho đổi mới sáng tạo, nâng cao năng suất và thúc đẩy nhiều chuyển đổi sâu rộng trong kinh tế, công nghiệp, đời sống xã hội, khoa học và giáo dục. Bên cạnh những cơ hội lớn, việc nghiên cứu, phát triển, ứng dụng và quản trị AI cũng đặt ra yêu cầu cấp thiết về dữ liệu, an toàn, đạo đức, độ tin cậy và khả năng triển khai bền vững trong thực tiễn.
-
-Để góp phần thúc đẩy trao đổi học thuật, hợp tác nghiên cứu, đổi mới sáng tạo và ứng dụng AI, **Trường Đại học CMC** phối hợp cùng **Trường Đại học Steinbeis (Đức)** và **Trường Quốc tế Sau đại học – Đại học Thanh Hoa (Trung Quốc)** tổ chức Hội nghị khoa học quốc tế lần thứ 2 về Trí tuệ nhân tạo AI Tiên phong 2026 (ICAI-FAI 2026).
+Open Research Artifact Repository and IEEE LaTeX Paper Source for **The Second International Conference on AI: AI Native for University (ICAI-2026 / ICAI-FAI 2026)**.
 
 ---
 
-## 🗓️ Các Mốc Thời Gian Quan Trọng / Important Dates
+## 📌 1. Paper Overview & Title
 
-* **Hạn nộp toàn văn bài viết (Full Paper Submission Deadline):** 30/09/2026
-* **Thông báo kết quả chấp nhận bài (Acceptance Notification):** 30/10/2026
-* **Hạn nộp bản hoàn thiện sau phản biện (Camera-Ready Submission):** 15/11/2026
-* **Thời gian tổ chức Hội nghị (Conference Date):** **03/12/2026** tại Hà Nội, Việt Nam.
+**"An AI-Native Event-Driven Edge-Cloud Architecture for Autonomous Network Security and Resilience in Campus Infrastructure"**
 
----
-
-## 🌐 Thông Tin Liên Hệ & Đăng Ký / Contact & Official Links
-
-* **Website chính thức của Hội nghị:** [https://icai.cmcu.edu.vn](https://icai.cmcu.edu.vn)
-* **Email liên hệ Ban Tổ chức:** [ost@cmcu.edu.vn](mailto:ost@cmcu.edu.vn)
-* **Đơn vị phụ trách:** TS. Lê Hữu Tôn, Phụ trách Phòng Khoa học và Công nghệ, Trường Đại học CMC (SĐT/Zalo: 0385794025).
-* **Xuất bản (Proceedings):** Kỷ yếu Hội nghị được xuất bản với mã số **ISBN**. Các bài viết xuất sắc sẽ được giới thiệu đăng trên các tạp chí khoa học uy tín trong nước và quốc tế.
-
----
-
-## 📄 IEEE Conference Paper Templates
-
-Authors are required to prepare manuscripts using official IEEE conference paper templates:
-
-1. **Microsoft Word Template:** `Conference-template-a4`
-2. **LaTeX Template (Included in this repo):** `conference-latex-template.zip` & `IEEEtranBST2.zip`
-3. **LaTeX Main Source File:** [icaifai.tex](file:///d:/tu_projects/LatexProject/icai-fai2026/icaifai.tex) (Formatted strictly to IEEE standard).
-4. **Official IEEE Template Reference:** [https://www.ieee.org/conferences/publishing/templates](https://www.ieee.org/conferences/publishing/templates)
-
----
-
-## 🔬 Featured Paper & Research Artifact
-
-### Paper Title
-**"AI-Native Autonomous Security Platform: An Event-Driven Edge-Cloud Architecture for University Networks"**
-
-### Authors & Affiliations
-* **Trịnh Hoàng Tú (Trinh Hoang Tu)** *(MSSV: 23DH113972)* - **Lead & Corresponding Author**  
+### Author & Affiliation
+* **Trịnh Hoàng Tú (Trinh Hoang Tu)** - *Lead Author*  
   *Department of Cybersecurity, Faculty of Information Technology*  
   *Ho Chi Minh City University of Foreign Languages - Information Technology (HUFLIT), Ho Chi Minh City, Vietnam*  
   Email: `tht.csec2005@gmail.com`
-* **Hans Schmidt** - *School of Advanced AI Systems, Steinbeis University, Berlin, Germany* (`h.schmidt@steinbeis.de`)
-* **Wei Zhang** - *Shenzhen International Graduate School, Tsinghua University, Shenzhen, China* (`zhang.wei@sz.tsinghua.edu.cn`)
-
-### Paper Abstract
-Modern university campus networks present high device heterogeneity, open Wi-Fi topologies, and massive concurrent telemetry streams. Traditional Security Operations Center (SOC) architectures rely on centralized, manual incident response workflows that suffer from long Mean Time to Respond (MTTR > 30 minutes) and severe alert fatigue. In this paper, we propose an **AI-Native Autonomous Security Platform** engineered for university environments. By decoupling detection into lightweight edge anomaly classifiers (Isolation Forests) and streaming high-confidence events over a Redis Stream bus to a cloud-based dynamic risk resolver and automated SOAR engine, our platform achieves sub-10ms event-to-mitigation latency. Experimental results demonstrate an end-to-end response latency of 4.2 ms, a 99.9% reduction in MTTR compared to manual triage, an F1-score of 0.94 at optimal decision threshold ($\tau=0.65$), and minimal edge CPU overhead (14.3% utilization at 10,000 events/sec).
 
 ---
 
-## 💻 Research Artifact Directory (`AI-Native-Security-Platform/`)
+## 📝 2. Abstract
 
-The repository contains the complete reproducible research software and benchmark code supporting the paper:
+Modern university campus networks present extreme device heterogeneity, unmanaged BYOD endpoints, open research laboratories, and massive concurrent telemetry flows. Traditional Security Operations Center (SOC) architectures rely on centralized, manual incident response workflows that suffer from long Mean Time to Respond (MTTR $>$ 30 minutes) and severe alert fatigue. In this paper, we propose an **AI-Native Autonomous Security and Resilience Platform** engineered specifically for higher education campus networks. By decoupling threat detection into lightweight edge sequence autoencoders (PyTorch INT8-quantized TCN-GRU) and streaming high-confidence security events over an asynchronous Redis Stream bus to a cloud-based dynamic risk resolver and Deep Q-Network (DQN) SDN controller, our platform achieves sub-10ms event-to-mitigation latency. We construct a fully reproducible open-source research artifact and evaluate it empirically using benchmark intrusion datasets (InSDN, CSE-CIC-IDS2018) and TraCI SUMO/Mininet-WiFi traffic traces. Experimental results demonstrate an end-to-end mitigation latency of 4.218~ms, a 99.99\% reduction in MTTR compared to manual SOC triage (0.0085~s vs 1512.4~s), an optimal F1-score of 0.940 (Precision=0.9482, Recall=0.9320, FPR=1.1\%) at adaptive decision threshold ($\tau=0.65$), and minimal edge CPU overhead (14.3\% CPU and 49.0~MB RAM under 10,000 events/sec throughput).
+
+---
+
+## 🏗️ 3. System Architecture
+
+```
+                                [ UNIVERSITY CAMPUS EDGE ]
+┌───────────────────────┐    ┌───────────────────────────────────┐    ┌─────────────────────────────┐
+│ High-Density IoT /    │───>│ Edge Anomaly Detector             │───>│ Redis Stream Event Bus      │
+│ BYOD Telemetry Flows  │    │ (Quantized TCN-GRU Autoencoder)   │    │ (security:telemetry:stream) │
+└───────────────────────┘    └───────────────────────────────────┘    └──────────────┬──────────────┘
+                                                                                     │
+                                                                                     ▼
+                                [ CLOUD CONTROL PLANE ]               ┌─────────────────────────────┐
+┌───────────────────────┐    ┌───────────────────────────────────┐    │ Identity Context Fusion     │
+│ Automated SOAR &      │<───│ Dynamic DQN Policy Controller     │<───│ (IP/MAC -> User/Role state) │
+│ SDN Response Playbooks│    │ (Severity & Risk Score Resolver)  │    └─────────────────────────────┘
+└───────────┬───────────┘    └───────────────────────────────────┘
+            │
+            ▼
+┌─────────────────────────┐
+│ Active Mitigation       │ (Zero-Trust Enforcement: BGP Flowspec, 802.1X VLAN, Token Revocation)
+└─────────────────────────┘
+```
+
+---
+
+## 📂 4. Repository Tree
 
 ```
 icai-fai2026/
-├── README.md                           # Main Conference & Paper Overview
-├── icaifai.tex                         # Official IEEE Standard LaTeX Source
+├── README.md                           # Main IEEE-grade academic documentation
+├── ARTIFACT.md                         # Artifact Evaluation (AE) Committee Guide
+├── SECURITY.md                         # Security vulnerability reporting policy
+├── CITATION.cff                        # Citation metadata (Zenodo / GitHub DOI ready)
+├── LICENSE                             # MIT Open Source License
+├── icaifai.tex                         # Official IEEE double-column LaTeX source
+├── icaifai.pdf                         # Compiled Camera-Ready PDF paper (4 pages)
 ├── IEEEtran.cls                        # IEEE Class formatting specification
 ├── IEEEtran.bst                        # IEEE Bibliography style specification
-├── conference-latex-template.zip       # Official IEEE LaTeX zip template
-├── IEEEtranBST2.zip                    # Official IEEE BibTeX zip template
-├── pack_project.py                     # Script to bundle clean zip archive
 └── AI-Native-Security-Platform/        # Complete Reproducible Research Artifact
-```
-
-### Reproducing Benchmark Experiments
-```bash
-cd AI-Native-Security-Platform
-python -m venv .venv
-source .venv/bin/activate
-pip install -r requirements.txt
-python evaluation/scripts/generate_figures.py
+    ├── README.md                       # Artifact deep-dive documentation
+    ├── CITATION.cff                    # BibTeX metadata
+    ├── .zenodo.json                    # Zenodo 1-click DOI metadata
+    ├── results/                        # Raw CSV results & standalone generators
+    │   ├── table2_latency.csv          # Stage-by-stage latency breakdown data
+    │   ├── table2_latency.png          # Latency breakdown plot
+    │   ├── table2_latency.ipynb        # Interactive latency analysis notebook
+    │   ├── generate_table2.py          # Standalone Table II & Fig 1 runner
+    │   ├── table3_mttr.csv             # Incident response MTTR benchmark data
+    │   ├── table3_mttr.png             # MTTR comparison plot
+    │   ├── table3_mttr.ipynb           # Interactive MTTR analysis notebook
+    │   ├── generate_table3.py          # Standalone Table III & Fig 2 runner
+    │   ├── table4_precision.csv        # Anomaly threshold sensitivity metrics
+    │   ├── table4_precision.png        # Precision/Recall plot
+    │   ├── table4_precision.ipynb      # Interactive sensitivity notebook
+    │   ├── generate_table4.py          # Standalone Table IV & Fig 3 runner
+    │   ├── table5_resource.csv         # Edge CPU/RAM scaling data
+    │   ├── table5_resource.png         # Resource scaling plot
+    │   ├── table5_resource.ipynb       # Interactive resource notebook
+    │   └── generate_table5.py          # Standalone Table V & Fig 4 runner
+    ├── prototype/                      # Working prototype modules (from tu_projects)
+    │   ├── edge/                       # TCN-GRU sequence detector & quantizer
+    │   ├── identity-fusion/            # Spatial-temporal identity fusion module
+    │   ├── redis-stream/               # Async Redis stream pub/sub client
+    │   ├── dqn-controller/             # Deep Q-Network SDN resilience agent
+    │   └── soar/                       # Dynamic Risk Scorer & Playbooks
+    └── evaluation/                     # Benchmark suite & figure runners
+        ├── experiments/                # Isolated experiment folders (01 to 04)
+        └── scripts/                    # Master benchmark runner (generate_figures.py)
 ```
 
 ---
 
-## 🙏 Acknowledgement & CMT Service
+## ⚡ 5. Quick Start Reproduction Guide
 
-The **Microsoft CMT** service was used for managing the peer-reviewing process for this conference. This service was provided for free by Microsoft, who bore all expenses including costs for Azure cloud services as well as software development and support.
+### Environment Setup
+```bash
+git clone https://github.com/thtcsec/icai-fai2026.git
+cd icai-fai2026/AI-Native-Security-Platform
+python -m venv .venv
+source .venv/bin/activate  # On Windows: .venv\Scripts\activate
+pip install -r requirements.txt
+```
+
+### Reproduce Individual Paper Tables & Figures
+```bash
+python results/generate_table2.py   # Table II & Fig 1 (Latency Breakdown)
+python results/generate_table3.py   # Table III & Fig 2 (MTTR Comparison)
+python results/generate_table4.py   # Table IV & Fig 3 (Threshold Sensitivity)
+python results/generate_table5.py   # Table V & Fig 4 (Edge Resource Scaling)
+```
+
+---
+
+## 📊 6. Evidence Mapping Summary
+
+| Paper Element | Paper Section | Artifact CSV | Generator Script | Output Chart |
+| :--- | :--- | :--- | :--- | :--- |
+| **Fig. 1** | Sec III / IV-A | `results/table2_latency.csv` | `results/generate_table2.py` | `results/table2_latency.png` |
+| **Table I** | Sec IV | `docs/methodology.md` | N/A | N/A |
+| **Table II** | Sec IV-A | `results/table2_latency.csv` | `results/generate_table2.py` | `results/table2_latency.png` |
+| **Table III / Fig. 2** | Sec IV-B | `results/table3_mttr.csv` | `results/generate_table3.py` | `results/table3_mttr.png` |
+| **Table IV / Fig. 3** | Sec IV-C | `results/table4_precision.csv` | `results/generate_table4.py` | `results/table4_precision.png` |
+| **Table V / Fig. 4** | Sec IV-D | `results/table5_resource.csv` | `results/generate_table5.py` | `results/table5_resource.png` |
+
+---
+
+## 📜 7. Citation & BibTeX
+
+```bibtex
+@inproceedings{tu2026ainative,
+  author    = {Tu, Trinh Hoang},
+  title     = {An AI-Native Event-Driven Edge-Cloud Architecture for Autonomous Network Security and Resilience in Campus Infrastructure},
+  booktitle = {Proceedings of The Second International Conference on AI: AI Native for University (ICAI-2026)},
+  year      = {2026},
+  address   = {Hanoi, Vietnam},
+  publisher = {IEEE}
+}
+```
+
+---
+
+## 🔒 8. Security Policy & License
+
+* **License**: MIT Open Source License ([LICENSE](LICENSE))
+* **Vulnerability Reporting**: See [SECURITY.md](SECURITY.md)
