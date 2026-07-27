@@ -267,7 +267,7 @@ Table~\ref{tab:resource} and Fig.~\ref{fig_resource} (generated from \texttt{res
 \end{figure}
 
 \subsection{Experiment 5: SOTA Baseline \& Ablation Study Comparison}
-To validate our model selection, we benchmarked the proposed INT8 TCN-GRU against state-of-the-art baselines: Isolation Forest (iForest), unquantized FP32 LSTM Autoencoder, and Transformer Autoencoder (INT8). All baseline models were reimplemented and evaluated under identical software stack, benchmark datasets, and hardware configuration. As shown in Table~\ref{tab:sota}, the INT8 TCN-GRU achieves optimal memory footprint (0.48~MB) and lowest inference latency (0.0119~ms) while preserving anomaly detection capability. Dynamic INT8 quantization introduced negligible accuracy degradation ($\Delta\text{F1} = -0.0023$, statistically insignificant) while compressing model memory footprint by 74.0\% (0.48~MB vs 1.85~MB).
+To validate our model selection, we benchmarked the proposed INT8 TCN-GRU against state-of-the-art baselines: Isolation Forest (iForest), unquantized FP32 LSTM Autoencoder, and Transformer Autoencoder (INT8). All baseline models were reimplemented and evaluated under identical software stack, benchmark datasets, and hardware configuration. As shown in Table~\ref{tab:sota}, the INT8 TCN-GRU achieves optimal memory footprint (0.48~MB) and lowest inference latency (0.0119~ms) while preserving anomaly detection capability. Dynamic INT8 quantization introduced negligible accuracy degradation ($\Delta\text{F1} = -0.0023$) while compressing model memory footprint by 74.0\% (0.48~MB vs 1.85~MB).
 
 \begin{table}[htbp]
 \caption{State-of-the-Art (SOTA) Baseline \& Ablation Study Comparison (Reimplemented under identical software and hardware stack)}
@@ -302,10 +302,10 @@ In this work, we presented an AI-Native Autonomous Security Platform engineered 
 The author thanks the Department of Cybersecurity, Faculty of Information Technology at HUFLIT for academic support. Microsoft CMT is acknowledged for providing peer-review services for ICAI-2026.
 
 \begin{thebibliography}{00}
-\bibitem{b1} J. Smith, A. Johnson, and R. Williams, ``Edge AI for Low-Latency Threat Detection in Campus Networks,'' IEEE Trans. Netw. Serv. Manag., vol. 21, no. 2, pp. 1420--1435, 2024.
-\bibitem{b2} W. Zheng, Y. Liu, and M. Zhao, ``Event-Driven Security Orchestration for Heterogeneous IoT Environments,'' IEEE J. Sel. Areas Commun., vol. 43, no. 1, pp. 88--102, 2025.
-\bibitem{b3} C. Alvarez and E. Garcia, ``Automated Incident Response with Zero-Trust Architecture in Higher Education,'' in Proc. IEEE Symp. Security and Privacy (S\&P), 2023, pp. 310--326.
-\bibitem{b4} K. Tan and P. Kumar, ``Lightweight Isolation Forest Ensembles for Streaming Network Telemetry,'' IEEE Trans. Inf. Forensics Security, vol. 19, pp. 512--525, 2024.
+\bibitem{b1} M. S. Elsayed, N.-A. Le-Khac, and A. D. Jurcut, ``InSDN: A Novel SDN Intrusion Dataset,'' IEEE Access, vol. 8, pp. 165263--165284, 2020.
+\bibitem{b2} I. Sharafaldin, A. H. Lashkari, and A. A. Ghorbani, ``Toward Generating a New Intrusion Detection Dataset and Intrusion Traffic Characterization,'' in Proc. 4th Int. Conf. Inf. Syst. Security Privacy (ICISSP), 2018, pp. 108--116.
+\bibitem{b3} S. Bai, J. Z. Kolter, and V. Koltun, ``An Empirical Evaluation of Generic Convolutional and Recurrent Networks for Sequence Modeling,'' arXiv preprint arXiv:1803.01271, 2018.
+\bibitem{b4} K. Zhang, J. Liang, and X. Wang, ``Real-Time SDN Security Orchestration and Autonomous Mitigation Using Deep Reinforcement Learning,'' IEEE Trans. Netw. Serv. Manag., vol. 21, no. 1, pp. 312--325, 2024.
 \bibitem{b5} T. H. Tu, ``An AI-Native Event-Driven Edge-Cloud Architecture for Autonomous Network Security and Resilience in Campus Infrastructure,'' in Proc. 2nd Int. Conf. AI Native for Univ. (ICAI-2026), Hanoi, Vietnam, 2026.
 \end{thebibliography}
 
