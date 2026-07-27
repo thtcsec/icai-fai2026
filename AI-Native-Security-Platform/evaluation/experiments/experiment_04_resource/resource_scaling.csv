@@ -1,0 +1,5 @@
+Throughput (events/s),AI Edge CPU (%),AI Edge RAM (MB),Legacy DPI CPU (%),Legacy DPI RAM (MB)
+100,2.12%,45.4 MB,8.78%,121.8 MB
+1000,3.15%,45.4 MB,15.8%,138.5 MB
+5000,7.75%,47.2 MB,47.0%,212.5 MB
+10000,14.3%,49.0 MB,86.0%,305.0 MB
