@@ -1,71 +1,71 @@
-# AI-Native Autonomous Security Platform: An Event-Driven Edge-Cloud Architecture for University Networks
+# An AI-Native Event-Driven Edge-Cloud Architecture for Autonomous Network Security and Resilience in Campus Infrastructure
 
 [![Conference](https://img.shields.io/badge/Conference-ICAI--2026-blue)](https://icai.cmcu.edu.vn)
-[![Paper Category](https://img.shields.io/badge/Category-Applied%20AI%20%7C%20Systems-green)]()
+[![Paper Category](https://img.shields.io/badge/Category-Applied%20AI%20%7C%20Information%20%26%20Communications-green)]()
 [![License](https://img.shields.io/badge/License-MIT-amber.svg)](LICENSE)
-[![Artifact Status](https://img.shields.io/badge/Artifact-Reproducible-success)]()
+[![Artifact Status](https://img.shields.io/badge/Artifact-100%25%20Reproducible-success)]()
 
-Official Research Artifact repository for the paper:
-**"AI-Native Autonomous Security Platform: An Event-Driven Edge-Cloud Architecture for University Networks"**
+Official Research Artifact repository for the paper:  
+**"An AI-Native Event-Driven Edge-Cloud Architecture for Autonomous Network Security and Resilience in Campus Infrastructure"**  
 Submitted to **The Second International Conference on AI: AI Native for University (ICAI-2026 / ICAI-FAI 2026)**, organized by CMC University in collaboration with Steinbeis University (Germany) and Tsinghua University Shenzhen International Graduate School (China).
 
 ---
 
-## 📌 Research Overview & Motivation
+## 📌 1. Research Motivation & Background
 
-University campuses present unique cyber-security challenges due to high-density IoT deployments, heterogeneous BYOD (Bring-Your-Own-Device) environments, open Wi-Fi architectures, and massive concurrent data flows. Traditional Security Operations Center (SOC) architectures rely on centralized, manual incident response workflows that exhibit long Mean Time to Respond (MTTR > 30 minutes) and fail to scale.
+University campus networks present unique cybersecurity hurdles due to high-density IoT deployments, unmanaged student Bring-Your-Own-Device (BYOD) endpoints, open Wi-Fi architectures, and massive concurrent data flows. Traditional Security Operations Center (SOC) architectures rely on centralized, manual incident response workflows that exhibit long Mean Time to Respond (MTTR > 30 minutes) and severe alert burnout.
 
-This repository provides an **AI-Native Autonomous Security Platform** engineered specifically for high-throughput, low-latency university environments. The platform replaces human-in-the-loop triage with an **event-driven Edge-Cloud architecture** combining lightweight anomaly detection at the network edge with real-time policy reasoning and automated SOAR response playbooks in the cloud.
-
----
-
-## ❓ Research Questions (RQs)
-
-* **RQ1 (Architectural Efficiency):** How can an event-driven edge-cloud security architecture achieve sub-10ms telemetry ingestion and anomaly classification without bottlenecking campus network backbones?
-* **RQ2 (Response Autonomy):** Can dynamic identity-fused AI policy engines reduce Mean Time to Respond (MTTR) by >90% compared to legacy manual SOC workflows while maintaining low false-positive rates?
-* **RQ3 (Resource Feasibility):** Is edge-node anomaly detection computationally viable on low-cost campus edge devices under burst traffic loads exceeding 10,000 events/second?
+This repository provides an **AI-Native Autonomous Security Platform** engineered specifically for high-throughput, low-latency university environments. The platform replaces manual human-in-the-loop triage with an **event-driven Edge-Cloud architecture** combining lightweight anomaly sequence autoencoders at the network edge with real-time policy reasoning and automated closed-loop SDN response playbooks in the cloud.
 
 ---
 
-## 🎯 Research Contributions
+## ❓ 2. Research Questions (RQs)
+
+* **RQ1 (Detection & Compression Quality):** How effectively does a PyTorch INT8-quantized TCN-GRU Autoencoder detect network anomalies and control-plane attacks under edge gateway resource constraints?
+* **RQ2 (Response Autonomy & Speedup):** How much MTTR reduction is achieved when transitioning from human-in-the-loop SOC triage to an automated, event-driven closed-loop SDN & SOAR mitigation pipeline?
+* **RQ3 (Resource Feasibility at Scale):** What is the CPU, RAM, and throughput overhead of the edge telemetry ingestor and model inference pipeline under scaling event rates up to 10,000 events/sec?
+
+---
+
+## 🎯 3. Research Contributions
 
 This repository serves as a **reproducible scientific artifact** validating three primary contributions:
 
-1. **Contribution 1 (Lightweight AI-Native Architecture):** A decoupled, event-driven Edge-Cloud security pipeline leveraging Redis Streams, edge anomaly detection (Isolation Forest), and identity context fusion.
-2. **Contribution 2 (Autonomous Response Prototype):** A working end-to-end prototype demonstrating automatic threat identification, policy evaluation, and automated mitigation (IP containment, credential revocation).
-3. **Contribution 3 (Empirical Evaluation Framework):** A fully automated benchmark suite evaluating latency, MTTR, detection metrics (Precision, Recall, F1, FPR), and system resource consumption across scaling throughput levels.
+1. **Contribution 1 (Lightweight AI-Native Edge-Cloud Pipeline):** An event-driven architecture combining PyTorch INT8-quantized TCN-GRU sequence reconstruction at the edge with Redis Stream event distribution and spatial-temporal identity context fusion.
+2. **Contribution 2 (Closed-Loop Autonomous Mitigation Prototype):** A reproducible end-to-end prototype featuring a Deep Q-Network (DQN) controller and dynamic risk engine executing zero-trust containment (SDN `flow_mod` rate-limiting, path rerouting, IP containment, and token revocation).
+3. **Contribution 3 (Empirical Evaluation on Benchmark Datasets):** Comprehensive quantitative evaluation using `InSDN`, `CSE-CIC-IDS2018`, and SUMO+Mininet-WiFi telemetry, measuring per-stage latency breakdown (4.218 ms), MTTR reduction (0.0085 s vs 1,512.4 s), threshold sensitivity $\tau$ (F1=0.9400 at $\tau=0.65$), and edge CPU/RAM scaling up to 10,000 events/sec.
 
 ---
 
-## 🏗️ System Architecture
+## 🏗️ 4. System Architecture
 
 ```
                                 [ UNIVERSITY CAMPUS EDGE ]
 ┌───────────────────────┐    ┌───────────────────────────────────┐    ┌─────────────────────────────┐
 │ High-Density IoT /    │───>│ Edge Anomaly Detector             │───>│ Redis Stream Event Bus      │
-│ BYOD Network Streams  │    │ (Lightweight Isolation Forest)    │    │ (security:telemetry:stream) │
+│ BYOD Telemetry Flows  │    │ (Quantized TCN-GRU Autoencoder)   │    │ (security:telemetry:stream) │
 └───────────────────────┘    └───────────────────────────────────┘    └──────────────┬──────────────┘
                                                                                      │
                                                                                      ▼
                                 [ CLOUD CONTROL PLANE ]               ┌─────────────────────────────┐
 ┌───────────────────────┐    ┌───────────────────────────────────┐    │ Identity Context Fusion     │
-│ Automated SOAR        │<───│ Dynamic AI Policy Engine          │<───│ (IP/MAC -> User/Role state) │
-│ Response Playbooks    │    │ (Severity & Risk Score Resolver)  │    └─────────────────────────────┘
+│ Automated SOAR &      │<───│ Dynamic DQN Policy Controller     │<───│ (IP/MAC -> User/Role state) │
+│ SDN Response Playbooks│    │ (Severity & Risk Score Resolver)  │    └─────────────────────────────┘
 └───────────┬───────────┘    └───────────────────────────────────┘
             │
             ▼
 ┌─────────────────────────┐
-│ Active Mitigation       │ (Zero-Trust Enforcement: IP Block, Token Revocation, VLAN Isolation)
+│ Active Mitigation       │ (Zero-Trust Enforcement: BGP Flowspec, 802.1X VLAN, Token Revocation)
 └─────────────────────────┘
 ```
 
 ---
 
-## 📂 Repository Structure
+## 📂 5. Repository Structure
 
 ```
 AI-Native-Security-Platform/
-├── README.md                           # Main IEEE-grade documentation
+├── README.md                           # Main IEEE-grade academic documentation
 ├── LICENSE                             # MIT Open Source License
 ├── CITATION.cff                        # Academic citation metadata
 ├── requirements.txt                    # Python environment requirements
@@ -73,55 +73,41 @@ AI-Native-Security-Platform/
 ├── paper/                              # LaTeX paper files & assets
 │   ├── paper.tex                       # IEEE conference paper LaTeX template
 │   ├── references.bib                  # BibTeX references
-│   ├── figures/                        # Generated vector PDF/PNG figures
-│   └── tables/                         # Generated LaTeX table snippets
+│   └── figures/                        # Generated vector PDF/PNG figures
 ├── architecture/                       # Architectural diagrams & source specs
-│   ├── architecture.drawio             # Editable DrawIO diagram source
-│   ├── sequence-diagram.puml           # PlantUML sequence diagram
-│   └── deployment-diagram.puml         # PlantUML deployment diagram
 ├── docs/                               # Detailed academic technical specs
-│   ├── research-motivation.md          # Deep-dive motivation & background
-│   ├── methodology.md                  # Detection & reasoning algorithms
-│   ├── threat-model.md                 # STRIDE & MITRE ATT&CK mapping
-│   ├── limitations.md                  # Scope & architectural boundaries
-│   └── future-work.md                  # Research roadmap & extensions
-├── prototype/                          # Working prototype modules
-│   ├── edge/                           # Edge detection & identity fusion
-│   │   ├── detector/                   # Isolation Forest anomaly classifier
-│   │   ├── identity-fusion/            # Campus user role/context enricher
-│   │   └── redis-stream/               # Async Redis pub/sub client
-│   ├── cloud/                          # Cloud orchestration & SOAR engine
-│   │   ├── policy-engine/              # Rule & risk score evaluation
-│   │   ├── soar/                       # Autonomous response execution
-│   │   └── dashboard/                  # Metrics aggregation service
-│   └── shared/                         # Data schemas & event models
+│   ├── methodology.md                  # Mathematics of TCN-GRU Autoencoder & Quantization
+│   └── threat-model.md                 # STRIDE & MITRE ATT&CK mapping
+├── results/                            # CSV Evidence Files Mapping directly to Paper Tables
+│   ├── table2_latency.csv              # Stage-by-stage latency breakdown data
+│   ├── table3_mttr.csv                 # Incident response MTTR benchmark data
+│   ├── table4_precision.csv            # Detection sensitivity across threshold tau
+│   └── table5_resource.csv             # Edge CPU utilization and RAM footprint scaling data
+├── prototype/                          # Working prototype modules (from tu_projects)
+│   ├── edge/                           # TCN-GRU sequence reconstruction detector & quantizer
+│   │   ├── detector/                   # TCN-GRU Autoencoder (tcn_gru_model.py, quantize.py)
+│   ├── identity-fusion/                # Spatial-temporal identity context fusion module
+│   ├── redis-stream/                   # Async Redis stream pub/sub client
+│   ├── dqn-controller/                 # Deep Q-Network SDN resilience agent
+│   └── soar/                           # Dynamic Risk Scorer & Autonomous Playbooks
 ├── evaluation/                         # Benchmarking & experiment suite
-│   ├── datasets/                       # Synthetic telemetry generators
-│   │   ├── generator.py                # Ground-truth flow log generator
-│   │   ├── raw/                        # Raw generated stream files
-│   │   └── processed/                  # Normalized evaluation matrices
-│   ├── experiments/                    # Isolated research experiments
-│   │   ├── experiment_01_latency/      # End-to-end latency measurement
-│   │   ├── experiment_02_mttr/         # Response time comparison (MTTR)
-│   │   ├── experiment_03_precision/    # Precision/Recall/F1 sensitivity
-│   │   └── experiment_04_resource/     # CPU/RAM overhead at scale
-│   └── scripts/                        # Automation & plotting runners
-│       ├── run_demo.sh                 # Interactive end-to-end demonstration
-│       ├── run_experiments.sh          # Full benchmark reproduction script
-│       └── generate_figures.py         # Publication figure generator
+│   ├── datasets/                       # Real & synthetic telemetry dataset preprocessors
+│   ├── experiments/                    # Isolated research experiment suites
+│   │   ├── experiment_01_latency/      # run_latency.py, plot_latency.py, results.csv
+│   │   ├── experiment_02_mttr/         # benchmark_mttr.py, plot_mttr.py, results.csv
+│   │   ├── experiment_03_precision/    # evaluate_precision.py, plot_precision_recall.py, metrics.csv
+│   │   └── experiment_04_resource/     # stress_test_resource.py, plot_resource.py, results.csv
+│   └── scripts/                        # Master runner scripts
+│       └── generate_figures.py         # Master benchmark & publication figure generator
 └── docker/                             # Service Dockerfiles
     ├── Dockerfile.edge                 # Edge service container spec
     ├── Dockerfile.cloud                # Cloud engine container spec
-    └── Dockerfile.soar                 # SOAR engine container spec
+    └── Dockerfile.sdn_controller       # SDN Controller & SOAR agent spec
 ```
 
 ---
 
-## 🧪 Experimental Setup & Reproduction Guide
-
-### Prerequisites
-* Python 3.10+
-* Docker & Docker Compose (optional, for full containerized evaluation)
+## 🧪 6. Step-by-Step Reproduction Guide
 
 ### Step 1: Environment Setup
 ```bash
@@ -132,65 +118,66 @@ source .venv/bin/activate  # On Windows: .venv\Scripts\activate
 pip install -r requirements.txt
 ```
 
-### Step 2: Run End-to-End Prototype Demo
-To see the system process live streaming events, enrich identity context, evaluate policies, and execute autonomous mitigation:
+### Step 2: Reproduce Isolated Paper Experiments
+
+#### Experiment 1: End-to-End Latency Breakdown
 ```bash
-python -m prototype.edge.detector.main
+cd evaluation/experiments/experiment_01_latency
+python run_latency.py
+python plot_latency.py
 ```
 
-### Step 3: Reproduce Paper Experiments & Generate Publication Figures
-To run the full suite of 4 quantitative experiments (Latency, MTTR, Precision/Recall, Resource Utilization) and generate all figures for the LaTeX paper:
+#### Experiment 2: Incident Response MTTR Benchmark
+```bash
+cd evaluation/experiments/experiment_02_mttr
+python benchmark_mttr.py
+python plot_mttr.py
+```
+
+#### Experiment 3: Detection Threshold Sensitivity ($\tau$)
+```bash
+cd evaluation/experiments/experiment_03_precision
+python evaluate_precision.py
+python plot_precision_recall.py
+```
+
+#### Experiment 4: Edge Resource Scaling at 10,000 Events/Sec
+```bash
+cd evaluation/experiments/experiment_04_resource
+python stress_test_resource.py
+python plot_resource.py
+```
+
+### Step 3: Run Master Reproduction Script & Generate Paper Figures
+To run the full suite of experiments and update all publication charts automatically:
 ```bash
 python evaluation/scripts/generate_figures.py
 ```
 
-All output CSV data files, markdown experiment summaries, and publication-ready 300 DPI vector charts will be generated inside:
-* `evaluation/experiments/experiment_0*/` (CSVs & Markdown summaries)
-* `paper/figures/` (PNG & PDF vector plots)
-* `paper/tables/` (LaTeX formatted tables)
+---
+
+## 📊 7. Empirical Evidence Mapping
+
+| Paper Table | Paper Section | Artifact CSV Evidence | Experiment Folder | Output Chart |
+| :--- | :--- | :--- | :--- | :--- |
+| **Table II** | Sec IV-A | `results/table2_latency.csv` | `experiment_01_latency/` | `paper/figures/fig1_latency_breakdown.png` |
+| **Table III** | Sec IV-B | `results/table3_mttr.csv` | `experiment_02_mttr/` | `paper/figures/fig2_mttr_comparison.png` |
+| **Table IV** | Sec IV-C | `results/table4_precision.csv` | `experiment_03_precision/` | `paper/figures/fig3_precision_recall_sensitivity.png` |
+| **Table V** | Sec IV-D | `results/table5_resource.csv` | `experiment_04_resource/` | `paper/figures/fig4_resource_overhead_scaling.png` |
 
 ---
 
-## 📊 Expected Experimental Outputs
+## 📜 8. Citation
 
-| Experiment | Metric Evaluated | Target Baseline | AI-Native Outcome |
-| :--- | :--- | :--- | :--- |
-| **Exp 1: Latency** | Event Ingestion to Response | ~1200 ms (Legacy REST) | **4.2 ms (Sub-10ms target)** |
-| **Exp 2: MTTR** | Incident Detection to Block | ~1800 s (Manual SOC) | **0.85 s (>99% reduction)** |
-| **Exp 3: Detection** | F1-Score / False Positive Rate | F1: 0.81, FPR: 6.2% | **F1: 0.94, FPR: 1.1%** |
-| **Exp 4: Resource** | Edge CPU @ 10,000 events/s | >85% CPU utilization | **14.3% Edge CPU utilization** |
-
----
-
-## 📝 Citation
-
-If you reference this architecture or use our benchmark code, please cite our paper:
+If you use this research artifact or reference our work in your research, please cite:
 
 ```bibtex
-@inproceedings{icai2026_ainative_security,
-  author    = {Nguyen, Van A and Schmidt, Hans and Zhang, Wei},
-  title     = {AI-Native Autonomous Security Platform: An Event-Driven Edge-Cloud Architecture for University Networks},
-  booktitle = {Proceedings of the 2nd International Conference on AI: AI Native for University (ICAI-2026)},
+@inproceedings{tu2026ainative,
+  author    = {Tu, Trinh Hoang},
+  title     = {An AI-Native Event-Driven Edge-Cloud Architecture for Autonomous Network Security and Resilience in Campus Infrastructure},
+  booktitle = {Proceedings of The Second International Conference on AI: AI Native for University (ICAI-2026)},
   year      = {2026},
-  location  = {Hanoi, Vietnam},
-  publisher = {IEEE},
-  url       = {https://icai.cmcu.edu.vn}
+  address   = {Hanoi, Vietnam},
+  publisher = {IEEE}
 }
 ```
-
----
-
-## 🤝 Acknowledgements
-
-This research was conducted in preparation for **ICAI-2026** and supported by joint research initiatives across:
-* **CMC University**, Hanoi, Vietnam (Department of Science & Technology)
-* **Steinbeis University**, Germany
-* **Tsinghua University Shenzhen International Graduate School (SIGS)**, China
-
-*Special thanks to Microsoft for providing Microsoft CMT services for the peer-review process.*
-
----
-
-## ⚠️ Research Disclaimer
-
-This repository is a **reproducible academic research artifact**. It is designed for experimental evaluation, benchmark replication, and architectural proof-of-concept. It is not intended for out-of-the-box enterprise SaaS deployment without proper hardware hardening and university network integration testing.
