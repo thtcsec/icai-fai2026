@@ -1,29 +1,29 @@
 {
-  "latency_total_mean_ms": 3.3933,
-  "latency_total_std_ms": 1.0241,
+  "latency_total_mean_ms": 1.6293,
+  "latency_total_std_ms": 0.2713,
   "latency_stages": [
     {
       "name": "Edge Telemetry & TCN-GRU Inference",
-      "mean": 3.269,
-      "std": 0.9676,
-      "pct": 96.3
+      "mean": 1.5522,
+      "std": 0.2457,
+      "pct": 95.3
     },
     {
       "name": "Identity Context Fusion",
-      "mean": 0.0022,
-      "std": 0.0007,
+      "mean": 0.0014,
+      "std": 0.0003,
       "pct": 0.1
     },
     {
       "name": "Cloud Policy Reasoning (DQN)",
-      "mean": 0.1204,
-      "std": 0.1535,
-      "pct": 3.5
+      "mean": 0.0746,
+      "std": 0.1103,
+      "pct": 4.6
     },
     {
       "name": "SOAR Playbook Execution",
-      "mean": 0.0018,
-      "std": 0.0008,
+      "mean": 0.0011,
+      "std": 0.0002,
       "pct": 0.1
     }
   ],
@@ -31,9 +31,9 @@
   "mttr_manual_std_s": 335.2822,
   "mttr_siem_mean_s": 69.0936,
   "mttr_siem_std_s": 17.5493,
-  "mttr_ai_mean_s": 0.004685,
-  "mttr_ai_std_s": 0.000576,
-  "mttr_ai_mean_ms": 4.6854,
+  "mttr_ai_mean_s": 0.001629,
+  "mttr_ai_std_s": 0.000276,
+  "mttr_ai_mean_ms": 1.6292,
   "precision_best_tau": 0.35,
   "precision": 0.9618,
   "recall": 0.9698,
@@ -82,37 +82,37 @@
       "fnr": 10.99
     }
   ],
-  "resource_10k_cpu": 6.29,
-  "resource_10k_rss_mb": 478.1,
+  "resource_10k_cpu": 38.14,
+  "resource_10k_rss_mb": 475.8,
   "resource_model_mb": 0.048,
   "resource_rows": [
     {
       "tp": 100,
-      "cpu": 3.54,
-      "rss": 478.1,
-      "dpi_cpu": 29.06,
-      "dpi_rss": 1053.5
+      "cpu": 38.14,
+      "rss": 475.8,
+      "dpi_cpu": 95.0,
+      "dpi_rss": 1048.6
     },
     {
       "tp": 1000,
-      "cpu": 3.9,
-      "rss": 478.1,
-      "dpi_cpu": 36.78,
-      "dpi_rss": 1069.7
+      "cpu": 30.36,
+      "rss": 475.8,
+      "dpi_cpu": 95.0,
+      "dpi_rss": 1064.8
     },
     {
       "tp": 5000,
-      "cpu": 5.5,
-      "rss": 478.1,
-      "dpi_cpu": 71.1,
-      "dpi_rss": 1141.7
+      "cpu": 37.81,
+      "rss": 475.8,
+      "dpi_cpu": 95.0,
+      "dpi_rss": 1136.8
     },
     {
       "tp": 10000,
-      "cpu": 6.29,
-      "rss": 478.1,
+      "cpu": 38.14,
+      "rss": 475.8,
       "dpi_cpu": 95.0,
-      "dpi_rss": 1231.7
+      "dpi_rss": 1226.8
     }
   ],
   "sota_methods": [
@@ -130,11 +130,11 @@
     0.9715
   ],
   "sota_latency_ms": [
-    6.0501,
-    0.9899,
-    2.1719,
-    3.7385,
-    4.4289
+    9.0717,
+    0.6356,
+    1.1728,
+    1.9367,
+    4.8312
   ],
   "sota_ram_mb": [
     12.4,
@@ -150,5 +150,12 @@
     9.8,
     7.2
   ],
-  "sota_delta_f1": -0.0004
+  "sota_delta_f1": -0.0004,
+  "cross_dataset": {
+    "opt_tau": 0.0688,
+    "insdn_f1_065": 0.9476,
+    "insdn_f1_star": 0.9711,
+    "cic_f1_065": 0.4379,
+    "cic_f1_star": 0.4427
+  }
 }
