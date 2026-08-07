@@ -108,6 +108,10 @@ def run_real_resource_benchmark(seed: int = 42, sustain_s: float = 2.5):
     ax2.plot(throughputs, ai_ram_list, "o-", color="#2b5c8f", label="AI-Native Process RSS", linewidth=2)
     ax2.plot(throughputs, dpi_ram_list, "s--", color="#d9534f", label="Legacy DPI RSS (est.)", linewidth=2)
     ax2.axhline(y=model_mb, color="#5cb85c", linestyle=":", label=f"INT8 model={model_mb:.3f} MB")
+    ax2.annotate(f"Process RSS: ~{ai_ram_list[-1]:.1f} MB", xy=(throughputs[2], ai_ram_list[2]), xytext=(1500, ai_ram_list[2] + 160),
+                 arrowprops=dict(arrowstyle="->", lw=1.2, color="#2b5c8f"), fontsize=8, fontweight="bold", color="#2b5c8f")
+    ax2.annotate(f"INT8 Model: {model_mb:.3f} MB", xy=(throughputs[1], model_mb), xytext=(1200, 220),
+                 arrowprops=dict(arrowstyle="->", lw=1.2, color="#5cb85c"), fontsize=8, fontweight="bold", color="#2e7d32")
     ax2.set_xlabel("Throughput (events/s)")
     ax2.set_ylabel("Memory (MB)")
     ax2.set_title("Memory Footprint vs Throughput")
@@ -115,9 +119,9 @@ def run_real_resource_benchmark(seed: int = 42, sustain_s: float = 2.5):
     ax2.grid(True, linestyle="--", alpha=0.5)
 
     plt.tight_layout()
-    plt.savefig(PNG_PATH, dpi=300)
+    plt.savefig(PNG_PATH, dpi=300, bbox_inches="tight")
     os.makedirs(os.path.dirname(FIG_PATH), exist_ok=True)
-    plt.savefig(FIG_PATH, dpi=300)
+    plt.savefig(FIG_PATH, dpi=300, bbox_inches="tight")
     plt.close()
 
     return {
