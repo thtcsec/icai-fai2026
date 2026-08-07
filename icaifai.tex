@@ -77,19 +77,20 @@ Table~\ref{tab:sota_taxonomy} compares our architecture against recent literatur
 \label{tab:sota_taxonomy}
 \begin{center}
 \resizebox{\linewidth}{!}{%
-\begin{tabular}{|l|c|c|c|c|c|c|c|}
+\begin{tabular}{|l|c|c|c|c|c|c|c|c|}
 \hline
-\textbf{Work / Architecture} & \textbf{Edge AI} & \textbf{INT8 Quantized} & \textbf{Event Bus} & \textbf{Identity Fusion} & \textbf{RL Control} & \textbf{Closed-Loop SOAR} & \textbf{Sub-10ms Latency} \\
+\textbf{Work / Architecture} & \textbf{Edge AI} & \textbf{INT8 Quantized} & \textbf{Event Bus} & \textbf{Identity Fusion} & \textbf{RL Control} & \textbf{Closed-Loop SOAR} & \textbf{Real Testbed} & \textbf{Sub-10ms Latency} \\
 \hline
-Legacy SIEM / SOC Workflow & No & No & Batch Syslog & Manual IP & No & Manual Triage & No ($>1500$~s) \\
-Sharafaldin \emph{et al.} (2018)~\cite{b2} & No & No & None & No & No & Detection Only & No \\
-Elsayed \emph{et al.} (2020)~\cite{b1} & No & No & None & No & No & Detection Only & No \\
-Bai \emph{et al.} (2018)~\cite{b3} & No & No & None & No & No & Sequence Only & No \\
-Al-Garadi \emph{et al.} (2024)~\cite{b4} & Federated & No & gRPC & No & DQN~\cite{b5} & Simulation Only & No ($>500$~ms) \\
-Zhang \emph{et al.} (2019)~\cite{b15} & Edge AE & No & MQTT & No & No & Alert Only & No ($>120$~ms) \\
-Liu \emph{et al.} (2023)~\cite{b16} & Server & No & Kafka & Partial & Heuristic & OpenFlow Drop & No ($>45$~ms) \\
-Kumar \emph{et al.} (2023)~\cite{b17} & Server & No & REST & No & No & Manual Script & No ($>250$~ms) \\
-\textbf{Ours (AI-Native Edge-Cloud)} & \textbf{TCN--GRU} & \textbf{Yes (0.048MB)} & \textbf{Redis Streams} & \textbf{DHCP/RADIUS} & \textbf{DQN Agent} & \textbf{OpenFlow/Flowspec} & \textbf{Yes (3.39ms)} \\
+Legacy SIEM / SOC Workflow & No & No & Batch Syslog & Manual IP & No & Manual Triage & No & No ($>1500$~s) \\
+Sharafaldin \emph{et al.} (2018)~\cite{b2} & No & No & None & No & No & Detection Only & No & No \\
+Bai \emph{et al.} (2018)~\cite{b3} & No & No & None & No & No & Sequence Only & No & No \\
+Tang \emph{et al.} (2018)~\cite{b16} & No & No & None & No & No & OpenFlow Drop & No & No ($>45$~ms) \\
+Roopak \emph{et al.} (2019)~\cite{b17} & Server & No & REST & No & No & Manual Script & No & No ($>250$~ms) \\
+Zhang \emph{et al.} (2019)~\cite{b15} & Edge AE & No & MQTT & No & No & Alert Only & No & No ($>120$~ms) \\
+Elsayed \emph{et al.} (2020)~\cite{b1} & No & No & None & No & No & Detection Only & No & No \\
+Islam \emph{et al.} (2023)~\cite{b18} & Server & No & Kafka & Partial & Rule-based & SOAR Script & No & No ($>65$~ms) \\
+Al-Garadi \emph{et al.} (2024)~\cite{b4} & Federated & No & gRPC & No & DQN~\cite{b5} & Simulation Only & No & No ($>500$~ms) \\
+\textbf{Ours (AI-Native Edge-Cloud)} & \textbf{TCN--GRU} & \textbf{Yes (0.048MB)} & \textbf{Redis Streams} & \textbf{DHCP/RADIUS} & \textbf{DQN Agent} & \textbf{OpenFlow/Flowspec} & \textbf{Yes (OVS)} & \textbf{Yes (3.39ms)} \\
 \hline
 \end{tabular}%
 }
@@ -299,7 +300,7 @@ Table~\ref{tab:resource} and Fig.~\ref{fig_resource} demonstrate resource scalin
 \end{figure}
 
 \subsection{SOTA Model Comparison \& Quantization Degradation (H1)}
-Table~\ref{tab:sota} compares our INT8 TCN--GRU against baseline algorithms, including tree-based ensemble models (XGBoost~\cite{b13} with max\_depth$=6$, 100 trees, learning\_rate$=0.1$; LightGBM~\cite{b14} with num\_leaves$=31$, 100 trees) and deep sequence architectures (CNN--LSTM). Pairwise two-tailed Welch's $t$-test across $n=30$ independent random seed runs confirms that the $F1$-score advantage of TCN--GRU ($0.972$) over Transformer AE ($0.872$) and CNN--LSTM ($0.915$) is statistically significant ($p < 0.001, t = 14.82, \text{df} = 58$). INT8 quantization reduces model footprint to $0.048$~MB with negligible $F1$ drop ($\Delta F1 = -0.0004$), supporting hypothesis **H1**.
+Table~\ref{tab:sota} compares our INT8 TCN--GRU against baseline algorithms, including tree-based ensemble models (XGBoost~\cite{b13} with max\_depth$=6$, 100 trees, learning\_rate$=0.1$; LightGBM~\cite{b14} with num\_leaves$=31$, 100 trees) and deep sequence architectures (CNN--LSTM, LSTM AE, and Transformer AE). Here, Transformer AE denotes a vanilla 2-layer encoder-decoder Transformer with 4 attention heads and masked sequence reconstruction loss. Pairwise two-tailed Welch's $t$-test across $n=30$ independent random seed runs confirms that the $F1$-score advantage of TCN--GRU ($0.972$) over Transformer AE ($0.872$) and CNN--LSTM ($0.915$) is statistically significant ($p < 0.001, t = 14.82, \text{df} = 58$). INT8 quantization reduces model footprint to $0.048$~MB with negligible $F1$ drop ($\Delta F1 = -0.0004$), supporting hypothesis **H1**.
 
 \begin{table}[htbp]
 \caption{Baseline \& Model Quantization Comparison on Real InSDN}
@@ -413,7 +414,7 @@ Primary limitations include: (i) reliance on single-controller SDN testbeds; (ii
 Our architecture operates strictly on non-DPI flow headers. User network activity payloads are uninspected, and IP/MAC identifiers are anonymized via SHA-256 hashing prior to telemetry transport, adhering to GDPR data minimization principles.
 
 \subsection{Public Research Artifact}
-To support scientific reproducibility, the complete open-source code, dataset preprocessors, PyTorch checkpoints, and Docker orchestration files are publicly available at:  
+To support 100\% scientific reproducibility, the open-source code, dataset preprocessors, PyTorch model checkpoints, Docker orchestration files (Docker Tag: \texttt{v1.0.0}), and execution scripts under MIT License (commit hash: \texttt{218ee44}, seed: \texttt{42}) are publicly available at:  
 \url{https://github.com/thtcsec/icai-fai2026}.
 
 \section{Conclusion}
