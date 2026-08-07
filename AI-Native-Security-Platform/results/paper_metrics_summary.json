@@ -1,0 +1,154 @@
+{
+  "latency_total_mean_ms": 3.3933,
+  "latency_total_std_ms": 1.0241,
+  "latency_stages": [
+    {
+      "name": "Edge Telemetry & TCN-GRU Inference",
+      "mean": 3.269,
+      "std": 0.9676,
+      "pct": 96.3
+    },
+    {
+      "name": "Identity Context Fusion",
+      "mean": 0.0022,
+      "std": 0.0007,
+      "pct": 0.1
+    },
+    {
+      "name": "Cloud Policy Reasoning (DQN)",
+      "mean": 0.1204,
+      "std": 0.1535,
+      "pct": 3.5
+    },
+    {
+      "name": "SOAR Playbook Execution",
+      "mean": 0.0018,
+      "std": 0.0008,
+      "pct": 0.1
+    }
+  ],
+  "mttr_manual_mean_s": 1518.4986,
+  "mttr_manual_std_s": 335.2822,
+  "mttr_siem_mean_s": 69.0936,
+  "mttr_siem_std_s": 17.5493,
+  "mttr_ai_mean_s": 0.004685,
+  "mttr_ai_std_s": 0.000576,
+  "mttr_ai_mean_ms": 4.6854,
+  "precision_best_tau": 0.35,
+  "precision": 0.9618,
+  "recall": 0.9698,
+  "f1": 0.9658,
+  "fpr": 15.92,
+  "fnr": 3.02,
+  "precision_rows": [
+    {
+      "tau": 0.35,
+      "precision": 0.9618,
+      "recall": 0.9698,
+      "f1": 0.9658,
+      "fpr": 15.92,
+      "fnr": 3.02
+    },
+    {
+      "tau": 0.5,
+      "precision": 0.9648,
+      "recall": 0.9646,
+      "f1": 0.9647,
+      "fpr": 14.55,
+      "fnr": 3.54
+    },
+    {
+      "tau": 0.65,
+      "precision": 0.9674,
+      "recall": 0.9532,
+      "f1": 0.9603,
+      "fpr": 13.27,
+      "fnr": 4.68
+    },
+    {
+      "tau": 0.75,
+      "precision": 0.975,
+      "recall": 0.9263,
+      "f1": 0.95,
+      "fpr": 9.85,
+      "fnr": 7.37
+    },
+    {
+      "tau": 0.85,
+      "precision": 0.9795,
+      "recall": 0.8901,
+      "f1": 0.9327,
+      "fpr": 7.71,
+      "fnr": 10.99
+    }
+  ],
+  "resource_10k_cpu": 6.29,
+  "resource_10k_rss_mb": 478.1,
+  "resource_model_mb": 0.048,
+  "resource_rows": [
+    {
+      "tp": 100,
+      "cpu": 3.54,
+      "rss": 478.1,
+      "dpi_cpu": 29.06,
+      "dpi_rss": 1053.5
+    },
+    {
+      "tp": 1000,
+      "cpu": 3.9,
+      "rss": 478.1,
+      "dpi_cpu": 36.78,
+      "dpi_rss": 1069.7
+    },
+    {
+      "tp": 5000,
+      "cpu": 5.5,
+      "rss": 478.1,
+      "dpi_cpu": 71.1,
+      "dpi_rss": 1141.7
+    },
+    {
+      "tp": 10000,
+      "cpu": 6.29,
+      "rss": 478.1,
+      "dpi_cpu": 95.0,
+      "dpi_rss": 1231.7
+    }
+  ],
+  "sota_methods": [
+    "Isolation Forest (iForest)",
+    "LSTM Autoencoder (FP32)",
+    "Transformer AE (FP32)",
+    "TCN-GRU (FP32 Ablation)",
+    "TCN-GRU (INT8 Proposed)"
+  ],
+  "sota_f1": [
+    0.1993,
+    0.8714,
+    0.8718,
+    0.9719,
+    0.9715
+  ],
+  "sota_latency_ms": [
+    6.0501,
+    0.9899,
+    2.1719,
+    3.7385,
+    4.4289
+  ],
+  "sota_ram_mb": [
+    12.4,
+    0.028,
+    0.068,
+    0.104,
+    0.048
+  ],
+  "sota_cpu": [
+    8.5,
+    12.4,
+    18.6,
+    9.8,
+    7.2
+  ],
+  "sota_delta_f1": -0.0004
+}

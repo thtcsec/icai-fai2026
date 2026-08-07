@@ -20,7 +20,7 @@ import csv
 import numpy as np
 import pandas as pd
 import torch
-from typing import Tuple, Dict, Any, Optional
+from typing import Tuple, Dict, Any, Optional, List
 
 FEATURE_COLUMNS = [
     "flow_duration",
@@ -92,32 +92,128 @@ def generate_insdn_telemetry_csv(output_csv_path: str, num_samples: int = 2000, 
     print(f"[+] Saved InSDN telemetry dataset ({len(df)} rows) to {output_csv_path}")
     return df
 
-def load_telemetry_dataset(csv_path: str, seq_len: int = 10) -> Tuple[torch.Tensor, torch.Tensor]:
+def _default_real_npz_candidates(name: str = "insdn") -> list:
+    """Resolve real processed window archives without requiring a network download."""
+    base = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
+    return [
+        os.path.join(base, "datasets", "processed", f"{name}_windows.npz"),
+        os.path.join(
+            os.path.dirname(base),
+            "..",
+            "sdn-its-resilience-ai",
+            "datasets",
+            "processed",
+            f"{name}_windows.npz",
+        ),
+        os.path.abspath(
+            os.path.join(
+                "d:\\tu_projects\\sdn-its-resilience-ai",
+                "datasets",
+                "processed",
+                f"{name}_windows.npz",
+            )
+        ),
+    ]
+
+
+def resolve_real_windows_npz(name: str = "insdn") -> Optional[str]:
+    for path in _default_real_npz_candidates(name):
+        if os.path.isfile(path):
+            return path
+    return None
+
+
+def load_windows_npz(
+    npz_path: str,
+    binary: bool = True,
+    max_samples: Optional[int] = None,
+    seed: int = 42,
+    scaler: Any = None,
+    fit_scaler: bool = True,
+) -> Tuple[torch.Tensor, torch.Tensor, Any]:
     """
-    Loads flow dataset CSV, extracts feature columns, formats into PyTorch time-series tensors.
+    Load real InSDN / CIC window tensors from processed NPZ (X: N x T x F, y: N).
+
+    If fit_scaler=True and scaler is None, fit a StandardScaler on this subset.
+    If scaler is provided and fit_scaler=False, transform only (cross-dataset holdout).
+    Returns (X, y, scaler).
     """
+    from sklearn.preprocessing import StandardScaler
+
+    data = np.load(npz_path)
+    X = data["X"].astype(np.float32)
+    y = data["y"].astype(np.int64)
+    if binary:
+        y = (y > 0).astype(np.int64)
+
+    if max_samples is not None and len(X) > max_samples:
+        rng = np.random.default_rng(seed)
+        idx0 = np.where(y == 0)[0]
+        idx1 = np.where(y == 1)[0]
+        n0 = max(1, int(max_samples * (len(idx0) / max(len(y), 1))))
+        n1 = max_samples - n0
+        n0 = min(n0, len(idx0))
+        n1 = min(n1, len(idx1))
+        pick = np.concatenate([
+            rng.choice(idx0, size=n0, replace=False),
+            rng.choice(idx1, size=n1, replace=False) if n1 > 0 and len(idx1) else np.array([], dtype=int),
+        ])
+        rng.shuffle(pick)
+        X, y = X[pick], y[pick]
+
+    n, t, f = X.shape
+    flat = X.reshape(n * t, f)
+    flat = np.nan_to_num(flat, nan=0.0, posinf=0.0, neginf=0.0)
+    if scaler is None:
+        scaler = StandardScaler()
+    if fit_scaler:
+        flat = scaler.fit_transform(flat).astype(np.float32)
+    else:
+        flat = scaler.transform(flat).astype(np.float32)
+    X = flat.reshape(n, t, f)
+
+    print(
+        f"[+] Loaded windows from {npz_path}: X={X.shape}, "
+        f"attacks={int((y > 0).sum())}, normal={int((y == 0).sum())}, fit_scaler={fit_scaler}"
+    )
+    return torch.tensor(X, dtype=torch.float32), torch.tensor(y, dtype=torch.long), scaler
+
+
+def load_telemetry_dataset(
+    csv_path: str,
+    seq_len: int = 10,
+    prefer_real: bool = True,
+    real_name: str = "insdn",
+    max_samples: Optional[int] = 20000,
+) -> Tuple[torch.Tensor, torch.Tensor]:
+    """
+    Prefer real InSDN/CIC processed windows when available; otherwise fall back to CSV/synthetic.
+    """
+    if prefer_real:
+        npz = resolve_real_windows_npz(real_name)
+        if npz is not None:
+            X, y, _ = load_windows_npz(npz, binary=True, max_samples=max_samples)
+            return X, y
+
     if not os.path.exists(csv_path):
         df = generate_insdn_telemetry_csv(csv_path)
     else:
         df = pd.read_csv(csv_path)
-        
+
     X_raw = df[FEATURE_COLUMNS].values
     y_raw = df["label"].values
-    
-    # Normalize features
+
     from sklearn.preprocessing import StandardScaler
     scaler = StandardScaler()
     X_scaled = scaler.fit_transform(X_raw)
-    
-    # Expand into sequences of shape (num_samples, seq_len, num_features)
+
     num_samples = len(X_scaled)
     X_seq = np.zeros((num_samples, seq_len, len(FEATURE_COLUMNS)), dtype=np.float32)
-    
     for i in range(num_samples):
-        # Inject sliding window variations
         noise = np.random.normal(0, 0.05, (seq_len, len(FEATURE_COLUMNS)))
         X_seq[i] = np.tile(X_scaled[i], (seq_len, 1)) + noise
-        
+
     X_tensor = torch.tensor(X_seq, dtype=torch.float32)
     y_tensor = torch.tensor((y_raw > 0).astype(int), dtype=torch.long)
+    print(f"[!] Using CSV/synthetic telemetry from {csv_path}: n={len(X_tensor)}")
     return X_tensor, y_tensor
