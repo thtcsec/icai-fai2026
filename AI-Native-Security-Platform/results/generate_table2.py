@@ -90,7 +90,7 @@ def run_real_latency_benchmark(num_trials: int = 1000, seed: int = 42):
     fig, ax = plt.subplots(figsize=(6.2, 3.4))
     colors = ["#2b5c8f", "#4682b4", "#6897bb", "#d9534f"]
     y = np.arange(len(stages))
-    ax.barh(y, means, xerr=stds, color=colors, edgecolor="black", height=0.55, capsize=3)
+    ax.barh(y, means, xerr=stds, color=colors, edgecolor="black", height=0.55, error_kw=dict(ecolor="#1A252C", lw=1.8, capsize=6, capthick=1.8))
     ax.set_yticks(y)
     ax.set_yticklabels(stages, fontsize=8)
     ax.set_xlabel("Latency (ms)")
@@ -100,9 +100,9 @@ def run_real_latency_benchmark(num_trials: int = 1000, seed: int = 42):
         ax.text(m + max(means) * 0.02, i, f"{m:.3f}±{s:.3f}", va="center", fontsize=8, fontweight="bold")
     ax.set_xlim(0, max(means) * 1.45)
     plt.tight_layout()
-    plt.savefig(PNG_PATH, dpi=300)
+    plt.savefig(PNG_PATH, dpi=300, bbox_inches="tight")
     os.makedirs(os.path.dirname(FIG_PATH), exist_ok=True)
-    plt.savefig(FIG_PATH, dpi=300)
+    plt.savefig(FIG_PATH, dpi=300, bbox_inches="tight")
     plt.close()
 
     print(f"  [+] Total: {total_mean:.4f} ± {total_std:.4f} ms")

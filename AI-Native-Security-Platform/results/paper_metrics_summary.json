@@ -1,29 +1,29 @@
 {
-  "latency_total_mean_ms": 1.6293,
-  "latency_total_std_ms": 0.2713,
+  "latency_total_mean_ms": 1.9318,
+  "latency_total_std_ms": 0.6369,
   "latency_stages": [
     {
       "name": "Edge Telemetry & TCN-GRU Inference",
-      "mean": 1.5522,
-      "std": 0.2457,
-      "pct": 95.3
+      "mean": 1.8398,
+      "std": 0.612,
+      "pct": 95.2
     },
     {
       "name": "Identity Context Fusion",
-      "mean": 0.0014,
-      "std": 0.0003,
+      "mean": 0.0016,
+      "std": 0.0008,
       "pct": 0.1
     },
     {
       "name": "Cloud Policy Reasoning (DQN)",
-      "mean": 0.0746,
-      "std": 0.1103,
+      "mean": 0.089,
+      "std": 0.0872,
       "pct": 4.6
     },
     {
       "name": "SOAR Playbook Execution",
-      "mean": 0.0011,
-      "std": 0.0002,
+      "mean": 0.0013,
+      "std": 0.0005,
       "pct": 0.1
     }
   ],
@@ -31,9 +31,9 @@
   "mttr_manual_std_s": 335.2822,
   "mttr_siem_mean_s": 69.0936,
   "mttr_siem_std_s": 17.5493,
-  "mttr_ai_mean_s": 0.001629,
-  "mttr_ai_std_s": 0.000276,
-  "mttr_ai_mean_ms": 1.6292,
+  "mttr_ai_mean_s": 0.001815,
+  "mttr_ai_std_s": 0.00037,
+  "mttr_ai_mean_ms": 1.8149,
   "precision_best_tau": 0.35,
   "precision": 0.9618,
   "recall": 0.9698,
@@ -82,37 +82,37 @@
       "fnr": 10.99
     }
   ],
-  "resource_10k_cpu": 38.14,
-  "resource_10k_rss_mb": 475.8,
+  "resource_10k_cpu": 35.18,
+  "resource_10k_rss_mb": 475.3,
   "resource_model_mb": 0.048,
   "resource_rows": [
     {
       "tp": 100,
-      "cpu": 38.14,
-      "rss": 475.8,
+      "cpu": 38.47,
+      "rss": 475.2,
       "dpi_cpu": 95.0,
-      "dpi_rss": 1048.6
+      "dpi_rss": 1047.2
     },
     {
       "tp": 1000,
-      "cpu": 30.36,
-      "rss": 475.8,
+      "cpu": 38.47,
+      "rss": 475.2,
       "dpi_cpu": 95.0,
-      "dpi_rss": 1064.8
+      "dpi_rss": 1063.4
     },
     {
       "tp": 5000,
       "cpu": 37.81,
-      "rss": 475.8,
+      "rss": 475.2,
       "dpi_cpu": 95.0,
-      "dpi_rss": 1136.8
+      "dpi_rss": 1135.4
     },
     {
       "tp": 10000,
-      "cpu": 38.14,
-      "rss": 475.8,
+      "cpu": 35.18,
+      "rss": 475.3,
       "dpi_cpu": 95.0,
-      "dpi_rss": 1226.8
+      "dpi_rss": 1225.7
     }
   ],
   "sota_methods": [
@@ -130,11 +130,11 @@
     0.9715
   ],
   "sota_latency_ms": [
-    9.0717,
-    0.6356,
-    1.1728,
-    1.9367,
-    4.8312
+    4.7634,
+    0.3371,
+    0.9149,
+    1.8349,
+    2.6961
   ],
   "sota_ram_mb": [
     12.4,
