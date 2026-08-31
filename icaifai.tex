@@ -51,7 +51,6 @@ This investigation is guided by four formal Research Questions (RQs):
 We test three explicit hypotheses:
 \begin{itemize}
     \item \textbf{H1 (Quantization Degradation):} INT8 dynamic quantization incurs less than $0.5\%$ $F1$-score degradation ($\Delta F1 \le 0.005$) compared to full-precision FP32 models.
-    \item \textbf{H2 (Automated Decision Speedup):} Automated decision and playbook generation achieves a $>99.9\%$ reduction in time-to-decision relative to the adopted SOC baseline.
     \item \textbf{H3 (Edge Resource Feasibility):} Edge inference requires $\le 10\%$ CPU utilization per core under a sustained offered load of $10{,}000$~telemetry windows/sec.
 \end{itemize}
 
@@ -64,7 +63,7 @@ The principal contributions of this work are:
 \end{enumerate}
 
 \section{Related Work}
-SDN intrusion datasets such as InSDN~\cite{b1} and CSE-CIC-IDS2018/2017~\cite{b2} have established standard benchmarks for network intrusion detection. Sequence models such as Temporal Convolutional Networks (TCN)~\cite{b3} employ causal dilated convolutions to capture long-range temporal dependencies with parallelizable training compared to recurrent LSTM architectures. Deep Reinforcement Learning (DRL) has been applied to DDoS defense and 6G control loops~\cite{b4}; however, existing works predominantly terminate at offline detection or isolated controller simulations rather than end-to-end, sub-10~ms edge--cloud mitigation.
+SDN intrusion datasets such as InSDN~\cite{b1} and CIC-IDS2017~\cite{b2} have established standard benchmarks for network intrusion detection. Sequence models such as Temporal Convolutional Networks (TCN)~\cite{b3} employ causal dilated convolutions to capture long-range temporal dependencies with parallelizable training compared to recurrent LSTM architectures. Deep Reinforcement Learning (DRL) has been applied to DDoS defense and 6G control loops~\cite{b4}; however, existing works predominantly terminate at offline detection or isolated controller simulations rather than end-to-end, sub-10~ms edge--cloud mitigation.
 
 Compressing detectors for constrained gateways is an active line: pruned and quantized LSTM ensembles on Raspberry~Pi~\cite{b20} and INT8 TensorFlow Lite CNNs on ARM Cortex-M~\cite{b21} both find INT8 accuracy-neutral at far lower footprint, consistent with our H1, but both stop at the detector and close no loop onto actuation. Conversely, surveys of agent-driven security operations~\cite{b22} catalogue triage automation while noting that end-to-end autonomous remediation remains prospective; our work sits between the two. A parallel thread concerns evaluation rigour: Arp \emph{et al.}~\cite{b23} show data snooping is endemic in learning-based security papers and inflates results, and leakage-free reassessments of ML-NIDS confirm preprocessing alone moves headline metrics~\cite{b24}. We adopt those recommendations in Section~\ref{sec:protocol} and report their cost in Section~\ref{sec:leakage_effect}.
 
@@ -86,7 +85,7 @@ Roopak \emph{et al.} (2019)~\cite{b17} & DL models for IoT security & No & No & 
 Zhang \emph{et al.} (2019)~\cite{b15} & Survey & -- & -- & -- & -- \\
 Elsayed \emph{et al.} (2020)~\cite{b1} & Benchmark dataset (InSDN) & -- & -- & -- & -- \\
 Nguyen \emph{et al.} (2023)~\cite{b18} & SOAR survey + research agenda & No & No & Proposed & Proposed, not evaluated \\
-Al-Garadi \emph{et al.} (2024)~\cite{b4} & Federated DRL for DDoS & Federated & No & DQN~\cite{b5} & Simulation only \\
+Kianpisheh \& Taleb (2024)~\cite{b4} & Federated DRL for DDoS & Federated & No & DQN~\cite{b5} & Simulation only \\
 Musthafa \emph{et al.} (2025)~\cite{b20} & Compressed ensemble IDS on Raspberry Pi & Yes & Yes (post-training) & No & Detection only \\
 Ullah \emph{et al.} (2026)~\cite{b21} & Quantized IDS for constrained IoT & Yes & Yes (TFLite INT8) & No & Detection only \\
 \textbf{Ours} & \textbf{Integrated pipeline} & \textbf{TCN--GRU} & \textbf{Yes (0.048~MB)} & \textbf{DQN} & \textbf{OpenFlow playbooks (emulated)} \\
@@ -225,10 +224,6 @@ SOAR Playbook Serialization & 0.002 & 0.003 & 0.004 & 0.1 \\
 }
 \end{center}
 \end{table}
-
-\subsection{Incident Response Latency Comparison (H2)}
-\label{sec:mttr}
-The autonomous path reaches a containment \emph{decision} in $2.958 \pm 0.875$~ms ($n=500$). We deliberately present no comparison table, because we have no measured human baseline to put in one. The SOC and SIEM figures our harness emits ($1518.5 \pm 335.3$~s and $69.1 \pm 17.5$~s) are truncated Gaussians with parameters stipulated to bracket timescales industry reporting associates with each workflow --- they are not fitted to any dataset and are not an experimental result. \textbf{H2} is therefore supported only in the weak sense that a millisecond decision beats any human workflow, which needs no experiment to establish. Note also that the quantities differ in kind: the stipulated baselines end when an analyst commits to an action, ours when the playbook is emitted, and neither is a time-to-containment.
 
 \subsection{Detection Performance \& Threshold Sensitivity (RQ2, H1)}
 \label{sec:threshold}
@@ -420,9 +415,9 @@ InSDN $\rightarrow$ CIC-IDS2017 & $\tau^*=0.0720$ & 0.3060 & 0.9858 & 0.4670 \\
 \label{sec:validity}
 \begin{itemize}
     \item \textbf{Internal Validity (measurement stability):} Timing on this host is noisy enough that single measurements are not results. Every timing figure is now a median over repeats --- $5$ for throughput and per-model latency, $1{,}000$ trials summarised by percentiles for the control path --- after we found that a single-run measurement had produced a throughput shortfall that repetition did not reproduce. Saturation throughput remains unstable between runs by more than a factor of two and we rest no claim on it. Accuracy metrics, by contrast, were bit-identical across all runs. Absolute latencies should be read as order-of-magnitude on this hardware, not as hardware-independent guarantees.
-    \item \textbf{Reproducibility:} An earlier version of this artifact constructed models before seeding the global RNG, so detection metrics varied between runs of the same script. We fixed this (\texttt{set\_global\_seed} now precedes every module instantiation) and regenerated all numbers from one deterministic execution. We flag it because the failure mode is silent and common: seeding inside a training helper is too late if the module already exists.
+    \item \textbf{Reproducibility:} An earlier version of this artifact constructed models before seeding the global RNG, so detection metrics varied between runs of the same script. \texttt{set\_global\_seed} now runs at the head of every generator, before any module is built, making each script bit-deterministic. It is \emph{not} re-invoked before each individual model, so a model built after several others inherits an RNG advanced by their construction --- which is exactly why the same detector scores $0.9687$ in Section~\ref{sec:threshold} and $0.9725$ in Section~\ref{sec:sota}. Determinism at a fixed seed is not robustness across seeds; accuracy is single-seed throughout.
     \item \textbf{External Validity:} Evaluation uses public InSDN and CIC benchmarks; broader IoT/IIoT corpora such as UNSW-NB15~\cite{b6}, ToN\_IoT~\cite{b7}, and Edge-IIoTset~\cite{b8} offer complementary vectors for multi-campus validation.
-    \item \textbf{Construct Validity:} Metrics assume clean flow labels; noisy headers could affect precision. The SOC and SIEM figures in Section~\ref{sec:mttr} are stipulated, establishing an order of magnitude and nothing finer.
+    \item \textbf{Construct Validity:} Metrics assume clean flow labels; noisy headers could affect precision. We report no human-SOC comparison: we have no measured analyst baseline, and a stipulated one would establish only that milliseconds beat minutes, which needs no experiment.
     \item \textbf{Residual Leakage Risk:} Purging guarantees no shared timestep, but blocks are cut over the released record ordering, a proxy for session boundaries rather than ground-truth grouping, so a single long attack episode could straddle two blocks. Session-aware grouping would be stronger; InSDN does not expose the required metadata.
 \end{itemize}
 
@@ -448,11 +443,11 @@ The authors thank the Faculty of Information Technology at HUFLIT for academic a
 \bibitem{b1} M. S. Elsayed, N.-A. Le-Khac, and A. D. Jurcut, ``InSDN: A Novel SDN Intrusion Dataset,'' \textit{IEEE Access}, vol.~8, pp.~165263--165284, 2020, doi: 10.1109/ACCESS.2020.3022633.
 \bibitem{b2} I. Sharafaldin, A. H. Lashkari, and A. A. Ghorbani, ``Toward Generating a New Intrusion Detection Dataset and Intrusion Traffic Characterization,'' in \textit{Proc. 4th Int. Conf. Inf. Syst. Security Privacy (ICISSP)}, 2018, pp.~108--116, doi: 10.5220/0006639801080116.
 \bibitem{b3} S. Bai, J. Z. Kolter, and V. Koltun, ``An Empirical Evaluation of Generic Convolutional and Recurrent Networks for Sequence Modeling,'' arXiv:1803.01271, 2018.
-\bibitem{b4} M. A. Al-Garadi \textit{et al.}, ``Collaborative Federated Learning for 6G with a Deep Reinforcement Learning-based Controlling Mechanism: A DDoS Attack Detection Scenario,'' \textit{IEEE Trans. Netw. Serv. Manag.}, vol.~21, no.~4, pp.~4731--4749, 2024, doi: 10.1109/TNSM.2024.3382104.
+\bibitem{b4} S. Kianpisheh and T. Taleb, ``Collaborative Federated Learning for 6G With a Deep Reinforcement Learning-Based Controlling Mechanism: A DDoS Attack Detection Scenario,'' \textit{IEEE Trans. Netw. Serv. Manag.}, vol.~21, no.~4, pp.~4731--4749, Aug.~2024, doi: 10.1109/TNSM.2024.3387987.
 \bibitem{b5} V. Mnih \textit{et al.}, ``Human-level control through deep reinforcement learning,'' \textit{Nature}, vol.~518, no.~7540, pp.~529--533, 2015, doi: 10.1038/nature14236.
 \bibitem{b6} N. Moustafa and J. Slay, ``UNSW-NB15: a comprehensive data set for network intrusion detection systems,'' in \textit{Proc. MilCIS}, 2015, pp.~1--6, doi: 10.1109/MILCIS.2015.7348942.
 \bibitem{b7} A. Alsaedi \textit{et al.}, ``TON\_IoT Telemetry Dataset: A New Generation Dataset of IoT and IIoT for Data-Driven Cybersecurity Applications,'' \textit{IEEE Access}, vol.~8, pp.~165130--165150, 2020, doi: 10.1109/ACCESS.2020.3022862.
-\bibitem{b8} M. A. Ferrag \textit{et al.}, ``Edge-IIoTset: A New Comprehensive Realistic Cyber Security Dataset of IoT and IIoT Applications for Federated Learning,'' \textit{IEEE Access}, vol.~10, pp.~40281--40300, 2022, doi: 10.1109/ACCESS.2022.3165809.
+\bibitem{b8} M. A. Ferrag \textit{et al.}, ``Edge-IIoTset: A New Comprehensive Realistic Cyber Security Dataset of IoT and IIoT Applications for Centralized and Federated Learning,'' \textit{IEEE Access}, vol.~10, pp.~40281--40306, 2022, doi: 10.1109/ACCESS.2022.3165809.
 \bibitem{b10} N. McKeown \textit{et al.}, ``OpenFlow: enabling innovation in campus networks,'' \textit{ACM SIGCOMM Comput. Commun. Rev.}, vol.~38, no.~2, pp.~69--74, 2008, doi: 10.1145/1355734.1355746.
 \bibitem{b11} Ryu SDN Framework Community, ``Ryu SDN Framework,'' 2020. [Online]. Available: https://ryu-sdn.org/
 \bibitem{b12} A. Paszke \textit{et al.}, ``PyTorch: An imperative style, high-performance deep learning library,'' in \textit{Proc. NeurIPS}, 2019, pp.~8024--8035.
