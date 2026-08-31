@@ -2,9 +2,9 @@ cff-version: 1.2.0
 message: "If you use this research artifact or reference our paper, please cite it as below."
 title: "An AI-Native Event-Driven Edge-Cloud Architecture for Autonomous Network Security and Resilience in Campus Infrastructure"
 authors:
-  - family-names: "Tu"
-    given-names: "Trinh Hoang"
-    email: "tht.csec2005@gmail.com"
+  - family-names: "Trinh"
+    given-names: "Hoang Tu"
+    email: "23dh113972@st.huflit.edu.vn"
     affiliation: "Department of Cybersecurity, Faculty of Information Technology, Ho Chi Minh City University of Foreign Languages - Information Technology (HUFLIT)"
     orcid: "https://orcid.org/0000-0000-0000-0000"
 type: conference-paper

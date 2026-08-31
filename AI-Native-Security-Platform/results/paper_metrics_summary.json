@@ -1,118 +1,146 @@
 {
-  "latency_total_mean_ms": 1.9318,
-  "latency_total_std_ms": 0.6369,
+  "latency_total_mean_ms": 5.9092,
+  "latency_total_std_ms": 2.4948,
   "latency_stages": [
     {
       "name": "Edge Telemetry & TCN-GRU Inference",
-      "mean": 1.8398,
-      "std": 0.612,
-      "pct": 95.2
+      "mean": 5.6967,
+      "std": 2.4769,
+      "pct": 96.4
     },
     {
       "name": "Identity Context Fusion",
-      "mean": 0.0016,
-      "std": 0.0008,
+      "mean": 0.0038,
+      "std": 0.0145,
       "pct": 0.1
     },
     {
       "name": "Cloud Policy Reasoning (DQN)",
-      "mean": 0.089,
-      "std": 0.0872,
-      "pct": 4.6
+      "mean": 0.2059,
+      "std": 0.0731,
+      "pct": 3.5
     },
     {
       "name": "SOAR Playbook Execution",
-      "mean": 0.0013,
-      "std": 0.0005,
-      "pct": 0.1
+      "mean": 0.0028,
+      "std": 0.003,
+      "pct": 0.0
     }
   ],
   "mttr_manual_mean_s": 1518.4986,
   "mttr_manual_std_s": 335.2822,
   "mttr_siem_mean_s": 69.0936,
   "mttr_siem_std_s": 17.5493,
-  "mttr_ai_mean_s": 0.001815,
-  "mttr_ai_std_s": 0.00037,
-  "mttr_ai_mean_ms": 1.8149,
+  "mttr_ai_mean_s": 0.00635,
+  "mttr_ai_std_s": 0.001445,
+  "mttr_ai_mean_ms": 6.3496,
   "precision_best_tau": 0.35,
-  "precision": 0.9618,
-  "recall": 0.9698,
-  "f1": 0.9658,
-  "fpr": 15.92,
-  "fnr": 3.02,
+  "precision": 0.9709,
+  "recall": 0.9297,
+  "f1": 0.9498,
+  "fpr": 11.21,
+  "fnr": 7.03,
   "precision_rows": [
     {
       "tau": 0.35,
-      "precision": 0.9618,
-      "recall": 0.9698,
-      "f1": 0.9658,
-      "fpr": 15.92,
-      "fnr": 3.02
+      "precision": 0.9709,
+      "recall": 0.9297,
+      "f1": 0.9498,
+      "fpr": 11.21,
+      "fnr": 7.03
     },
     {
       "tau": 0.5,
-      "precision": 0.9648,
-      "recall": 0.9646,
-      "f1": 0.9647,
-      "fpr": 14.55,
-      "fnr": 3.54
+      "precision": 0.9759,
+      "recall": 0.9095,
+      "f1": 0.9415,
+      "fpr": 9.04,
+      "fnr": 9.05
     },
     {
       "tau": 0.65,
-      "precision": 0.9674,
-      "recall": 0.9532,
-      "f1": 0.9603,
-      "fpr": 13.27,
-      "fnr": 4.68
+      "precision": 0.9785,
+      "recall": 0.8818,
+      "f1": 0.9276,
+      "fpr": 7.78,
+      "fnr": 11.82
     },
     {
       "tau": 0.75,
-      "precision": 0.975,
-      "recall": 0.9263,
-      "f1": 0.95,
-      "fpr": 9.85,
-      "fnr": 7.37
+      "precision": 0.9814,
+      "recall": 0.847,
+      "f1": 0.9093,
+      "fpr": 6.44,
+      "fnr": 15.3
     },
     {
       "tau": 0.85,
-      "precision": 0.9795,
-      "recall": 0.8901,
-      "f1": 0.9327,
-      "fpr": 7.71,
-      "fnr": 10.99
+      "precision": 0.9876,
+      "recall": 0.7788,
+      "f1": 0.8708,
+      "fpr": 3.93,
+      "fnr": 22.12
     }
   ],
-  "resource_10k_cpu": 35.18,
-  "resource_10k_rss_mb": 475.3,
+  "resource_10k_cpu": 43.82,
+  "resource_10k_rss_mb": 495.0,
   "resource_model_mb": 0.048,
+  "resource_deploy_batch": 128,
+  "resource_saturation": [
+    {
+      "batch": 1,
+      "windows_per_s": 156.5,
+      "ms_per_forward": 6.391
+    },
+    {
+      "batch": 8,
+      "windows_per_s": 733.0,
+      "ms_per_forward": 10.914
+    },
+    {
+      "batch": 32,
+      "windows_per_s": 2951.9,
+      "ms_per_forward": 10.841
+    },
+    {
+      "batch": 128,
+      "windows_per_s": 7713.8,
+      "ms_per_forward": 16.594
+    },
+    {
+      "batch": 512,
+      "windows_per_s": 20087.3,
+      "ms_per_forward": 25.489
+    }
+  ],
   "resource_rows": [
     {
-      "tp": 100,
-      "cpu": 38.47,
-      "rss": 475.2,
-      "dpi_cpu": 95.0,
-      "dpi_rss": 1047.2
+      "offered": 100,
+      "achieved": 100.0,
+      "cpu": 6.1,
+      "rss": 495.0,
+      "target_met": true
     },
     {
-      "tp": 1000,
-      "cpu": 38.47,
-      "rss": 475.2,
-      "dpi_cpu": 95.0,
-      "dpi_rss": 1063.4
+      "offered": 1000,
+      "achieved": 999.9,
+      "cpu": 39.14,
+      "rss": 495.0,
+      "target_met": true
     },
     {
-      "tp": 5000,
-      "cpu": 37.81,
-      "rss": 475.2,
-      "dpi_cpu": 95.0,
-      "dpi_rss": 1135.4
+      "offered": 5000,
+      "achieved": 4981.9,
+      "cpu": 41.84,
+      "rss": 495.0,
+      "target_met": true
     },
     {
-      "tp": 10000,
-      "cpu": 35.18,
-      "rss": 475.3,
-      "dpi_cpu": 95.0,
-      "dpi_rss": 1225.7
+      "offered": 10000,
+      "achieved": 8171.2,
+      "cpu": 43.82,
+      "rss": 495.0,
+      "target_met": false
     }
   ],
   "sota_methods": [
@@ -123,39 +151,138 @@
     "TCN-GRU (INT8 Proposed)"
   ],
   "sota_f1": [
-    0.1993,
-    0.8714,
-    0.8718,
-    0.9719,
-    0.9715
+    0.2,
+    0.8687,
+    0.868,
+    0.9725,
+    0.9725
   ],
   "sota_latency_ms": [
-    4.7634,
-    0.3371,
-    0.9149,
-    1.8349,
-    2.6961
+    12.5124,
+    1.6821,
+    2.3629,
+    6.5537,
+    11.1171
   ],
   "sota_ram_mb": [
-    12.4,
+    null,
     0.028,
     0.068,
     0.104,
     0.048
   ],
-  "sota_cpu": [
-    8.5,
-    12.4,
-    18.6,
-    9.8,
-    7.2
-  ],
-  "sota_delta_f1": -0.0004,
+  "sota_delta_f1": 0.0,
   "cross_dataset": {
-    "opt_tau": 0.0688,
-    "insdn_f1_065": 0.9476,
-    "insdn_f1_star": 0.9711,
-    "cic_f1_065": 0.4379,
-    "cic_f1_star": 0.4427
+    "opt_tau": 0.072,
+    "insdn_f1_065": 0.9276,
+    "insdn_f1_star": 0.9687,
+    "cic_f1_065": 0.4611,
+    "cic_f1_star": 0.467
+  },
+  "ablation_transport_async_ms": 0.0063,
+  "ablation_transport_sync_ms": 1.5551,
+  "ablation_rows": [
+    {
+      "config": "Full Proposed Pipeline",
+      "f1": 0.9602,
+      "fpr": 12.05,
+      "latency_ms": 8.4238
+    },
+    {
+      "config": "--- w/o Identity Context Fusion",
+      "f1": 0.9628,
+      "fpr": 20.67,
+      "latency_ms": 8.4235
+    },
+    {
+      "config": "--- w/o Cloud Risk Engine (Direct Edge Actuation)",
+      "f1": 0.968,
+      "fpr": 25.19,
+      "latency_ms": 8.4234
+    },
+    {
+      "config": "--- w/o INT8 Quantization (FP32 Baseline)",
+      "f1": 0.9699,
+      "fpr": 18.83,
+      "latency_ms": 3.3089
+    },
+    {
+      "config": "--- w/o Redis Streams (Synchronous REST Call)",
+      "f1": 0.9602,
+      "fpr": 12.05,
+      "latency_ms": 9.9726
+    }
+  ],
+  "ablation_rho_sweep": [
+    {
+      "rho": 0.5,
+      "full_f1": 0.9518,
+      "no_identity_f1": 0.9628,
+      "delta_f1": -0.011
+    },
+    {
+      "rho": 0.6,
+      "full_f1": 0.9542,
+      "no_identity_f1": 0.9628,
+      "delta_f1": -0.0086
+    },
+    {
+      "rho": 0.7,
+      "full_f1": 0.9602,
+      "no_identity_f1": 0.9628,
+      "delta_f1": -0.0027
+    },
+    {
+      "rho": 0.8,
+      "full_f1": 0.9641,
+      "no_identity_f1": 0.9628,
+      "delta_f1": 0.0013
+    },
+    {
+      "rho": 0.9,
+      "full_f1": 0.9725,
+      "no_identity_f1": 0.9628,
+      "delta_f1": 0.0096
+    }
+  ],
+  "policy_rows": [
+    {
+      "policy": "Static Rule Lookup",
+      "latency_ms": 0.0008,
+      "qos_disruption": 0.0447,
+      "mean_regret": 0.0802,
+      "action_accuracy_pct": 38.24
+    },
+    {
+      "policy": "Round-Robin Action Assignment",
+      "latency_ms": 0.0006,
+      "qos_disruption": 0.1865,
+      "mean_regret": 0.2046,
+      "action_accuracy_pct": 25.5
+    },
+    {
+      "policy": "Heuristic Risk Table",
+      "latency_ms": 0.0007,
+      "qos_disruption": 0.0516,
+      "mean_regret": 0.0722,
+      "action_accuracy_pct": 34.78
+    },
+    {
+      "policy": "Deep Q-Network (DQN Agent)",
+      "latency_ms": 0.1075,
+      "qos_disruption": 0.1278,
+      "mean_regret": 0.0,
+      "action_accuracy_pct": 99.2
+    }
+  ],
+  "leakage_effect": {
+    "leaky_f1_065": 0.9337,
+    "leaky_opt_tau": 0.0945,
+    "leaky_f1_opt": 0.9708,
+    "controlled_f1_065": 0.9276,
+    "controlled_opt_tau": 0.072,
+    "controlled_f1_opt": 0.9687,
+    "delta_f1_fixed": 0.0061,
+    "delta_f1_opt": 0.0021
   }
 }

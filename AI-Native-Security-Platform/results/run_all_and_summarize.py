@@ -19,6 +19,9 @@ from generate_table4 import run_real_precision_eval
 from generate_table5 import run_real_resource_benchmark
 from generate_table6 import run_sota_comparison
 from generate_table7 import run_cross_dataset
+from generate_table8 import run_ablation
+from generate_table9 import run_policy_benchmark
+from generate_table10_leakage import run as run_leakage_effect
 
 
 def main():
@@ -29,6 +32,9 @@ def main():
     res = run_real_resource_benchmark()
     sota = run_sota_comparison()
     cross = run_cross_dataset()
+    ablation = run_ablation()
+    policy = run_policy_benchmark()
+    leakage = run_leakage_effect()
 
     best_tau, best_m = prec["best_report"]
     summary = {
@@ -70,23 +76,31 @@ def main():
         "resource_10k_cpu": round(res["ai_cpu"][-1], 2),
         "resource_10k_rss_mb": round(res["ai_ram"][-1], 1),
         "resource_model_mb": round(res["model_mb"], 3),
+        "resource_deploy_batch": res["deploy_batch"],
+        "resource_saturation": [
+            {
+                "batch": s["batch"],
+                "windows_per_s": round(s["windows_per_s"], 1),
+                "ms_per_forward": round(s["ms_per_forward"], 3),
+            }
+            for s in res["saturation"]
+        ],
         "resource_rows": [
             {
-                "tp": tp,
+                "offered": tp,
+                "achieved": round(a, 1),
                 "cpu": round(c, 2),
                 "rss": round(r, 1),
-                "dpi_cpu": round(dc, 2),
-                "dpi_rss": round(dr, 1),
+                "target_met": bool(m),
             }
-            for tp, c, r, dc, dr in zip(
-                res["throughputs"], res["ai_cpu"], res["ai_ram"], res["dpi_cpu"], res["dpi_ram"]
+            for tp, a, c, r, m in zip(
+                res["throughputs"], res["achieved"], res["ai_cpu"], res["ai_ram"], res["target_met"]
             )
         ],
         "sota_methods": sota["methods"],
         "sota_f1": [round(x, 4) for x in sota["f1"]],
         "sota_latency_ms": [round(x, 4) for x in sota["latency"]],
-        "sota_ram_mb": [round(x, 3) for x in sota["ram"]],
-        "sota_cpu": [round(x, 2) for x in sota["cpu"]],
+        "sota_ram_mb": [None if x is None else round(x, 3) for x in sota["ram"]],
         "sota_delta_f1": round(sota["delta_f1"], 4),
         "cross_dataset": {
             "opt_tau": round(cross["opt_tau"], 4),
@@ -94,6 +108,46 @@ def main():
             "insdn_f1_star": round(cross["insdn_tau_star"]["f1"], 4),
             "cic_f1_065": round(cross["cic_tau065"]["f1"], 4),
             "cic_f1_star": round(cross["cic_tau_star"]["f1"], 4),
+        },
+        "ablation_transport_async_ms": round(ablation["async_ms"], 4),
+        "ablation_transport_sync_ms": round(ablation["sync_ms"], 4),
+        "ablation_rows": [
+            {
+                "config": r["config"],
+                "f1": round(r["f1"], 4),
+                "fpr": round(r["fpr"], 2),
+                "latency_ms": round(r["latency"], 4),
+            }
+            for r in ablation["rows"]
+        ],
+        "ablation_rho_sweep": [
+            {
+                "rho": s["rho"],
+                "full_f1": round(s["full_f1"], 4),
+                "no_identity_f1": round(s["no_id_f1"], 4),
+                "delta_f1": round(s["delta"], 4),
+            }
+            for s in ablation["sweep"]
+        ],
+        "policy_rows": [
+            {
+                "policy": r["policy"],
+                "latency_ms": round(r["latency_ms"], 4),
+                "qos_disruption": round(r["qos"], 4),
+                "mean_regret": round(r["regret"], 4),
+                "action_accuracy_pct": round(r["accuracy"], 2),
+            }
+            for r in policy["rows"]
+        ],
+        "leakage_effect": {
+            "leaky_f1_065": round(leakage["leaky"]["fixed"]["f1"], 4),
+            "leaky_opt_tau": round(leakage["leaky"]["opt_tau"], 4),
+            "leaky_f1_opt": round(leakage["leaky"]["opt"]["f1"], 4),
+            "controlled_f1_065": round(leakage["controlled"]["fixed"]["f1"], 4),
+            "controlled_opt_tau": round(leakage["controlled"]["opt_tau"], 4),
+            "controlled_f1_opt": round(leakage["controlled"]["opt"]["f1"], 4),
+            "delta_f1_fixed": round(leakage["delta_f1_fixed"], 4),
+            "delta_f1_opt": round(leakage["delta_f1_opt"], 4),
         },
     }
 

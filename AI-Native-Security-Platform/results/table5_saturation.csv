@@ -1,0 +1,6 @@
+Batch Size,Saturation Throughput (windows/s),Latency per Forward Pass (ms)
+1,156.5,6.391
+8,733.0,10.914
+32,2951.9,10.841
+128,7713.8,16.594
+512,20087.3,25.489
