@@ -1,39 +1,45 @@
 {
-  "latency_total_mean_ms": 5.9092,
-  "latency_total_std_ms": 2.4948,
+  "latency_total_median_ms": 2.6805,
+  "latency_total_p95_ms": 4.9515,
+  "latency_total_p99_ms": 5.7644,
+  "latency_total_mean_ms": 3.0525,
   "latency_stages": [
     {
       "name": "Edge Telemetry & TCN-GRU Inference",
-      "mean": 5.6967,
-      "std": 2.4769,
-      "pct": 96.4
+      "median": 2.5388,
+      "p95": 4.7031,
+      "p99": 5.5304,
+      "pct": 94.7
     },
     {
       "name": "Identity Context Fusion",
-      "mean": 0.0038,
-      "std": 0.0145,
+      "median": 0.0021,
+      "p95": 0.004,
+      "p99": 0.0051,
       "pct": 0.1
     },
     {
       "name": "Cloud Policy Reasoning (DQN)",
-      "mean": 0.2059,
-      "std": 0.0731,
-      "pct": 3.5
+      "median": 0.117,
+      "p95": 0.2482,
+      "p99": 0.3035,
+      "pct": 4.4
     },
     {
       "name": "SOAR Playbook Execution",
-      "mean": 0.0028,
-      "std": 0.003,
-      "pct": 0.0
+      "median": 0.0018,
+      "p95": 0.0033,
+      "p99": 0.0042,
+      "pct": 0.1
     }
   ],
   "mttr_manual_mean_s": 1518.4986,
   "mttr_manual_std_s": 335.2822,
   "mttr_siem_mean_s": 69.0936,
   "mttr_siem_std_s": 17.5493,
-  "mttr_ai_mean_s": 0.00635,
-  "mttr_ai_std_s": 0.001445,
-  "mttr_ai_mean_ms": 6.3496,
+  "mttr_ai_mean_s": 0.002958,
+  "mttr_ai_std_s": 0.000875,
+  "mttr_ai_mean_ms": 2.9578,
   "precision_best_tau": 0.35,
   "precision": 0.9709,
   "recall": 0.9297,
@@ -82,69 +88,103 @@
       "fnr": 22.12
     }
   ],
-  "resource_10k_cpu": 43.82,
-  "resource_10k_rss_mb": 495.0,
+  "resource_10k_cpu": 58.81,
+  "resource_10k_cpu_range": [
+    57.64,
+    59.92
+  ],
+  "resource_10k_rss_mb": 540.5,
   "resource_model_mb": 0.048,
   "resource_deploy_batch": 128,
+  "resource_repeats": 5,
   "resource_saturation": [
     {
       "batch": 1,
-      "windows_per_s": 156.5,
-      "ms_per_forward": 6.391
+      "windows_per_s": 358.8,
+      "windows_per_s_min": 347.3,
+      "windows_per_s_max": 368.8,
+      "ms_per_forward": 2.787
     },
     {
       "batch": 8,
-      "windows_per_s": 733.0,
-      "ms_per_forward": 10.914
+      "windows_per_s": 1766.7,
+      "windows_per_s_min": 1720.6,
+      "windows_per_s_max": 1890.7,
+      "ms_per_forward": 4.528
     },
     {
       "batch": 32,
-      "windows_per_s": 2951.9,
-      "ms_per_forward": 10.841
+      "windows_per_s": 6634.4,
+      "windows_per_s_min": 6430.4,
+      "windows_per_s_max": 7096.5,
+      "ms_per_forward": 4.823
     },
     {
       "batch": 128,
-      "windows_per_s": 7713.8,
-      "ms_per_forward": 16.594
+      "windows_per_s": 17974.9,
+      "windows_per_s_min": 17146.6,
+      "windows_per_s_max": 18130.9,
+      "ms_per_forward": 7.121
     },
     {
       "batch": 512,
-      "windows_per_s": 20087.3,
-      "ms_per_forward": 25.489
+      "windows_per_s": 41329.2,
+      "windows_per_s_min": 40492.8,
+      "windows_per_s_max": 43205.9,
+      "ms_per_forward": 12.388
     }
   ],
   "resource_rows": [
     {
       "offered": 100,
       "achieved": 100.0,
-      "cpu": 6.1,
-      "rss": 495.0,
+      "achieved_min": 100.0,
+      "achieved_max": 100.0,
+      "cpu": 8.96,
+      "cpu_min": 8.76,
+      "cpu_max": 9.66,
+      "rss": 540.5,
       "target_met": true
     },
     {
       "offered": 1000,
       "achieved": 999.9,
-      "cpu": 39.14,
-      "rss": 495.0,
+      "achieved_min": 999.7,
+      "achieved_max": 1000.0,
+      "cpu": 55.0,
+      "cpu_min": 54.05,
+      "cpu_max": 56.29,
+      "rss": 540.5,
       "target_met": true
     },
     {
       "offered": 5000,
-      "achieved": 4981.9,
-      "cpu": 41.84,
-      "rss": 495.0,
+      "achieved": 4999.4,
+      "achieved_min": 4999.2,
+      "achieved_max": 4999.7,
+      "cpu": 56.48,
+      "cpu_min": 55.7,
+      "cpu_max": 57.39,
+      "rss": 540.5,
       "target_met": true
     },
     {
       "offered": 10000,
-      "achieved": 8171.2,
-      "cpu": 43.82,
-      "rss": 495.0,
-      "target_met": false
+      "achieved": 9998.3,
+      "achieved_min": 9997.9,
+      "achieved_max": 9998.9,
+      "cpu": 58.81,
+      "cpu_min": 57.64,
+      "cpu_max": 59.92,
+      "rss": 540.5,
+      "target_met": true
     }
   ],
   "sota_methods": [
     "Isolation Forest (iForest)",
+    "Random Forest",
+    "XGBoost",
+    "LightGBM",
     "LSTM Autoencoder (FP32)",
     "Transformer AE (FP32)",
     "TCN-GRU (FP32 Ablation)",
@@ -152,25 +192,39 @@
   ],
   "sota_f1": [
     0.2,
+    0.9843,
+    0.988,
+    0.9886,
     0.8687,
     0.868,
     0.9725,
     0.9725
   ],
   "sota_latency_ms": [
-    12.5124,
-    1.6821,
-    2.3629,
-    6.5537,
-    11.1171
+    7.8573,
+    46.3013,
+    0.3874,
+    0.7111,
+    0.6193,
+    1.1746,
+    2.8322,
+    4.3037
   ],
   "sota_ram_mb": [
+    null,
+    null,
+    null,
     null,
     0.028,
     0.068,
     0.104,
     0.048
   ],
+  "sota_tree_serialized_mb": {
+    "random_forest": 20.562,
+    "xgboost": 0.845,
+    "lightgbm": 1.374
+  },
   "sota_delta_f1": 0.0,
   "cross_dataset": {
     "opt_tau": 0.072,
@@ -179,38 +233,38 @@
     "cic_f1_065": 0.4611,
     "cic_f1_star": 0.467
   },
-  "ablation_transport_async_ms": 0.0063,
-  "ablation_transport_sync_ms": 1.5551,
+  "ablation_transport_async_ms": 0.0031,
+  "ablation_transport_sync_ms": 1.0137,
   "ablation_rows": [
     {
       "config": "Full Proposed Pipeline",
       "f1": 0.9602,
       "fpr": 12.05,
-      "latency_ms": 8.4238
+      "latency_ms": 6.6435
     },
     {
       "config": "--- w/o Identity Context Fusion",
       "f1": 0.9628,
       "fpr": 20.67,
-      "latency_ms": 8.4235
+      "latency_ms": 6.6432
     },
     {
       "config": "--- w/o Cloud Risk Engine (Direct Edge Actuation)",
       "f1": 0.968,
       "fpr": 25.19,
-      "latency_ms": 8.4234
+      "latency_ms": 6.6432
     },
     {
       "config": "--- w/o INT8 Quantization (FP32 Baseline)",
       "f1": 0.9699,
       "fpr": 18.83,
-      "latency_ms": 3.3089
+      "latency_ms": 2.7263
     },
     {
       "config": "--- w/o Redis Streams (Synchronous REST Call)",
       "f1": 0.9602,
       "fpr": 12.05,
-      "latency_ms": 9.9726
+      "latency_ms": 7.6541
     }
   ],
   "ablation_rho_sweep": [
@@ -248,28 +302,28 @@
   "policy_rows": [
     {
       "policy": "Static Rule Lookup",
-      "latency_ms": 0.0008,
+      "latency_ms": 0.0004,
       "qos_disruption": 0.0447,
       "mean_regret": 0.0802,
       "action_accuracy_pct": 38.24
     },
     {
       "policy": "Round-Robin Action Assignment",
-      "latency_ms": 0.0006,
+      "latency_ms": 0.0003,
       "qos_disruption": 0.1865,
       "mean_regret": 0.2046,
       "action_accuracy_pct": 25.5
     },
     {
       "policy": "Heuristic Risk Table",
-      "latency_ms": 0.0007,
+      "latency_ms": 0.0004,
       "qos_disruption": 0.0516,
       "mean_regret": 0.0722,
       "action_accuracy_pct": 34.78
     },
     {
       "policy": "Deep Q-Network (DQN Agent)",
-      "latency_ms": 0.1075,
+      "latency_ms": 0.0942,
       "qos_disruption": 0.1278,
       "mean_regret": 0.0,
       "action_accuracy_pct": 99.2

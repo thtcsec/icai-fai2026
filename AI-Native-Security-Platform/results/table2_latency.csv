@@ -1,6 +1,6 @@
-Pipeline Stage,Mean Latency (ms),SD (ms),Percentage (%)
-Edge Telemetry & TCN-GRU Inference,5.6967,2.4769,96.4%
-Identity Context Fusion,0.0038,0.0145,0.1%
-Cloud Policy Reasoning (DQN),0.2059,0.0731,3.5%
-SOAR Playbook Execution,0.0028,0.0030,0.0%
-End-to-End Total,5.9092,2.4948,100.0%
+Pipeline Stage,Median (ms),p95 (ms),p99 (ms),Share of Median Total (%)
+Edge Telemetry & TCN-GRU Inference,2.5388,4.7031,5.5304,94.7%
+Identity Context Fusion,0.0021,0.0040,0.0051,0.1%
+Cloud Policy Reasoning (DQN),0.1170,0.2482,0.3035,4.4%
+SOAR Playbook Execution,0.0018,0.0033,0.0042,0.1%
+End-to-End Total,2.6805,4.9515,5.7644,100.0%

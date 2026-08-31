@@ -1,6 +1,6 @@
-Batch Size,Saturation Throughput (windows/s),Latency per Forward Pass (ms)
-1,156.5,6.391
-8,733.0,10.914
-32,2951.9,10.841
-128,7713.8,16.594
-512,20087.3,25.489
+Batch Size,Saturation Throughput median of 5 (windows/s),Min (windows/s),Max (windows/s),Latency per Forward Pass median (ms)
+1,358.8,347.3,368.8,2.787
+8,1766.7,1720.6,1890.7,4.528
+32,6634.4,6430.4,7096.5,4.823
+128,17974.9,17146.6,18130.9,7.121
+512,41329.2,40492.8,43205.9,12.388

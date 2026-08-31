@@ -4,6 +4,7 @@ generate_table6.py - Trained SOTA baseline & ablation comparison (classifier/AE 
 
 import csv
 import os
+import pickle
 import sys
 import time
 
@@ -15,8 +16,10 @@ import numpy as np
 import psutil
 import torch
 import torch.nn as nn
-from sklearn.ensemble import IsolationForest
+from lightgbm import LGBMClassifier
+from sklearn.ensemble import IsolationForest, RandomForestClassifier
 from sklearn.metrics import f1_score
+from xgboost import XGBClassifier
 
 BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 if BASE_DIR not in sys.path:
@@ -75,13 +78,39 @@ class TransformerAutoencoder(nn.Module):
         return out, rec_err
 
 
-def _latency_ms(fn, warmup=20, runs=200):
+def _fit_tabular(model, X_tr_flat, y_tr_flat, X_te_flat, y_true):
+    """Supervised tabular baseline scored under the same test-split threshold search.
+
+    Trees receive the window flattened to seq_len*num_features, i.e. the same raw
+    information the sequence models see, rather than the time-averaged view used
+    for the unsupervised iForest row. Anything less would handicap the baseline.
+    """
+    model.fit(X_tr_flat, y_tr_flat)
+    scores = model.predict_proba(X_te_flat)[:, 1]
+    _, best = best_threshold(y_true, scores)
+    latency = _latency_ms(lambda: model.predict_proba(X_te_flat[:1]))
+    # Serialized size, reported separately from model_param_mb: a tree ensemble
+    # has no parameter-tensor analogue, so the two are not the same basis.
+    serialized_mb = len(pickle.dumps(model)) / (1024.0 * 1024.0)
+    return best["f1"], latency, serialized_mb
+
+
+def _latency_ms(fn, warmup=20, runs=200, repeats=5):
+    """Median of `repeats` timing blocks.
+
+    A single block mean is not reproducible on a loaded host: repeated runs of
+    this script have moved per-model latency by more than 50%. Taking the median
+    across blocks discards blocks that were interrupted by other work.
+    """
     for _ in range(warmup):
         fn()
-    t0 = time.perf_counter()
-    for _ in range(runs):
-        fn()
-    return ((time.perf_counter() - t0) / runs) * 1000.0
+    block_means = []
+    for _ in range(repeats):
+        t0 = time.perf_counter()
+        for _ in range(runs):
+            fn()
+        block_means.append(((time.perf_counter() - t0) / runs) * 1000.0)
+    return float(np.median(block_means))
 
 
 def run_sota_comparison(seed: int = 42):
@@ -104,6 +133,37 @@ def run_sota_comparison(seed: int = 42):
     # No footprint reported: model_param_mb measures torch state_dict tensors and
     # has no meaningful analogue for a scikit-learn forest.
     if_ram = None
+
+    # Supervised tabular baselines on the flattened window. Footprint is left
+    # unreported: model_param_mb measures torch state_dict tensors and has no
+    # comparable basis for a tree ensemble.
+    X_tr_flat = X_tr.numpy().reshape(X_tr.shape[0], -1)
+    X_te_flat = X_te.numpy().reshape(X_te.shape[0], -1)
+    y_tr_flat = y_tr.numpy().astype(int)
+
+    rf_f1, rf_lat, rf_mb = _fit_tabular(
+        RandomForestClassifier(n_estimators=300, random_state=seed, n_jobs=-1),
+        X_tr_flat, y_tr_flat, X_te_flat, y_true,
+    )
+    xgb_f1, xgb_lat, xgb_mb = _fit_tabular(
+        XGBClassifier(
+            n_estimators=400, max_depth=6, learning_rate=0.1,
+            subsample=0.9, colsample_bytree=0.9,
+            eval_metric="logloss", random_state=seed, n_jobs=-1,
+        ),
+        X_tr_flat, y_tr_flat, X_te_flat, y_true,
+    )
+    lgbm_f1, lgbm_lat, lgbm_mb = _fit_tabular(
+        LGBMClassifier(
+            n_estimators=400, learning_rate=0.1, num_leaves=31,
+            random_state=seed, n_jobs=-1, verbose=-1,
+        ),
+        X_tr_flat, y_tr_flat, X_te_flat, y_true,
+    )
+    print(
+        f"  [i] serialized tree size (pickle, not comparable to param footprint): "
+        f"RF={rf_mb:.2f}MB XGB={xgb_mb:.2f}MB LGBM={lgbm_mb:.2f}MB"
+    )
 
     lstm = train_reconstruction_model(LSTMAutoencoder(), X_tr, y_tr, epochs=10, forward_mode="pair", seed=seed)
     _, lstm_best = best_threshold(y_true, reconstruction_errors(lstm, X_te, forward_mode="pair"))
@@ -131,14 +191,17 @@ def run_sota_comparison(seed: int = 42):
 
     methods = [
         "Isolation Forest (iForest)",
+        "Random Forest",
+        "XGBoost",
+        "LightGBM",
         "LSTM Autoencoder (FP32)",
         "Transformer AE (FP32)",
         "TCN-GRU (FP32 Ablation)",
         "TCN-GRU (INT8 Proposed)",
     ]
-    f1_scores = [if_f1, lstm_f1, trans_f1, tcn_fp32_f1, tcn_int8_f1]
-    latencies = [if_lat, lstm_lat, trans_lat, tcn_fp32_lat, tcn_int8_lat]
-    ram_sizes = [if_ram, lstm_ram, trans_ram, tcn_fp32_ram, tcn_int8_ram]
+    f1_scores = [if_f1, rf_f1, xgb_f1, lgbm_f1, lstm_f1, trans_f1, tcn_fp32_f1, tcn_int8_f1]
+    latencies = [if_lat, rf_lat, xgb_lat, lgbm_lat, lstm_lat, trans_lat, tcn_fp32_lat, tcn_int8_lat]
+    ram_sizes = [if_ram, None, None, None, lstm_ram, trans_ram, tcn_fp32_ram, tcn_int8_ram]
 
     with open(CSV_PATH, "w", newline="", encoding="utf-8") as f:
         writer = csv.writer(f)
@@ -146,8 +209,8 @@ def run_sota_comparison(seed: int = 42):
         for m, f1, l, r in zip(methods, f1_scores, latencies, ram_sizes):
             writer.writerow([m, f"{f1:.4f}", f"{l:.4f}", "n/a" if r is None else f"{r:.3f} MB"])
 
-    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(8.8, 3.8))
-    colors = ["#777777", "#d9534f", "#f0ad4e", "#4682b4", "#5cb85c"]
+    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(8.8, 5.0))
+    colors = ["#777777", "#8e6fb0", "#8e6fb0", "#8e6fb0", "#d9534f", "#f0ad4e", "#4682b4", "#5cb85c"]
     y = np.arange(len(methods))
     ax1.barh(y, f1_scores, color=colors, edgecolor="black")
     ax1.set_yticks(y)
@@ -185,6 +248,7 @@ def run_sota_comparison(seed: int = 42):
         "f1": f1_scores,
         "latency": latencies,
         "ram": ram_sizes,
+        "tree_serialized_mb": {"random_forest": rf_mb, "xgboost": xgb_mb, "lightgbm": lgbm_mb},
         "delta_f1": tcn_int8_f1 - tcn_fp32_f1,
     }
 
