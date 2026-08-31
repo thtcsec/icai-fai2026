@@ -33,7 +33,9 @@ def run_real_mttr_benchmark(num_trials: int = 500, seed: int = 42):
     np.random.seed(seed)
     torch.manual_seed(seed)
 
-    # Literature-aligned synthetic baselines for human/legacy workflows
+    # Stipulated (not measured) human/legacy baselines: truncated Gaussians whose
+    # ranges bracket the timescales industry incident-response reporting associates
+    # with manual triage and rule-based alerting. See the paper's provenance note.
     manual_soc_times = np.clip(np.random.normal(loc=1512.4, scale=350.0, size=num_trials), 900.0, 3200.0)
     legacy_siem_times = np.clip(np.random.normal(loc=68.5, scale=18.0, size=num_trials), 25.0, 150.0)
 
@@ -57,7 +59,7 @@ def run_real_mttr_benchmark(num_trials: int = 500, seed: int = 42):
         ai_native_times.append(time.perf_counter() - t0)
 
     ai_native_times = np.array(ai_native_times)
-    paradigms = ["Manual SOC Triage", "Legacy Rule SIEM", "AI-Native Autonomous"]
+    paradigms = ["Manual SOC Triage", "Legacy Rule SIEM", "AI-Native Decision Path"]
     series = [manual_soc_times, legacy_siem_times, ai_native_times]
     means = [float(np.mean(s)) for s in series]
     stds = [float(np.std(s, ddof=1)) for s in series]
@@ -73,8 +75,8 @@ def run_real_mttr_benchmark(num_trials: int = 500, seed: int = 42):
     fig, ax = plt.subplots(figsize=(6.2, 3.4))
     bars = ax.bar(paradigms, means, color=["#d9534f", "#f0ad4e", "#5cb85c"], edgecolor="black", width=0.45)
     ax.set_yscale("log")
-    ax.set_ylabel("MTTR (seconds, log scale)")
-    ax.set_title("Incident Response Time (MTTR) Comparison")
+    ax.set_ylabel("Time-to-decision (seconds, log scale)")
+    ax.set_title("Time-to-Decision Comparison (human baselines stipulated)")
     ax.grid(axis="y", linestyle="--", alpha=0.5)
     labels = [
         f"{means[0]:.1f}±{stds[0]:.1f} s",

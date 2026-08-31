@@ -1,5 +1,5 @@
-Throughput (events/s),AI Edge CPU (%/core),AI Process RSS (MB),Legacy DPI CPU (%),Legacy DPI RAM (MB),INT8 Model Footprint (MB),Baseline RSS (MB)
-100,38.47%,475.2 MB,95.00%,1047.2 MB,0.048 MB,469.4 MB
-1000,38.47%,475.2 MB,95.00%,1063.4 MB,0.048 MB,469.4 MB
-5000,37.81%,475.2 MB,95.00%,1135.4 MB,0.048 MB,469.4 MB
-10000,35.18%,475.3 MB,95.00%,1225.7 MB,0.048 MB,469.4 MB
+Offered Load (windows/s),Achieved Throughput (windows/s),Edge CPU (%/core),Process RSS (MB),INT8 Model Footprint (MB),Target Met
+100,100.0,6.10%,495.0 MB,0.048 MB,yes
+1000,999.9,39.14%,495.0 MB,0.048 MB,yes
+5000,4981.9,41.84%,495.0 MB,0.048 MB,yes
+10000,8171.2,43.82%,495.0 MB,0.048 MB,no

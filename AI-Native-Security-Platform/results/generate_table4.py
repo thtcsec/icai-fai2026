@@ -18,17 +18,18 @@ if BASE_DIR not in sys.path:
     sys.path.insert(0, BASE_DIR)
 sys.path.insert(0, os.path.dirname(__file__))
 
-from prototype.data.data_loader import generate_insdn_telemetry_csv, load_telemetry_dataset
+from prototype.data.data_loader import resolve_real_windows_npz
 from prototype.edge.detector.quantize import quantize_tcn_gru_model
 from prototype.edge.detector.tcn_gru_model import TCNGRUResilienceModel
 from train_utils import (
     adaptive_threshold_table,
+    blocked_split_npz,
     classifier_binary_scores,
     reconstruction_errors,
-    split_dataset,
     threshold_metrics,
     train_autoencoder,
     best_threshold,
+    set_global_seed,
 )
 
 DATASET_CSV = os.path.join(BASE_DIR, "results", "insdn_telemetry_sample.csv")
@@ -40,10 +41,10 @@ CKPT_PATH = os.path.join(BASE_DIR, "results", "checkpoints", "tcn_gru_ae_trained
 
 def run_real_precision_eval(seed: int = 42):
     print("[*] Training TCN-GRU on REAL InSDN windows and evaluating thresholds...")
-    X_tensor, y_true_tensor = load_telemetry_dataset(
-        DATASET_CSV, seq_len=10, prefer_real=True, real_name="insdn", max_samples=20000
+    set_global_seed(seed)
+    X_tr, y_tr, X_te, y_te, _ = blocked_split_npz(
+        resolve_real_windows_npz("insdn"), seq_len=10, seed=seed
     )
-    X_tr, y_tr, X_te, y_te = split_dataset(X_tensor, y_true_tensor, train_ratio=0.7, seed=seed)
     y_true = y_te.numpy()
 
     base_model = TCNGRUResilienceModel(num_features=10, num_classes=6)

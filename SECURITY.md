@@ -8,7 +8,7 @@ If you discover a security vulnerability or security issue in this codebase or p
 
 ### How to Report
 Please send an email detailing the security issue to:
-* **Lead Researcher**: Trinh Hoang Tu (`tht.csec2005@gmail.com`)
+* **Lead Researcher**: Trinh Hoang Tu (`23dh113972@st.huflit.edu.vn`)
 * **Department**: Department of Cybersecurity, Faculty of Information Technology, HUFLIT
 
 Please include:

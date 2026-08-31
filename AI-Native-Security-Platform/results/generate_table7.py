@@ -32,8 +32,9 @@ from prototype.edge.detector.quantize import quantize_tcn_gru_model
 from prototype.edge.detector.tcn_gru_model import TCNGRUResilienceModel
 from train_utils import (
     best_threshold,
+    blocked_split_npz,
     classifier_binary_scores,
-    split_dataset,
+    set_global_seed,
     threshold_metrics,
     train_autoencoder,
 )
@@ -52,24 +53,11 @@ def _eval_split(model, X, y, tau: float):
 
 def run_cross_dataset(seed: int = 42, n_insdn: int = 20000, n_cic: int = 20000, tau: float = 0.65):
     print("[*] Cross-dataset: train InSDN → test InSDN holdout + CIC holdout")
+    set_global_seed(seed)
     insdn_path = resolve_real_windows_npz("insdn")
     cic_path = resolve_real_windows_npz("cic")
     if not insdn_path or not cic_path:
         raise FileNotFoundError("Need both insdn_windows.npz and cic_windows.npz")
-
-    # Load InSDN raw-ish then fit scaler on TRAIN only after split on unscaled?
-    # Protocol: load without scaling first by fit_scaler on full then re-fit on train.
-    # Better: load unscaled via fit on dummy then we reimplement split.
-    # Simplest correct approach:
-    #  1) load InSDN with fit_scaler=True temporarily to get tensors, but that leaks.
-    # Correct:
-    #  load with a StandardScaler fit on ALL then discard — NO.
-    # Use load with scaler=None, fit_scaler=True only after we manually load raw.
-
-    # Load InSDN with temporary scaler, then we will re-standardize properly:
-    # Actually load_windows_npz always scales. So:
-    # - Load InSDN max_samples with fit_scaler=True (for split indices only we need raw)
-    # Implement raw load inline here for protocol clarity.
 
     from sklearn.preprocessing import StandardScaler
 
@@ -102,27 +90,14 @@ def run_cross_dataset(seed: int = 42, n_insdn: int = 20000, n_cic: int = 20000, 
             flat = scaler.transform(flat)
         return flat.reshape(n, t, f).astype(np.float32)
 
-    X_i, y_i = _raw(insdn_path, n_insdn, seed)
+    # Temporally blocked, purged InSDN split; scaler is fit on train only and the
+    # same statistics are reused for the CIC holdout.
+    X_tr_t, y_tr_t, X_te_t, y_te_t, scaler = blocked_split_npz(
+        insdn_path, seq_len=10, max_train=14000, max_test=6000, seed=seed
+    )
+
     X_c, y_c = _raw(cic_path, n_cic, seed + 1)
-
-    X_tr_np, y_tr_np, X_te_np, y_te_np = None, None, None, None
-    # split on InSDN indices before scaling
-    rng = np.random.default_rng(seed)
-    idx = rng.permutation(len(X_i))
-    n_train = int(0.7 * len(X_i))
-    tr, te = idx[:n_train], idx[n_train:]
-    X_tr_raw, y_tr = X_i[tr], y_i[tr]
-    X_te_raw, y_te = X_i[te], y_i[te]
-
-    scaler = StandardScaler()
-    X_tr = _apply_scaler(X_tr_raw, scaler, fit=True)
-    X_te = _apply_scaler(X_te_raw, scaler, fit=False)
     X_cic = _apply_scaler(X_c, scaler, fit=False)
-
-    X_tr_t = torch.tensor(X_tr)
-    y_tr_t = torch.tensor(y_tr, dtype=torch.long)
-    X_te_t = torch.tensor(X_te)
-    y_te_t = torch.tensor(y_te, dtype=torch.long)
     X_cic_t = torch.tensor(X_cic)
     y_cic_t = torch.tensor(y_c, dtype=torch.long)
 

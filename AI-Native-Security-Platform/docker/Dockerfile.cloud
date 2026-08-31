@@ -9,4 +9,4 @@ COPY prototype /app/prototype
 
 ENV PYTHONPATH=/app
 
-CMD ["python", "-c", "from prototype.cloud.policy-engine.policy import CloudPolicyEngine; print('Cloud Policy Engine Ready.')"]
+CMD ["python", "-c", "from prototype.cloud.policy_engine.policy import CloudPolicyEngine; print('Cloud Policy Engine Ready.')"]

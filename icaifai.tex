@@ -16,26 +16,17 @@
 
 \begin{document}
 
-\title{An AI-Native Event-Driven Edge--Cloud Architecture for Autonomous Network Security and Resilience in Campus Infrastructure}
+\title{An AI-Native Event-Driven Edge--Cloud Architecture for Autonomous Network Security in Campus Infrastructure}
 
-\author{
-\IEEEauthorblockN{Hoang-Tu Trinh}
-\IEEEauthorblockA{\textit{Faculty of Information Technology} \\
-\textit{Ho Chi Minh City University of Foreign Languages - Information Technology} \\
-Ho Chi Minh City, Vietnam \\
-Email: tht.csec2005@gmail.com}
-\and
-\IEEEauthorblockN{Tien-Thanh Cao}
-\IEEEauthorblockA{\textit{Faculty of Information Technology} \\
-\textit{Ho Chi Minh City University of Foreign Languages - Information Technology} \\
-Ho Chi Minh City, Vietnam \\
-Email: thanhct@huflit.edu.vn}
-}
+\author{\IEEEauthorblockN{Hoang Tu Trinh and Tien Thanh Cao}
+\IEEEauthorblockA{\textit{Faculty of Information Technology}\\
+\textit{Ho Chi Minh City University of Foreign Languages -- Information Technology}\\
+Ho Chi Minh City, Vietnam\\ Email: 23dh113972@st.huflit.edu.vn, thanhct@huflit.edu.vn}}
 
 \maketitle
 
 \begin{abstract}
-University campus networks combine unmanaged BYOD endpoints, open research laboratories, and high-density IoT deployments, creating an expansive attack surface where traditional Security Operations Center (SOC) workflows struggle with long operational Mean Time to Respond (MTTR). We propose an AI-native, event-driven edge--cloud security platform engineered specifically for autonomous campus infrastructure defense. The architecture deploys lightweight INT8-quantized TCN--GRU sequence autoencoders at network edge gateways to trimmably score non-DPI flow telemetry. Enriched security events are published asynchronously over Redis Streams to a cloud risk resolver and Deep Q-Network (DQN) Software-Defined Networking (SDN) controller that actuates closed-loop SOAR playbooks. Evaluated on \textbf{real InSDN} traffic flow windows (20{,}000 stratified samples preserving original class proportions from the public SDN intrusion benchmark~\cite{b1}), the platform achieves an end-to-end automated mitigation latency of $3.393 \pm 1.024$~ms (Mean~$\pm$~SD, 95\% CI: $[3.330, 3.456]$~ms), reducing closed-loop incident containment time from $1518.5 \pm 335.3$~s (manual SOC triage) to $4.685 \pm 0.576$~ms ($>99.99\%$ reduction). The INT8 detector maintains high classification performance ($F1 = 0.960 \pm 0.003$ at operating threshold $\tau=0.65$, Precision~$=0.967$, Recall~$=0.953$, FPR~$=13.3\%$) with a minimal memory footprint of $0.048$~MB ($48$~KB) and $\le 6.3\%$ CPU utilization per core under sustained $10{,}000$~events/s throughput. We provide a full ablation study, policy control benchmarks against static rules, cross-dataset domain shift evaluations on CIC-IDS2017, and a complete open-source reproducible research artifact.
+University campus networks combine unmanaged BYOD endpoints, open research laboratories, and high-density IoT deployments, creating an expansive attack surface where traditional Security Operations Center (SOC) workflows struggle with long operational Mean Time to Respond (MTTR). We propose an AI-native, event-driven edge--cloud security platform engineered specifically for autonomous campus infrastructure defense. The architecture deploys lightweight INT8-quantized TCN--GRU sequence autoencoders at network edge gateways to score non-DPI flow telemetry. Enriched security events are published asynchronously over Redis Streams to a cloud risk resolver and Deep Q-Network (DQN) Software-Defined Networking (SDN) controller that actuates closed-loop SOAR playbooks. Evaluated on \textbf{real InSDN} traffic flow windows (20{,}000 stratified samples preserving original class proportions from the public SDN intrusion benchmark~\cite{b1}), the platform achieves an end-to-end \emph{software control-path} latency --- from telemetry ingestion to playbook emission, excluding dataplane enforcement --- of $5.909 \pm 2.495$~ms (Mean~$\pm$~SD, 95\% CI: $[5.755, 6.064]$~ms). Because stride-1 sliding windows overlap by nine of ten timesteps, we evaluate under a temporally blocked and purged split with a train-only scaler. Quantifying that choice directly yields a null result we did not expect: the conventional random split inflates the fixed-threshold $F1$ only from $0.9276$ to $0.9337$, and the optimal-threshold $F1$ from $0.9687$ to $0.9708$, so on this corpus window overlap is a real but minor confound rather than the headline artefact we set out to document. Under the leakage-controlled protocol the INT8 detector reaches $F1 = 0.9276$ (Precision~$=0.979$, Recall~$=0.882$, FPR~$=7.78\%$) at the fixed operating point $\tau = 0.65$, with a model footprint of $0.048$~MB ($48$~KB) and no measurable accuracy loss from quantization ($\Delta F1 = 0.0000$). We additionally find that reconstruction-error scoring --- the conventional decision rule for sequence autoencoders --- is unusable on this attack-heavy corpus ($F1 = 0.036$), so detection rests entirely on the supervised head. Our edge-resource hypothesis fails outright: at batch $=128$ the detector saturates at $7{,}714$~windows/s and delivers only $8{,}171$ of $10{,}000$ offered windows/s while consuming $43.8\%$ of one core, against a pre-specified $10\%$ budget. We further report severe zero-shot transfer failure to CIC-IDS2017 ($F1 = 0.461$). We provide a full ablation study, policy control benchmarks against a brute-force oracle, and a deterministic reproducibility artifact.
 \end{abstract}
 
 \begin{IEEEkeywords}
@@ -43,16 +34,16 @@ AI-Native Architecture, Autonomous Security, Edge Computing, Event-Driven Archit
 \end{IEEEkeywords}
 
 \section{Introduction}
-Artificial Intelligence (AI) is fundamentally reshaping higher-education digital infrastructure. However, university campus cybersecurity faces an increasingly intractable threat landscape: IoT sensors, student Bring-Your-Own-Device (BYOD) endpoints, open research computing laboratories, and administrative databases share the same underlying network fabric. Centralized SIEM and human-in-the-loop SOC pipelines exhibit long operational MTTR (tens of minutes to hours) during volumetric DDoS, ransomware lateral movement, or data exfiltration~\cite{b4}, resulting in severe analyst burnout and delayed containment.
+Artificial Intelligence (AI) is reshaping higher-education digital infrastructure, but university campus cybersecurity faces an increasingly intractable threat landscape: IoT sensors, student Bring-Your-Own-Device (BYOD) endpoints, open research laboratories, and administrative databases share one network fabric. Centralized SIEM and human-in-the-loop SOC pipelines exhibit long MTTR during volumetric DDoS, ransomware lateral movement, or data exfiltration~\cite{b4}, causing analyst burnout and delayed containment.
 
-To bridge this operational gap, we propose an **AI-Native Event-Driven Edge--Cloud Security Architecture**. Rather than treating AI as an external detection module attached to legacy SOC dashboards, our design embeds AI natively into the control loop: lightweight sequence anomaly detectors reside at edge gateways, while an event-driven bus streams identity-enriched telemetry to a cloud Deep Q-Network (DQN) policy controller for closed-loop SDN/SOAR actuation.
+To bridge this gap we propose an \textbf{AI-Native Event-Driven Edge--Cloud Security Architecture}. Rather than bolting AI onto legacy SOC dashboards, our design embeds it in the control loop: lightweight sequence detectors sit at edge gateways while an event-driven bus streams identity-enriched telemetry to a cloud Deep Q-Network (DQN) controller for SDN/SOAR actuation.
 
 \subsection{Research Questions}
 This investigation is guided by four formal Research Questions (RQs):
 \begin{itemize}
-    \item \textbf{RQ1 (Mitigation Latency):} Can an event-driven edge--cloud architecture reduce autonomous containment latency to sub-10~ms levels compared to manual SOC workflows?
-    \item \textbf{RQ2 (Quantization \& Accuracy):} Does INT8 dynamic quantization maintain NIDS classification accuracy while satisfying edge gateway memory constraints ($\le 1$~MB)?
-    \item \textbf{RQ3 (Reinforcement Learning Efficiency):} Does a DQN policy controller outperform static rule tables and heuristic policies under dynamic multi-flow contention?
+    \item \textbf{RQ1 (Control-Path Latency):} Can an event-driven edge--cloud architecture reduce the software decision path, from telemetry ingestion to containment playbook emission, to sub-10~ms levels?
+    \item \textbf{RQ2 (Quantization \& Accuracy):} Does INT8 dynamic quantization maintain NIDS classification accuracy while satisfying an edge gateway \emph{model-footprint} constraint ($\le 1$~MB of model storage)?
+    \item \textbf{RQ3 (Reinforcement Learning Efficiency):} Does a DQN policy controller outperform static rule tables and heuristic policies under modeled contention states?
     \item \textbf{RQ4 (Domain Shift Generalization):} How effectively does an in-domain trained edge model generalize zero-shot across disparate network datasets (InSDN $\rightarrow$ CIC-IDS2017)?
 \end{itemize}
 
@@ -60,43 +51,41 @@ This investigation is guided by four formal Research Questions (RQs):
 We test three explicit hypotheses:
 \begin{itemize}
     \item \textbf{H1 (Quantization Degradation):} INT8 dynamic quantization incurs less than $0.5\%$ $F1$-score degradation ($\Delta F1 \le 0.005$) compared to full-precision FP32 models.
-    \item \textbf{H2 (Autonomous Response Speedup):} Closed-loop AI-native actuation achieves a $>99.9\%$ reduction in incident containment latency over legacy SOC workflows.
-    \item \textbf{H3 (Edge Resource Feasibility):} Edge inference requires $\le 10\%$ CPU utilization per core under sustained $10{,}000$~events/sec load.
+    \item \textbf{H2 (Automated Decision Speedup):} Automated decision and playbook generation achieves a $>99.9\%$ reduction in time-to-decision relative to the adopted SOC baseline.
+    \item \textbf{H3 (Edge Resource Feasibility):} Edge inference requires $\le 10\%$ CPU utilization per core under a sustained offered load of $10{,}000$~telemetry windows/sec.
 \end{itemize}
 
 \subsection{Contributions}
 The principal contributions of this work are:
 \begin{enumerate}
-    \item \textbf{Decoupled AI-Native Pipeline:} An event-driven architecture combining PyTorch INT8 TCN--GRU edge detectors, spatial-temporal identity context fusion, and Redis Streams pub/sub.
-    \item \textbf{Closed-Loop Autonomous Actuation:} A DQN SDN controller driving dynamic OpenFlow/Flowspec playbooks (rate limiting, path rerouting, flow isolation, and token revocation).
-    \item \textbf{Empirical System Validation \& Benchmarks:} Rigorous microbenchmarks on real InSDN~\cite{b1} traffic, including module-wise ablation, policy benchmarks against static rules, sensitivity analysis, and cross-dataset holdout evaluations on CIC-IDS2017~\cite{b2}.
-    \item \textbf{Public Open-Source Artifact:} A 100\% reproducible research artifact with Docker scripts and raw execution traces publicly hosted at \url{https://github.com/thtcsec/icai-fai2026}.
+    \item \textbf{Decoupled AI-Native Pipeline:} An event-driven architecture combining PyTorch INT8 TCN--GRU edge detectors, identity context fusion, and Redis Streams pub/sub, with a DQN SDN controller driving OpenFlow playbooks (rate limiting, rerouting, isolation, token revocation).
+    \item \textbf{Empirical Validation \& Negative Results:} Microbenchmarks on real InSDN~\cite{b1} traffic, with ablation, policy benchmarks against a brute-force oracle, saturation analysis, and a CIC-IDS2017~\cite{b2} holdout. We report four negative results --- failure of reconstruction-error scoring, a leakage effect far smaller than hypothesized, rejection of our edge resource hypothesis, and severe zero-shot transfer failure --- that bound where this design is deployable.
+    \item \textbf{Deterministic Artifact:} A reproducibility artifact regenerating every table from one seeded entry point, at \url{https://github.com/thtcsec/icai-fai2026}.
 \end{enumerate}
 
 \section{Related Work}
 SDN intrusion datasets such as InSDN~\cite{b1} and CSE-CIC-IDS2018/2017~\cite{b2} have established standard benchmarks for network intrusion detection. Sequence models such as Temporal Convolutional Networks (TCN)~\cite{b3} employ causal dilated convolutions to capture long-range temporal dependencies with parallelizable training compared to recurrent LSTM architectures. Deep Reinforcement Learning (DRL) has been applied to DDoS defense and 6G control loops~\cite{b4}; however, existing works predominantly terminate at offline detection or isolated controller simulations rather than end-to-end, sub-10~ms edge--cloud mitigation.
 
-Table~\ref{tab:sota_taxonomy} compares our architecture against recent literature (2024--2026), highlighting the missing closed-loop integration in legacy systems.
+Table~\ref{tab:sota_taxonomy} positions our architecture against this literature by scope, restricted to properties each work claims for itself. We omit a cross-work latency column: the cited papers measure different hardware, workloads, and pipeline portions, so tabulating them side by side would imply a controlled comparison that does not exist.
 
 \begin{table*}[htbp]
-\caption{Taxonomy and Feature Matrix Comparison with Related Literature (2018--2024)}
+\caption{Scope Comparison with Related Literature. Entries reflect only what each cited work states it contributes; ``--'' means the dimension is outside that work's scope. We omit cross-work latency figures because the cited papers do not report them under comparable measurement conditions.}
 \label{tab:sota_taxonomy}
 \begin{center}
 \resizebox{\linewidth}{!}{%
-\begin{tabular}{|l|c|c|c|c|c|c|c|c|}
+\begin{tabular}{|l|l|c|c|c|c|}
 \hline
-\textbf{Work / Architecture} & \textbf{Edge AI} & \textbf{INT8 Quantized} & \textbf{Event Bus} & \textbf{Identity Fusion} & \textbf{RL Control} & \textbf{Closed-Loop SOAR} & \textbf{Real Testbed} & \textbf{Sub-10ms Latency} \\
+\textbf{Work} & \textbf{Contribution Type} & \textbf{Edge AI} & \textbf{INT8 Quantized} & \textbf{RL Control} & \textbf{Closed-Loop Actuation} \\
 \hline
-Legacy SIEM / SOC Workflow & No & No & Batch Syslog & Manual IP & No & Manual Triage & No & No ($>1500$~s) \\
-Sharafaldin \emph{et al.} (2018)~\cite{b2} & No & No & None & No & No & Detection Only & No & No \\
-Bai \emph{et al.} (2018)~\cite{b3} & No & No & None & No & No & Sequence Only & No & No \\
-Tang \emph{et al.} (2018)~\cite{b16} & No & No & None & No & No & OpenFlow Drop & No & No ($>45$~ms) \\
-Roopak \emph{et al.} (2019)~\cite{b17} & Server & No & REST & No & No & Manual Script & No & No ($>250$~ms) \\
-Zhang \emph{et al.} (2019)~\cite{b15} & Edge AE & No & MQTT & No & No & Alert Only & No & No ($>120$~ms) \\
-Elsayed \emph{et al.} (2020)~\cite{b1} & No & No & None & No & No & Detection Only & No & No \\
-Islam \emph{et al.} (2023)~\cite{b18} & Server & No & Kafka & Partial & Rule-based & SOAR Script & No & No ($>65$~ms) \\
-Al-Garadi \emph{et al.} (2024)~\cite{b4} & Federated & No & gRPC & No & DQN~\cite{b5} & Simulation Only & No & No ($>500$~ms) \\
-\textbf{Ours (AI-Native Edge-Cloud)} & \textbf{TCN--GRU} & \textbf{Yes (0.048MB)} & \textbf{Redis Streams} & \textbf{DHCP/RADIUS} & \textbf{DQN Agent} & \textbf{OpenFlow/Flowspec} & \textbf{Yes (OVS)} & \textbf{Yes (3.39ms)} \\
+Sharafaldin \emph{et al.} (2018)~\cite{b2} & Benchmark dataset & -- & -- & -- & -- \\
+Bai \emph{et al.} (2018)~\cite{b3} & Sequence architecture (TCN) & -- & -- & -- & -- \\
+Tang \emph{et al.} (2018)~\cite{b16} & SDN intrusion detection (DNN) & No & No & No & Detection only \\
+Roopak \emph{et al.} (2019)~\cite{b17} & DL models for IoT security & No & No & No & Detection only \\
+Zhang \emph{et al.} (2019)~\cite{b15} & Survey & -- & -- & -- & -- \\
+Elsayed \emph{et al.} (2020)~\cite{b1} & Benchmark dataset (InSDN) & -- & -- & -- & -- \\
+Nguyen \emph{et al.} (2023)~\cite{b18} & SOAR survey + research agenda & No & No & Proposed & Proposed, not evaluated \\
+Al-Garadi \emph{et al.} (2024)~\cite{b4} & Federated DRL for DDoS & Federated & No & DQN~\cite{b5} & Simulation only \\
+\textbf{Ours} & \textbf{Integrated pipeline} & \textbf{TCN--GRU} & \textbf{Yes (0.048~MB)} & \textbf{DQN} & \textbf{OpenFlow playbooks (emulated)} \\
 \hline
 \end{tabular}%
 }
@@ -105,7 +94,7 @@ Al-Garadi \emph{et al.} (2024)~\cite{b4} & Federated & No & gRPC & No & DQN~\cit
 
 \section{Threat Model \& Campus Attack Vectors}
 \subsection{Adversary Capabilities and Attack Vectors}
-We consider an active adversary $\mathcal{A}$ positioned either as an external actor or an internal compromised BYOD/IoT endpoint with access to campus subnets. $\mathcal{A}$ is capable of launching volumetric DoS attacks, ARP/MAC spoofing, lateral reconnaissance, and credential exfiltration. $\mathcal{A}$ does not possess direct administrative keys to the SDN controller or core Redis infrastructure.
+We consider an active adversary $\mathcal{A}$, either external or an internal compromised BYOD/IoT endpoint with campus subnet access, capable of volumetric DoS, ARP/MAC spoofing, lateral reconnaissance, and credential exfiltration. $\mathcal{A}$ holds no administrative keys to the SDN controller or Redis infrastructure. We do not model an adaptive adversary who crafts inputs against the detector itself; that omission is revisited in Section~\ref{sec:validity}.
 
 \subsection{Trust Boundaries and Attack Surface}
 Fig.~\ref{fig_threat_model} illustrates the campus network topology, trust boundaries, attack surface, and security enforcement checkpoints.
@@ -117,7 +106,7 @@ Fig.~\ref{fig_threat_model} illustrates the campus network topology, trust bound
 \end{figure}
 
 \begin{table}[htbp]
-\caption{STRIDE \& MITRE ATT\&CK Campus Threat Matrix}
+\caption{STRIDE \& MITRE ATT\&CK Campus Threat Matrix. The platform addresses five of the six STRIDE categories; Repudiation is outside the scope of this work, as the prototype provides no tamper-evident audit trail.}
 \label{tab:stride}
 \begin{center}
 \resizebox{\columnwidth}{!}{%
@@ -127,9 +116,9 @@ Fig.~\ref{fig_threat_model} illustrates the campus network topology, trust bound
 \hline
 Spoofing & Rogue Wi-Fi AP / MAC & T1557 & Identity fusion MAC/IP verification \\
 Tampering & IoT telemetry data & T1565 & Edge TCN--GRU sequence scoring \\
-Exfiltration & Research DB server & T1048 & Role-aware byte-rate capping \\
-DoS & Campus SDN controller & T1498 & BGP Flowspec / \texttt{flow\_mod} drop \\
-Privilege & Campus LDAP directory & T1078 & Dynamic risk escalation \\
+Information Disclosure & Research DB server & T1048 & Role-aware byte-rate capping \\
+Denial of Service & Campus SDN controller & T1498 & BGP Flowspec / \texttt{flow\_mod} drop \\
+Elevation of Privilege & Campus LDAP directory & T1078 & Dynamic risk escalation \\
 \hline
 \end{tabular}%
 }
@@ -137,28 +126,35 @@ Privilege & Campus LDAP directory & T1078 & Dynamic risk escalation \\
 \end{table}
 
 \section{AI-Native System Architecture}
+\label{sec:arch}
 The architecture comprises four decoupled tiers: Edge Telemetry Taps, Identity Context Fusion, Redis Stream Event Bus, and Cloud DQN Control.
 
 \subsection{Edge Telemetry and TCN--GRU Detector}
-Edge taps capture flow headers and extract 10-D flow feature vectors over sliding time windows ($\Delta t = 1.0$~s). A hybrid TCN--GRU autoencoder processes the feature sequences, outputting both reconstruction error $RE(x) = \|X - \hat{X}\|_2^2$ and classification logits. Primary anomaly detection evaluates $P(\text{attack}) = 1 - P(\text{normal})$ against decision threshold $\tau$.
+Edge taps capture flow headers and extract 10-D flow feature vectors over sliding time windows ($\Delta t = 1.0$~s). A hybrid TCN--GRU network processes the feature sequences, outputting both a reconstruction $\hat{X}$ with error $RE(x) = \|X - \hat{X}\|_2^2$ and classification logits.
 
-\subsection{Dynamic INT8 Quantization \& Feature Importance}
-To satisfy memory-constrained edge gateways, PyTorch~\cite{b12} dynamic INT8 quantization compresses linear and GRU layer weight matrices from 32-bit floating point to 8-bit integers. Feature importance attribution is calculated via Gini Impurity and SHAP / Permutation Feature Importance~\cite{b9} across the 10-D flow feature space. Results demonstrate that Flow Duration ($28.4\%$), Packet Inter-Arrival Time IAT ($24.1\%$), Byte Rate ($14.2\%$), and TCP Flag Ratios ($11.7\%$) account for $78.4\%$ of total predictive weight.
+\textbf{Training objective.} The model is trained \emph{multi-task}, which determines how the results should be read. Each epoch runs a reconstruction pass minimizing $\mathrm{MSE}(X,\hat{X})$ over \emph{normal windows only}, then a joint pass minimizing $\mathrm{MSE}(X,\hat{X}) + \lambda\,\mathrm{CE}(\text{logits}, y)$ over all windows with $\lambda = 0.5$; since InSDN is attack-heavy, the cross-entropy up-weights the normal class by the attack-to-normal ratio. The detector is therefore \emph{not} unsupervised: it requires labels, and the autoencoder branch is an auxiliary representation objective, not the decision rule. Detection evaluates the supervised head, $P(\text{attack}) = 1 - P(\text{normal})$, against $\tau$; reconstruction error is not the operational score, for the reason in Section~\ref{sec:re_vs_cls}.
+
+\subsection{Dynamic INT8 Quantization}
+To satisfy memory-constrained edge gateways, PyTorch~\cite{b12} dynamic INT8 quantization compresses linear and GRU layer weight matrices from 32-bit floating point to 8-bit integers. We do not report a feature attribution study: our artifact does not implement one, and we prefer to leave the question open rather than assert an importance ranking we have not measured. Identifying which of the 10 flow features carry the discriminative signal --- and whether that ranking is what fails to transfer across datasets (Section~\ref{sec:cross}) --- is left to future work.
 
 \subsection{Identity Context Fusion \& Privacy Preservation}
 Edge security events are enriched by querying local DHCP/RADIUS tables to append spatial-temporal context vectors:
 \begin{equation}
 \mathcal{E} = \{ \text{FlowID}, \text{RE}(x), P(\text{attack}), \text{UserRole}, \text{TrustScore} \}.
 \end{equation}
-To ensure GDPR and privacy compliance, raw payload inspects (DPI) are completely omitted; only header-level statistical metadata is processed, and user identifiers are hashed prior to cloud transport.
+To support GDPR data-minimization principles, raw payload inspection (DPI) is omitted entirely; only header-level statistical metadata is processed, and user identifiers are pseudonymized prior to cloud transport.
 
 \subsection{Cloud Risk Engine and DQN SDN Control}
-Enriched events stream asynchronously to Redis topic \texttt{security:telemetry:stream}. The cloud risk engine calculates a composite risk index $R$:
+Enriched events stream asynchronously to Redis topic \texttt{security:telemetry:stream}. The cloud risk engine calculates a composite risk index $R$ over the detector's attack probability, the identity trust score, and asset criticality:
 \begin{equation}
-R = w_1 RE(x) + w_2 (1-\text{TrustScore}) + w_3 \text{AssetCriticality}.
+R = w_1 P(\text{attack}) + w_2 (1-\text{TrustScore}) + w_3 \text{AssetCriticality},
 \label{eq:risk}
 \end{equation}
-When $R \ge 0.70$, the Deep Q-Network (DQN) policy agent~\cite{b5} evaluates state vector $s_t$ and selects containment action $a_t \in \{a_0: \text{Forward}, a_1: \text{Rate-Limit}, a_2: \text{Reroute}, a_3: \text{Isolate}\}$ to actuate automated SOAR playbooks~\cite{b18}. Compared to static rule tables, DQN dynamically adjusts policy choices under multi-flow contention without manual threshold maintenance.
+with $(w_1, w_2, w_3) = (0.60, 0.25, 0.15)$ in all reported experiments; the fused term is the classifier probability, not $RE(x)$. When identity is ablated the trust term is undefined and its weight folds into detection, giving $R = 0.85\,P(\text{attack}) + 0.15\,\text{AssetCriticality}$, keeping scores comparable across arms. The escalation ladder maps $R \ge 0.70$ to critical (block and revoke token), $R \ge 0.50$ to high (quarantine VLAN), and $R \ge 0.35$ to medium (throttle bandwidth).
+
+Two caveats. The weights are hand-set, not learned, and encode a design prior we do not claim is optimal. More importantly, InSDN carries no asset inventory, so AssetCriticality is drawn i.i.d.\ uniform on $[0,1]$ in every experiment and is pure noise; the third term therefore \emph{degrades} our numbers, and the risk-engine benefit reported later comes from the trust term alone.
+
+At the selected severity, the Deep Q-Network (DQN) policy agent~\cite{b5} evaluates state vector $s_t$ and selects containment action $a_t \in \{a_0: \text{Forward}, a_1: \text{Rate-Limit}, a_2: \text{Reroute}, a_3: \text{Isolate}\}$ to actuate automated SOAR playbooks~\cite{b18}. Compared to static rule tables, DQN adjusts policy choices across contention states without manual threshold maintenance.
 
 \section{Experimental Methodology}
 \subsection{Hardware \& Software Testbed Specification}
@@ -186,16 +182,27 @@ Timer Precision & Python \texttt{time.perf\_counter\_ns()} (nanosecond resolutio
 \end{center}
 \end{table}
 
-\subsection{Dataset Sampling \& Data Leakage Prevention}
-We evaluate on the public **InSDN** dataset~\cite{b1}. From the 49{,}991 total available flow windows, we extract a 20{,}000-window stratified subset preserving original normal-to-attack proportions. A 70/30 train/test split is applied strictly prior to feature standardization to eliminate data leakage.
+\subsection{Dataset Sampling \& Leakage Control}
+\label{sec:protocol}
+We evaluate on the public \textbf{InSDN} dataset~\cite{b1}. Sliding-window aggregation of the released flow records ($\Delta t = 1.0$~s, sequence length $T=10$, \emph{stride 1}) yields $49{,}991$ windows, of which $40{,}043$ are attack and $9{,}948$ normal. Note that $49{,}991$ is the size of \emph{our} windowed corpus, not InSDN's native flow count.
+
+Window $i$ shares $T-1 = 9$ of its $10$ timesteps with each neighbour, so an i.i.d.\ random split places near-duplicate observations on both sides of the train/test boundary. Our protocol instead (i) cuts the temporally ordered corpus into $20$ contiguous blocks and assigns whole blocks to train or test; (ii) \emph{purges} $9$ windows from both ends of every block, guaranteeing no surviving training window shares even a single timestep with a test window; (iii) stratified-subsamples each side independently to $14{,}000$ train and $6{,}000$ test windows, preserving class balance; and (iv) fits the scaler on the training partition only, transforming the test partition and the CIC-IDS2017 holdout with those frozen statistics. We verified that zero test windows are byte-identical to any training window. Section~\ref{sec:leakage_effect} quantifies what this protocol is actually worth.
 
 \section{Quantitative Evaluation \& Results}
 
+\textbf{Reading the $F1$ values.} Each figure below belongs to a distinct protocol and they are not interchangeable. $0.9276$ is the detector at the fixed threshold $\tau=0.65$ and is the deployable accuracy. $0.9687$ is the same detector at $\tau^*=0.0720$ \emph{selected on the test split} --- an oracle bound. $0.9725$ is the corresponding oracle figure in Section~\ref{sec:sota}, differing only because that harness trains three baselines first and so draws a different seeded initialization; this bounds how finely any figure here should be read. $0.9602$ is the full pipeline with the threshold tuned on the \emph{training} split (Section~\ref{sec:ablation}). Compare only within an experiment.
+
+\textbf{All results below use the leakage-controlled protocol of Section~\ref{sec:protocol}.}
+
 \subsection{Latency Breakdown (RQ1)}
-Table~\ref{tab:latency} and Fig.~\ref{fig_latency} present the per-stage latency breakdown across 1{,}000 benchmark trials. Stage latencies measure compute and IPC execution time using nanosecond resolution timers (\texttt{time.perf\_counter\_ns()}). Identity context fusion and SOAR rule serialization consume $2.2 \pm 0.8~\mu\text{s}$, while physical OpenFlow flow rule modification adds an estimated $1.2 \pm 0.4\text{~ms}$. The total end-to-end latency is $3.393 \pm 1.024$~ms (95\% CI: $[3.330, 3.456]$~ms), with edge inference accounting for $96.3\%$ ($3.269$~ms).
+\textbf{Scope.} We time the \emph{software control path}: telemetry ingestion, edge inference, identity enrichment, DQN action selection, and SOAR playbook serialization, ending when the playbook is emitted. It excludes controller transmission, \texttt{flow\_mod} installation in Open vSwitch, and the instant malicious traffic stops. We have no dataplane enforcement measurement and claim none: read every figure below as decision-to-playbook, not time-to-containment.
+
+Table~\ref{tab:latency} presents the per-stage breakdown across 1{,}000 benchmark trials. Stage latencies measure compute and IPC execution time using nanosecond resolution timers (\texttt{time.perf\_counter\_ns()}). Identity context fusion and SOAR rule serialization are effectively free at $3.8 \pm 14.5~\mu\text{s}$ and $2.8 \pm 3.0~\mu\text{s}$ respectively. The total control-path latency is $5.909 \pm 2.495$~ms (95\% CI: $[5.755, 6.064]$~ms), with edge inference dominating at $96.4\%$ ($5.697$~ms). This satisfies the sub-10~ms target of \textbf{RQ1} for the software path, but with far less margin than the architecture diagram suggests: the mean sits at $59\%$ of the budget and the standard deviation is large enough that individual events exceed 10~ms. Whether the full loop including flow-rule installation stays under 10~ms is untested and, on this evidence, doubtful.
+
+\textbf{Reconciling the detector latencies.} Three per-inference figures for the same INT8 model appear here, measured under different harnesses rather than in contradiction: $5.697$~ms for a single window inside the pipeline loop (Table~\ref{tab:latency}), $6.391$~ms per forward pass at batch $=1$ in a tight loop (Table~\ref{tab:saturation}), and $11.117$~ms in the model-comparison scaffolding immediately after training with cold caches (Table~\ref{tab:sota}). Per Section~\ref{sec:validity}, absolute values should be read to roughly a factor of two.
 
 \begin{table}[htbp]
-\caption{Per-Stage Latency Breakdown (Mean~$\pm$~SD, 95\% CI, $n=1000$)}
+\caption{Per-Stage Software Control-Path Latency (Mean~$\pm$~SD, 95\% CI, $n=1000$). Excludes dataplane enforcement.}
 \label{tab:latency}
 \begin{center}
 \resizebox{\columnwidth}{!}{%
@@ -203,53 +210,44 @@ Table~\ref{tab:latency} and Fig.~\ref{fig_latency} present the per-stage latency
 \hline
 \textbf{Stage} & \textbf{Mean $\pm$ SD (ms)} & \textbf{95\% CI (ms)} & \textbf{\%} \\
 \hline
-Edge TCN--GRU Inference & $3.269 \pm 0.968$ & $[3.209, 3.329]$ & 96.3 \\
-Identity Context Fusion & $0.002 \pm 0.001$ & $[0.002, 0.002]$ & 0.1 \\
-Cloud DQN Policy & $0.120 \pm 0.154$ & $[0.110, 0.130]$ & 3.5 \\
-SOAR Playbook Execution & $0.002 \pm 0.001$ & $[0.002, 0.002]$ & 0.1 \\
+Edge TCN--GRU Inference & $5.697 \pm 2.477$ & $[5.543, 5.850]$ & 96.4 \\
+Identity Context Fusion & $0.004 \pm 0.015$ & $[0.003, 0.005]$ & 0.1 \\
+Cloud DQN Policy & $0.206 \pm 0.073$ & $[0.201, 0.210]$ & 3.5 \\
+SOAR Playbook Serialization & $0.003 \pm 0.003$ & $[0.003, 0.003]$ & 0.0 \\
 \hline
-\textbf{End-to-End Total} & $\mathbf{3.393 \pm 1.024}$ & $\mathbf{[3.330, 3.456]}$ & \textbf{100.0} \\
+\textbf{Control-Path Total} & $\mathbf{5.909 \pm 2.495}$ & $\mathbf{[5.755, 6.064]}$ & \textbf{100.0} \\
 \hline
 \end{tabular}%
 }
 \end{center}
 \end{table}
 
-\begin{figure}[htbp]
-\centerline{\includegraphics[width=0.92\linewidth]{AI-Native-Security-Platform/paper/figures/fig2_latency_breakdown.png}}
-\caption{Stage-by-stage latency breakdown with standard deviation error bars.}
-\label{fig_latency}
-\end{figure}
-
 \subsection{Incident Response Latency Comparison (H2)}
-Table~\ref{tab:mttr} and Fig.~\ref{fig_mttr} compare manual SOC triage against the autonomous loop. Autonomous mitigation achieves a containment time of $4.685 \pm 0.576$~ms compared to $1518.5 \pm 335.3$~s for manual SOC triage, confirming **H2** with a $>99.99\%$ response speedup.
+Table~\ref{tab:mttr} compares manual SOC triage against the autonomous loop. The autonomous path reaches a containment \emph{decision} in $6.350 \pm 1.445$~ms, against a $1518.5 \pm 335.3$~s human baseline, supporting \textbf{H2}. The comparison is between decision times, not times-to-containment: the human baseline ends when an analyst commits to an action, ours when the playbook is emitted.
+
+\textbf{Provenance of the SOC baseline.} These baselines are \emph{not measured}. Both are truncated Gaussians over $n=500$ trials: manual triage with mean $1512.4$~s, SD $350$~s, clipped to $[900, 3200]$~s; rule-based SIEM with mean $68.5$~s, SD $18$~s, clipped to $[25, 150]$~s. The parameters were chosen so the ranges bracket timescales industry incident-response reporting associates with each workflow, not fitted to a published dataset. Table~\ref{tab:mttr} is therefore \emph{illustrative context} for an order-of-magnitude gap, not a controlled experiment, and we treat H2 as supported only in the weak sense that a millisecond decision beats any human workflow. Whether automation shortens real containment remains open and needs a deployment we do not have.
 
 \begin{table}[htbp]
-\caption{Closed-Loop Containment Latency vs. Legacy SOC Benchmarks}
+\caption{Time-to-Decision. Illustrative context only: the SOC and SIEM rows are generated from stipulated distributions, not measured (see text).}
 \label{tab:mttr}
 \begin{center}
 \resizebox{\columnwidth}{!}{%
-\begin{tabular}{|l|c|c|c|}
+\begin{tabular}{|l|c|c|}
 \hline
-\textbf{Mitigation Paradigm} & \textbf{Mean Latency} & \textbf{Min} & \textbf{Max} \\
+\textbf{Mitigation Paradigm} & \textbf{Mean $\pm$ SD} & \textbf{Provenance} \\
 \hline
-Manual SOC Triage & $1518.5 \pm 335.3$~s & 900.0~s & 2860.9~s \\
-Legacy Rule-based SIEM & $69.1 \pm 17.5$~s & 25.0~s & 115.9~s \\
-\textbf{AI-Native Closed-Loop} & $\mathbf{4.685 \pm 0.576}$~\textbf{ms} & \textbf{2.600~ms} & \textbf{6.900~ms} \\
+Manual SOC Triage & $1518.5 \pm 335.3$~s & stipulated \\
+Legacy Rule-based SIEM & $69.1 \pm 17.5$~s & stipulated \\
+\textbf{AI-Native Decision Path} & $\mathbf{6.350 \pm 1.445}$~\textbf{ms} & \textbf{measured} \\
 \hline
 \end{tabular}%
 }
 \end{center}
 \end{table}
 
-\begin{figure}[htbp]
-\centerline{\includegraphics[width=0.92\linewidth]{AI-Native-Security-Platform/paper/figures/fig3_mttr_comparison.png}}
-\caption{Response containment latency comparison on a logarithmic scale.}
-\label{fig_mttr}
-\end{figure}
-
 \subsection{Detection Performance \& Threshold Sensitivity (RQ2, H1)}
-Table~\ref{tab:precision} and Fig.~\ref{fig_precision} show metric variations across decision threshold $\tau$. Operating at $\tau = 0.65$ yields $F1 = 0.960 \pm 0.003$ (Precision~$=0.967$, Recall~$=0.953$, FPR~$=13.3\%$). Peak $F1$ reaches $0.966$ at $\tau = 0.35$.
+\label{sec:threshold}
+Table~\ref{tab:precision} shows metric variation across decision threshold $\tau$ under the leakage-controlled protocol. The detector is strongly precision-biased in this regime: at the fixed operating point $\tau = 0.65$ it yields $F1 = 0.9276$ (Precision~$=0.979$, Recall~$=0.882$, FPR~$=7.78\%$), and over the reported grid $F1$ peaks at $0.950$ at $\tau = 0.35$. Searching $\tau$ freely \emph{over the test split} reaches $F1 = 0.9687$ at $\tau^* = 0.0720$ (Precision~$=0.947$, Recall~$=0.992$, FPR~$=22.3\%$), the operating point Section~\ref{sec:sota} uses for model comparison. We flag the protocol because it matters: a test-selected threshold is an oracle, so $0.9687$ bounds what the detector could achieve, not what it would. The gap from $0.9276$ compounds two effects --- threshold placement on an imbalanced corpus and oracle selection --- not a better detector. The oracle point also trades a $22.3\%$ false positive rate for near-total recall, the opposite of what an autonomous controller needs, which is a further reason to treat $\tau=0.65$ as the honest operating point.
 
 \begin{table}[htbp]
 \caption{Detection Metrics vs. Decision Threshold $\tau$ on Real InSDN}
@@ -260,71 +258,91 @@ Table~\ref{tab:precision} and Fig.~\ref{fig_precision} show metric variations ac
 \hline
 \textbf{Threshold $\tau$} & \textbf{Precision} & \textbf{Recall} & \textbf{F1-Score} & \textbf{FPR (\%)} & \textbf{FNR (\%)} \\
 \hline
-0.35 & 0.962 & 0.970 & 0.966 & 15.9 & 3.0 \\
-0.50 & 0.965 & 0.965 & 0.965 & 14.6 & 3.5 \\
-\textbf{0.65} & \textbf{0.967} & \textbf{0.953} & \textbf{0.960} & \textbf{13.3} & \textbf{4.7} \\
-0.75 & 0.975 & 0.926 & 0.950 & 9.8 & 7.4 \\
-0.85 & 0.980 & 0.890 & 0.933 & 7.7 & 11.0 \\
+0.35 & 0.971 & 0.930 & 0.950 & 11.21 & 7.0 \\
+0.50 & 0.976 & 0.910 & 0.942 & 9.04 & 9.1 \\
+\textbf{0.65} & \textbf{0.979} & \textbf{0.882} & \textbf{0.928} & \textbf{7.78} & \textbf{11.8} \\
+0.75 & 0.981 & 0.847 & 0.909 & 6.44 & 15.3 \\
+0.85 & 0.988 & 0.779 & 0.871 & 3.93 & 22.1 \\
 \hline
 \end{tabular}%
 }
 \end{center}
 \end{table}
 
-\begin{figure}[htbp]
-\centerline{\includegraphics[width=0.92\linewidth]{AI-Native-Security-Platform/paper/figures/fig4_precision_recall_sensitivity.png}}
-\caption{Precision, Recall, and F1-Score as a function of decision threshold $\tau$.}
-\label{fig_precision}
-\end{figure}
+\subsection{Why Reconstruction Error Is Not the Decision Rule}
+\label{sec:re_vs_cls}
+Since much of the sequence-autoencoder IDS literature scores on reconstruction error alone, it is worth reporting which of our two outputs actually works. We evaluated the standard unsupervised rule $\tau = \mu + k\sigma$, with $\mu, \sigma$ estimated on reconstruction errors of \emph{normal training} windows, for $k \in \{0.5, \ldots, 3.0\}$. It fails comprehensively: the best setting $k=0.5$ yields $F1 = 0.0358$ (Precision~$=0.752$, Recall~$=0.018$), decaying to $0.0062$ at $k=3.0$. Precision reaches $0.882$ at $k=2.5$, but at recall below $2\%$, which is worthless operationally.
 
-\subsection{Edge Resource Scaling \& Feasibility (H3)}
-Table~\ref{tab:resource} and Fig.~\ref{fig_resource} demonstrate resource scaling up to $10{,}000$~events/s throughput. CPU utilization remains $\le 6.3\%$ per core, and model memory is $0.048$~MB ($48$~KB), confirming **H3**. Note that while the quantized model binary requires only $0.048$~MB, the reported process Resident Set Size (RSS) of $478.1$~MB encompasses the Python runtime, PyTorch C++ engine, Redis client, and OS memory allocations.
+Two conclusions follow. Our detection performance is attributable to the supervised head, so the architecture should be cited as a supervised sequence classifier with an auxiliary reconstruction objective. And on an attack-heavy corpus the premise of reconstruction-based detection is violated: the model sees enough attack structure during the joint pass that attacks reconstruct about as well as normal traffic. Practitioners inheriting the ``train on normal traffic, threshold the error'' recipe should verify it against their own class balance.
+
+\subsection{Throughput Saturation \& Edge Feasibility (H3)}
+Per-inference latency and aggregate throughput are only reconcilable once the batching regime is stated, so we measure and report the two separately. Table~\ref{tab:saturation} gives saturation throughput --- the detector run flat out --- as a function of inference batch size. Unbatched scoring, as described in Section~\ref{sec:arch}, saturates at $157$~windows/s: nearly two orders of magnitude short. Batching helps but not enough --- at batch $=128$ the detector saturates at $7{,}714$~windows/s, still below target, and only batch $=512$ clears it ($20{,}087$~windows/s) at a $25.5$~ms per-batch forward pass. Table~\ref{tab:resource} reports a \emph{paced} offered load at batch $=128$, where the harness rate-limits to the target so a shortfall surfaces rather than hiding. The three lower targets are met within $0.4\%$; $10{,}000$~windows/s is \emph{not} met, delivering $8{,}171$.
+
+\textbf{H3 is rejected on both terms.} The hypothesis asserted $\le 10\%$ CPU per core \emph{at} a sustained $10{,}000$~windows/s; the system neither sustains that load at batch $=128$ nor stays in budget at the $8{,}171$~windows/s it does achieve, consuming $43.8\%$ of a core. The budget holds only at $100$~windows/s ($6.1\%$). The jump to $39.1\%$ at $1{,}000$~windows/s followed by near-flat scaling indicates a fixed per-batch dispatch cost dominating until the pipeline is busy. We report this rather than relaxing the threshold or quietly switching to the batch $=512$ configuration that would have met the target. Memory is favourable: RSS is flat at $495$~MB across a $100\times$ load range, so the system is memory-feasible but not CPU-feasible on one commodity core. A compiled ONNX or TensorRT runtime is the obvious next step, making this an implementation rather than architectural limit.
+
+We deliberately omit a legacy inline-DPI comparison. We have no DPI implementation on this testbed, and a baseline synthesised from an analytic formula would not constitute an experimental result.
 
 \begin{table}[htbp]
-\caption{Edge Resource Overhead Scaling vs. Legacy Inline DPI}
+\caption{Saturation Throughput vs Inference Batch Size (INT8 TCN--GRU)}
+\label{tab:saturation}
+\begin{center}
+\resizebox{\columnwidth}{!}{%
+\begin{tabular}{|c|c|c|}
+\hline
+\textbf{Batch Size} & \textbf{Saturation (windows/s)} & \textbf{Latency per Forward Pass (ms)} \\
+\hline
+1 & 156.5 & 6.391 \\
+8 & 733.0 & 10.914 \\
+32 & 2{,}951.9 & 10.841 \\
+\textbf{128} & \textbf{7{,}713.8} & \textbf{16.594} \\
+512 & 20{,}087.3 & 25.489 \\
+\hline
+\end{tabular}%
+}
+\end{center}
+\end{table}
+
+\begin{table}[htbp]
+\caption{Edge Cost at Paced Offered Load (batch $=128$). Offered load is input telemetry rate, not per-inference throughput.}
 \label{tab:resource}
 \begin{center}
 \resizebox{\columnwidth}{!}{%
 \begin{tabular}{|c|c|c|c|c|}
 \hline
-\textbf{Throughput (evt/s)} & \textbf{AI CPU (\%)} & \textbf{AI RSS (MB)} & \textbf{DPI CPU (\%)} & \textbf{DPI RSS (MB)} \\
+\textbf{Offered (win/s)} & \textbf{Achieved (win/s)} & \textbf{CPU (\%/core)} & \textbf{RSS (MB)} & \textbf{Met} \\
 \hline
-100 & 3.5 & 478.1 & 29.1 & 1053.5 \\
-1{,}000 & 3.9 & 478.1 & 36.8 & 1069.7 \\
-5{,}000 & 5.5 & 478.1 & 71.1 & 1141.7 \\
-\textbf{10{,}000} & \textbf{6.3} & \textbf{478.1} & \textbf{95.0} & \textbf{1231.7} \\
+100 & 100.0 & 6.10 & 495.0 & yes \\
+1{,}000 & 999.9 & 39.14 & 495.0 & yes \\
+5{,}000 & 4{,}981.9 & 41.84 & 495.0 & yes \\
+\textbf{10{,}000} & \textbf{8{,}171.2} & \textbf{43.82} & \textbf{495.0} & \textbf{no} \\
 \hline
 \end{tabular}%
 }
 \end{center}
 \end{table}
 
-\begin{figure}[htbp]
-\centerline{\includegraphics[width=0.98\linewidth]{AI-Native-Security-Platform/paper/figures/fig5_resource_overhead_scaling.png}}
-\caption{CPU and RAM scaling under increasing event throughput.}
-\label{fig_resource}
-\end{figure}
-
 \subsection{SOTA Model Comparison \& Quantization Degradation (H1)}
-Table~\ref{tab:sota} compares our INT8 TCN--GRU against baseline algorithms, including tree-based ensemble models (XGBoost~\cite{b13} with max\_depth$=6$, 100 trees, learning\_rate$=0.1$; LightGBM~\cite{b14} with num\_leaves$=31$, 100 trees) and deep sequence architectures (CNN--LSTM, LSTM AE, and Transformer AE). Here, Transformer AE denotes a vanilla 2-layer encoder-decoder Transformer with 4 attention heads and masked sequence reconstruction loss. Pairwise two-tailed Welch's $t$-test across $n=30$ independent random seed runs confirms that the $F1$-score advantage of TCN--GRU ($0.972$) over Transformer AE ($0.872$) and CNN--LSTM ($0.915$) is statistically significant ($p < 0.001, t = 14.82, \text{df} = 58$). INT8 quantization reduces model footprint to $0.048$~MB with negligible $F1$ drop ($\Delta F1 = -0.0004$), supporting hypothesis **H1**. Note that dynamic INT8 quantization on x86 CPU incurs dequantization overhead during layer activations, resulting in slightly higher inference latency ($4.429$~ms vs $3.739$~ms) despite a $53.8\%$ reduction in model memory.
+\label{sec:sota}
+Table~\ref{tab:sota} compares our INT8 TCN--GRU against baselines trained on the identical InSDN split; Transformer AE is a 2-layer encoder-decoder with 4 attention heads and masked reconstruction loss. Every model is scored at its own optimal threshold, since a threshold favouring one architecture need not suit another. \emph{That threshold is selected by searching the test split}, so each $F1$ here is an optimistic bound, not a deployable operating point; the identical search is applied to every model, so the comparison between rows stays internally fair. Deployable numbers are those at the fixed $\tau$ of Table~\ref{tab:precision}. TCN--GRU attains $F1 = 0.9725$ against $0.8680$ for Transformer AE and $0.8687$ for LSTM, a margin of roughly $10$ points, from a single seeded run; we claim no significance across seeds.
+
+Two caveats. The Isolation Forest row uses \texttt{contamination="auto"} on time-averaged windows; on an $80\%$-attack corpus this heuristic is badly mismatched, so $F1 = 0.2000$ evidences that an untuned classical outlier detector fails at this class balance rather than serving as a tuned baseline. We also omit a per-model CPU column: the only CPU figures we measured are those of the deployed detector under paced load (Table~\ref{tab:resource}), and we prefer an absent column to numbers we cannot substantiate.
+
+INT8 quantization reduces the model footprint from $0.104$~MB to $0.048$~MB ($53.8\%$) at \emph{zero} measured accuracy cost ($\Delta F1 = 0.0000$ to four decimal places), supporting hypothesis \textbf{H1}. Counter-intuitively, dynamic INT8 quantization on x86 CPU \emph{increases} inference latency ($11.117$~ms vs $6.554$~ms, a $1.70\times$ penalty) because activations are dequantized at every layer boundary without hardware INT8 acceleration; the technique buys memory, not speed, on this class of hardware. Given that the footprint budget of RQ2 was $1$~MB and the FP32 model already meets it at $0.104$~MB, the honest reading of H1 is that quantization is \emph{harmless} rather than necessary on this hardware: it is justified only for gateways an order of magnitude more constrained than the ones we tested.
 
 \begin{table}[htbp]
-\caption{Baseline \& Model Quantization Comparison on Real InSDN}
+\caption{Baseline \& Model Quantization Comparison on Real InSDN. Each model is scored at its own $F1$-optimal threshold selected on the test split (see text). Size is the serialized parameter footprint; it is reported only for the PyTorch models, for which it is measured on a common basis. ``--'' denotes a quantity we did not measure.}
 \label{tab:sota}
 \begin{center}
 \resizebox{\columnwidth}{!}{%
-\begin{tabular}{|l|c|c|c|c|}
+\begin{tabular}{|l|c|c|c|}
 \hline
-\textbf{Model Algorithm} & \textbf{F1-Score} & \textbf{Latency (ms)} & \textbf{Size (MB)} & \textbf{CPU (\%)} \\
+\textbf{Model Algorithm} & \textbf{F1-Score} & \textbf{Latency (ms)} & \textbf{Size (MB)} \\
 \hline
-Isolation Forest & 0.199 & 6.050 & 12.400 & 8.5 \\
-XGBoost Classifier~\cite{b13} & 0.942 & 0.410 & 4.200 & 14.2 \\
-LightGBM Classifier~\cite{b14} & 0.938 & 0.380 & 3.100 & 11.8 \\
-CNN--LSTM Network & 0.915 & 1.840 & 0.142 & 16.1 \\
-LSTM Autoencoder (FP32) & 0.871 & 0.990 & 0.028 & 12.4 \\
-Transformer Autoencoder & 0.872 & 2.172 & 0.068 & 18.6 \\
-TCN--GRU (FP32) & 0.972 & 3.739 & 0.104 & 9.8 \\
-\textbf{TCN--GRU (INT8 Quantized)} & \textbf{0.972} & \textbf{4.429} & \textbf{0.048} & \textbf{7.2} \\
+Isolation Forest & 0.2000 & 12.512 & -- \\
+LSTM Autoencoder (FP32) & 0.8687 & 1.682 & 0.028 \\
+Transformer Autoencoder (FP32) & 0.8680 & 2.363 & 0.068 \\
+TCN--GRU (FP32) & 0.9725 & 6.554 & 0.104 \\
+\textbf{TCN--GRU (INT8 Quantized)} & \textbf{0.9725} & \textbf{11.117} & \textbf{0.048} \\
 \hline
 \end{tabular}%
 }
@@ -332,10 +350,13 @@ TCN--GRU (FP32) & 0.972 & 3.739 & 0.104 & 9.8 \\
 \end{table}
 
 \subsection{Component-Wise Ablation Study}
-Table~\ref{tab:ablation} details the impact of removing architectural components from the complete pipeline.
+\label{sec:ablation}
+Table~\ref{tab:ablation} details the impact of removing components. Because each configuration scores on a different scale, we select the threshold on the training split and apply it unchanged to test; a shared fixed threshold would measure calibration mismatch instead of component contribution. InSDN has no identity annotations, so trust comes from a simulated overlay parameterised by $\rho = P(\text{low trust} \mid \text{attack})$, reported at $\rho = 0.7$.
+
+The result contradicts our expectation. Identity fusion and the risk engine \emph{do not} improve $F1$; removing them nudges it from $0.9602$ up to $0.9680$. What they buy is false-positive suppression: FPR falls from $25.19\%$ under direct edge actuation to $12.05\%$, a $52\%$ relative reduction. Since the controller autonomously rate-limits and isolates flows, trading $0.8$ points of $F1$ for less than half the false alarms is operationally correct --- but it is a trade, not a free gain. A sweep over $\rho \in [0.5, 0.9]$ (in the artifact) shows identity fusion improves $F1$ only once the overlay is strongly informative ($\rho \ge 0.8$), bounding the credit this mechanism can claim without real campus identity data.
 
 \begin{table}[htbp]
-\caption{System Component Ablation Analysis}
+\caption{System Component Ablation Analysis ($\rho = 0.7$, threshold tuned on train). Latencies were measured in a separate run from Table~\ref{tab:latency}; only within-table comparison is meaningful.}
 \label{tab:ablation}
 \begin{center}
 \resizebox{\columnwidth}{!}{%
@@ -343,11 +364,11 @@ Table~\ref{tab:ablation} details the impact of removing architectural components
 \hline
 \textbf{Architecture Configuration} & \textbf{F1-Score} & \textbf{FPR (\%)} & \textbf{Latency (ms)} \\
 \hline
-\textbf{Full Proposed Pipeline} & \textbf{0.960} & \textbf{13.3} & \textbf{3.393} \\
---- w/o Identity Context Fusion & 0.918 & 17.5 & 3.391 \\
---- w/o Cloud Risk Engine (Direct Edge Actuation) & 0.884 & 21.2 & 3.271 \\
---- w/o INT8 Quantization (FP32 Baseline) & 0.961 & 13.1 & 2.701 \\
---- w/o Redis Streams (Synchronous REST Call) & 0.960 & 13.3 & 14.820 \\
+\textbf{Full Proposed Pipeline} & \textbf{0.9602} & \textbf{12.05} & \textbf{8.424} \\
+--- w/o Identity Context Fusion & 0.9628 & 20.67 & 8.424 \\
+--- w/o Cloud Risk Engine (Direct Edge Actuation) & 0.9680 & 25.19 & 8.423 \\
+--- w/o INT8 Quantization (FP32 Baseline) & 0.9699 & 18.83 & 3.309 \\
+--- w/o Redis Streams (Synchronous REST Call) & 0.9602 & 12.05 & 9.973 \\
 \hline
 \end{tabular}%
 }
@@ -355,21 +376,50 @@ Table~\ref{tab:ablation} details the impact of removing architectural components
 \end{table}
 
 \subsection{Policy Control Benchmarks (RQ3)}
-Table~\ref{tab:policy_benchmark} benchmarks the cloud DQN controller against static and heuristic policy baselines. Action Selection Accuracy evaluates whether the controller selects the optimal action $a^* \in \{a_0, \ldots, a_3\}$ under dynamic multi-flow contention; ground-truth optimal labels $a^*$ were generated by an offline brute-force oracle policy evaluating post-incident QoS preservation and containment efficacy.
+Table~\ref{tab:policy_benchmark} benchmarks the cloud DQN controller against static and heuristic baselines on a single-step contention environment whose reward $r(s,a)$ trades containment efficacy against collateral QoS damage and congestion relief. Because $r$ is analytic, the optimal action $a^*$ is obtained by exact enumeration over the four actions, giving a ground-truth oracle. The agent is trained by fitted Q-iteration over $4{,}000$ environment interactions with $\epsilon$-greedy exploration and evaluated on $5{,}000$ held-out states.
+
+The DQN selects the oracle-optimal action in $99.2\%$ of states and attains essentially zero mean regret, against $38.2\%$ for a static confidence ladder and $34.8\%$ for a hand-tuned heuristic table. Two caveats temper this. First, the agent is trained on the same reward function the oracle maximises, so the experiment demonstrates function-approximation capacity within a known environment rather than generalisation to a live campus network. Second, and counter to our expectation, the DQN inflicts \emph{more} raw QoS disruption on benign traffic ($0.128$) than the static ladder ($0.045$): reward-optimal behaviour is more aggressive about containment than a conservative threshold rule, and the advantage of the learned policy lies in near-zero regret rather than in gentleness.
 
 \begin{table}[htbp]
-\caption{Policy Controller Performance Benchmark}
+\caption{Policy Controller Benchmark against a Brute-Force Oracle ($n=5{,}000$ held-out states). QoS disruption and regret are lower-is-better.}
 \label{tab:policy_benchmark}
+\begin{center}
+\resizebox{\columnwidth}{!}{%
+\begin{tabular}{|l|c|c|c|c|}
+\hline
+\textbf{Policy Mechanism} & \textbf{Latency (ms)} & \textbf{QoS Disr.} & \textbf{Regret} & \textbf{Action Acc. (\%)} \\
+\hline
+Static Rule Lookup & $0.0008$ & 0.045 & 0.080 & 38.2 \\
+Round-Robin Action Assignment & $0.0006$ & 0.187 & 0.205 & 25.5 \\
+Heuristic Risk Table & $0.0007$ & 0.052 & 0.072 & 34.8 \\
+\textbf{Deep Q-Network (DQN Agent)} & $\mathbf{0.1075}$ & 0.128 & $\mathbf{0.000}$ & $\mathbf{99.2}$ \\
+\hline
+\end{tabular}%
+}
+\end{center}
+\end{table}
+
+\subsection{How Much Did Leakage Inflate the Numbers?}
+\label{sec:leakage_effect}
+Rather than assert that our leakage controls were necessary, we measured what they are worth, rerunning the identical detector, seed, and schedule while changing only the split and scaler. Protocol~A is the unsound one (i.i.d.\ random split over overlapping windows, scaler fit on the pooled corpus); Protocol~B is that of Section~\ref{sec:protocol}.
+
+\textbf{The effect is real but small, and this is a negative result.} Leakage inflates fixed-threshold $F1$ by $0.0061$ ($0.9276 \rightarrow 0.9337$) and optimal-threshold $F1$ by $0.0021$. We expected a substantially larger gap, since $9$ of every $10$ timesteps are shared across the boundary, and we report the modest magnitude because the opposite claim would have been the more publishable one.
+
+Two explanations fit and we cannot separate them: overlapping windows may be less informative than they look, since the one differing timestep is precisely the one carrying the transition; or this corpus may be easy enough that both protocols saturate above $0.92$. The defensible guidance is therefore narrower than we hoped --- blocked-and-purged splitting is cheap and principled and we recommend it, but a reviewer should not assume a random split has by itself inflated a result by a large margin.
+
+\begin{table}[htbp]
+\caption{Effect of the Evaluation Protocol. Identical model, seed, and schedule; only the split and scaler differ.}
+\label{tab:leakage}
 \begin{center}
 \resizebox{\columnwidth}{!}{%
 \begin{tabular}{|l|c|c|c|}
 \hline
-\textbf{Policy Mechanism} & \textbf{Mitigation Latency} & \textbf{QoS Disruption} & \textbf{Action Acc. (\%)} \\
+\textbf{Protocol} & \textbf{$F1$ @ $\tau=0.65$} & \textbf{$\tau^*$} & \textbf{$F1$ @ $\tau^*$} \\
 \hline
-Static Rule Lookup & $0.050$~ms & High (Rigid Drop) & 71.2 \\
-Round-Robin Action Assignment & $0.015$~ms & Very High & 48.5 \\
-Heuristic Risk Table & $0.080$~ms & Moderate & 84.1 \\
-\textbf{Deep Q-Network (DQN Agent)} & $\mathbf{0.120}$~\textbf{ms} & \textbf{Minimal (Dynamic)} & $\mathbf{96.0}$ \\
+A: random split + pooled scaler (unsound) & 0.9337 & 0.0945 & 0.9708 \\
+\textbf{B: blocked + purged + train-only scaler} & \textbf{0.9276} & \textbf{0.0720} & \textbf{0.9687} \\
+\hline
+Inflation (A $-$ B) & $+0.0061$ & --- & $+0.0021$ \\
 \hline
 \end{tabular}%
 }
@@ -377,7 +427,8 @@ Heuristic Risk Table & $0.080$~ms & Moderate & 84.1 \\
 \end{table}
 
 \subsection{Cross-Dataset Domain Shift Evaluation (RQ4)}
-Table~\ref{tab:cross} and Fig.~\ref{fig_cross} evaluate zero-shot transfer from InSDN to CIC-IDS2017. In-domain $F1$ is $0.961$, whereas zero-shot $F1$ drops to $0.286$ ($\tau=0.65$), demonstrating severe cross-dataset domain shift.
+\label{sec:cross}
+Table~\ref{tab:cross} evaluates zero-shot transfer from InSDN ($14{,}000$ train / $6{,}000$ test windows) to a $20{,}000$-window CIC-IDS2017 holdout. In-domain $F1$ is $0.9276$ at $\tau=0.65$, whereas zero-shot $F1$ collapses to $0.4611$, demonstrating severe cross-dataset domain shift. The failure mode is precision, not recall: on CIC-IDS2017 the detector still recovers $92.8\%$ of attacks but its false positive rate explodes to $92.4\%$ --- it is close to labelling everything an attack, roughly what a degenerate always-attack classifier would do. Since detection is driven by the supervised head (Section~\ref{sec:re_vs_cls}), the correct reading is that the \emph{decision boundary} does not transfer: CIC-IDS2017 benign traffic falls on the attack side of a boundary fitted to InSDN statistics. We do not attribute the collapse to a dataset-specific ``normal manifold,'' since reconstruction error is not the operational score. Re-tuning to $\tau^*=0.0720$ does not help ($F1 = 0.4670$), so the degradation is representational. A likely contributing factor we did not isolate is that the corpora were feature-extracted under different tooling and flow-timeout conventions, so the $10$ features may not be semantically identical.
 
 \begin{table}[htbp]
 \caption{Cross-Dataset Evaluation: Train InSDN $\rightarrow$ Test CIC-IDS2017}
@@ -388,46 +439,44 @@ Table~\ref{tab:cross} and Fig.~\ref{fig_cross} evaluate zero-shot transfer from 
 \hline
 \textbf{Protocol} & \textbf{Threshold $\tau$} & \textbf{Precision} & \textbf{Recall} & \textbf{F1-Score} \\
 \hline
-InSDN $\rightarrow$ InSDN & 0.65 & 0.964 & 0.959 & 0.961 \\
-InSDN $\rightarrow$ InSDN & $\tau^*=0.11$ & 0.952 & 0.992 & 0.972 \\
-InSDN $\rightarrow$ CIC-IDS2017 & 0.65 & 0.333 & 0.251 & 0.286 \\
-InSDN $\rightarrow$ CIC-IDS2017 & $\tau^*=0.11$ & 0.306 & 0.989 & 0.468 \\
+InSDN $\rightarrow$ InSDN & 0.65 & 0.9785 & 0.8818 & 0.9276 \\
+InSDN $\rightarrow$ InSDN & $\tau^*=0.0720$ & 0.9469 & 0.9915 & 0.9687 \\
+InSDN $\rightarrow$ CIC-IDS2017 & 0.65 & 0.3068 & 0.9281 & 0.4611 \\
+InSDN $\rightarrow$ CIC-IDS2017 & $\tau^*=0.0720$ & 0.3060 & 0.9858 & 0.4670 \\
 \hline
 \end{tabular}%
 }
 \end{center}
 \end{table}
 
-\begin{figure}[htbp]
-\centerline{\includegraphics[width=0.92\linewidth]{AI-Native-Security-Platform/paper/figures/fig7_cross_dataset.png}}
-\caption{Cross-dataset performance degradation under zero-shot evaluation.}
-\label{fig_cross}
-\end{figure}
-
 \section{Threats to Validity \& Limitations}
 \subsection{Threats to Validity}
+\label{sec:validity}
 \begin{itemize}
-    \item \textbf{Internal Validity:} Microbenchmark timings are subject to CPU scheduling noise; we mitigated this by averaging across $1{,}000$ independent runs using nanosecond resolution timers.
-    \item \textbf{External Validity:} Evaluation is conducted on public InSDN and CIC benchmark datasets. Broader IoT/IIoT benchmarks such as UNSW-NB15~\cite{b6}, ToN\_IoT~\cite{b7}, and Edge-IIoTset~\cite{b8} provide complementary attack vectors for multi-campus validation.
-    \item \textbf{Construct Validity:} Classification metrics assume clean flow labels; noisy header inputs could impact precision.
+    \item \textbf{Internal Validity:} Timings are subject to CPU scheduling noise; we averaged $1{,}000$ runs with nanosecond timers, yet repeating the suite under different background load produced end-to-end means from $1.9$ to $7.9$~ms. We report a single complete run so every latency here is mutually consistent, and treat absolute latencies as order-of-magnitude estimates. The sub-10~ms RQ1 result holds on our testbed with under a factor of two of headroom and is not a hardware-independent guarantee.
+    \item \textbf{Reproducibility:} An earlier version of this artifact constructed models before seeding the global RNG, so detection metrics varied between runs of the same script. We fixed this (\texttt{set\_global\_seed} now precedes every module instantiation) and regenerated all numbers from one deterministic execution. We flag it because the failure mode is silent and common: seeding inside a training helper is too late if the module already exists.
+    \item \textbf{External Validity:} Evaluation uses public InSDN and CIC benchmarks; broader IoT/IIoT corpora such as UNSW-NB15~\cite{b6}, ToN\_IoT~\cite{b7}, and Edge-IIoTset~\cite{b8} offer complementary vectors for multi-campus validation.
+    \item \textbf{Construct Validity:} Metrics assume clean flow labels; noisy headers could affect precision. The SOC and SIEM rows of Table~\ref{tab:mttr} are stipulated, establishing an order of magnitude and nothing finer.
+    \item \textbf{Residual Leakage Risk:} Purging guarantees no shared timestep, but blocks are cut over the released record ordering, a proxy for session boundaries rather than ground-truth grouping, so a single long attack episode could straddle two blocks. Session-aware grouping would be stronger; InSDN does not expose the required metadata.
 \end{itemize}
 
 \subsection{Limitations \& Future Work}
-Primary limitations include: (i) reliance on single-controller SDN testbeds; (ii) lack of active adversarial robustness mechanisms against evasion attacks; and (iii) observed zero-shot cross-dataset performance drops. Future work will investigate Unsupervised Domain Adaptation (UDA), online threshold fine-tuning, and federated multi-campus learning.
+Primary limitations include: (i) reliance on a single-controller emulated SDN testbed rather than production campus hardware; (ii) lack of active adversarial robustness mechanisms against evasion attacks, which is the obvious attack on any AI-native control loop and which we do not evaluate at all; (iii) severe zero-shot cross-dataset degradation; (iv) rejection of H3, as the Python runtime neither sustains $10{,}000$~windows/s at batch $=128$ nor stays within the CPU budget at the load it does sustain; (v) a precision-recall operating point that misses roughly one attack window in eight at $\tau=0.65$, or trades that for a $12.1\%$ full-pipeline false positive rate at the tuned threshold --- either of which is a material operational cost when the controller autonomously rate-limits or isolates flows; and (vi) single-seed reporting, so we quantify no run-to-run variance in the accuracy metrics even though our own reproducibility investigation showed such variance exists. Future work will investigate Unsupervised Domain Adaptation (UDA), compiled ONNX/TensorRT edge runtimes with batched inference, online threshold fine-tuning, multi-seed reporting with confidence intervals, and federated multi-campus learning.
 
 \section{Ethics, Privacy \& Public Artifact}
-\subsection{Privacy \& GDPR Compliance}
-Our architecture operates strictly on non-DPI flow headers. User network activity payloads are uninspected, and IP/MAC identifiers are anonymized via SHA-256 hashing prior to telemetry transport, adhering to GDPR data minimization principles.
+\subsection{Privacy Posture}
+The architecture operates strictly on non-DPI flow headers; payloads are uninspected and IP/MAC identifiers are \emph{pseudonymized} via SHA-256 before transport, supporting data-minimization principles under GDPR and Vietnam's Decree 13/2023. We avoid the word anonymized: an unkeyed SHA-256 over a $32$-bit IPv4 address or $48$-bit MAC is trivially invertible by enumeration, so the hashes resist casual inspection but not a motivated adversary. A keyed HMAC with a rotated per-deployment secret is the defensible construction; the current unkeyed hash is a prototype placeholder, not a privacy guarantee.
 
 \subsection{Public Research Artifact}
-To support 100\% scientific reproducibility, the open-source code, dataset preprocessors, PyTorch model checkpoints, Docker orchestration files (Docker Tag: \texttt{v1.0.0}), and execution scripts under MIT License (commit hash: \texttt{218ee44}, seed: \texttt{42}) are publicly available at:  
-\url{https://github.com/thtcsec/icai-fai2026}.
+Code, dataset preprocessors, model checkpoints, Docker orchestration files, and execution scripts are available under MIT License at \url{https://github.com/thtcsec/icai-fai2026}. Every table here is regenerated by one entry point, \texttt{results/run\_all\_and\_summarize.py}, which seeds all generators (seed \texttt{42}) before model construction and emits the machine-readable summary the tables are transcribed from.
 
 \section{Conclusion}
-This paper presented an AI-native event-driven edge--cloud architecture for autonomous campus network security. By combining INT8-quantized TCN--GRU edge detectors, Redis Streams transport, and cloud DQN SDN actuation, the platform achieves sub-10~ms closed-loop mitigation ($3.393 \pm 1.024$~ms) and reduces incident containment time by $>99.99\%$ over traditional SOC triage.
+This paper presented an AI-native event-driven edge--cloud architecture for autonomous campus network security. By combining INT8-quantized TCN--GRU edge detectors, Redis Streams transport, and cloud DQN SDN actuation, the platform achieves a sub-10~ms software control path ($5.909 \pm 2.495$~ms) from telemetry ingestion to playbook emission. We stop short of calling this closed-loop mitigation: dataplane enforcement is not measured, and the SOC comparison uses stipulated rather than observed baselines.
+
+The results that we think transfer beyond this system are the negative ones. Reconstruction-error scoring, the default decision rule for sequence autoencoders, is unusable on an attack-heavy corpus ($F1 = 0.036$), so what we report is a supervised classifier with an auxiliary reconstruction objective and should be cited as such. Leakage from stride-1 window overlap is real but, contrary to our expectation, small: a random split inflated fixed-threshold $F1$ by only $0.006$, so we cannot support the stronger cautionary claim we set out to make. Our edge-resource hypothesis H3 fails on both terms, delivering $8{,}171$ of $10{,}000$ offered windows/s at $43.8\%$ of one core against a $10\%$ budget. Zero-shot transfer to CIC-IDS2017 collapses to $F1 = 0.46$, driven by precision, which locates the problem in a decision boundary that does not survive a change of capture domain. H1 alone is cleanly supported --- INT8 quantization is accuracy-neutral at half the footprint --- though on hardware where the FP32 model already fits, that buys little. Taken together these bound where an AI-native campus defense is currently practical, and motivate compiled edge runtimes, domain-adaptive training, and evaluation on balanced multi-campus corpora.
 
 \section*{Acknowledgment}
-The authors thank the Faculty of Information Technology at HUFLIT for academic and computational support. This work is prepared for ICAI-2026 (Track 1: ICT).
+The authors thank the Faculty of Information Technology at HUFLIT for academic and computational support.
 
 \begin{thebibliography}{00}
 \bibitem{b1} M. S. Elsayed, N.-A. Le-Khac, and A. D. Jurcut, ``InSDN: A Novel SDN Intrusion Dataset,'' \textit{IEEE Access}, vol.~8, pp.~165263--165284, 2020, doi: 10.1109/ACCESS.2020.3022633.
@@ -438,18 +487,14 @@ The authors thank the Faculty of Information Technology at HUFLIT for academic a
 \bibitem{b6} N. Moustafa and J. Slay, ``UNSW-NB15: a comprehensive data set for network intrusion detection systems,'' in \textit{Proc. MilCIS}, 2015, pp.~1--6, doi: 10.1109/MILCIS.2015.7348942.
 \bibitem{b7} A. Alsaedi \textit{et al.}, ``TON\_IoT Telemetry Dataset: A New Generation Dataset of IoT and IIoT for Data-Driven Cybersecurity Applications,'' \textit{IEEE Access}, vol.~8, pp.~165130--165150, 2020, doi: 10.1109/ACCESS.2020.3022862.
 \bibitem{b8} M. A. Ferrag \textit{et al.}, ``Edge-IIoTset: A New Comprehensive Realistic Cyber Security Dataset of IoT and IIoT Applications for Federated Learning,'' \textit{IEEE Access}, vol.~10, pp.~40281--40300, 2022, doi: 10.1109/ACCESS.2022.3165809.
-\bibitem{b9} S. M. Lundberg and S.-I. Lee, ``A unified approach to interpreting model predictions,'' in \textit{Proc. NeurIPS}, 2017, pp.~4765--4774.
 \bibitem{b10} N. McKeown \textit{et al.}, ``OpenFlow: enabling innovation in campus networks,'' \textit{ACM SIGCOMM Comput. Commun. Rev.}, vol.~38, no.~2, pp.~69--74, 2008, doi: 10.1145/1355734.1355746.
 \bibitem{b11} Ryu SDN Framework Community, ``Ryu SDN Framework: Component-based Software-defined Networking Framework,'' 2020. [Online]. Available: https://ryu-sdn.org/ (Accessed: Aug. 2026).
 \bibitem{b12} A. Paszke \textit{et al.}, ``PyTorch: An imperative style, high-performance deep learning library,'' in \textit{Proc. NeurIPS}, 2019, pp.~8024--8035.
-\bibitem{b13} T. Chen and C. Guestrin, ``XGBoost: A scalable tree boosting system,'' in \textit{Proc. ACM SIGKDD}, 2016, pp.~785--794, doi: 10.1145/2939672.2939785.
-\bibitem{b14} G. Ke \textit{et al.}, ``LightGBM: A highly efficient gradient boosting decision tree,'' in \textit{Proc. NeurIPS}, 2017, pp.~3146--3154.
 \bibitem{b15} C. Zhang, P. Patras, and H. Haddadi, ``Deep learning in mobile and wireless networking: A survey,'' \textit{IEEE Commun. Surveys Tuts.}, vol.~21, no.~3, pp.~2224--2287, 2019, doi: 10.1109/COMST.2019.2904897.
 \bibitem{b16} T. A. Tang, L. Mhamdi, D. McLernon, S. A. R. Zaidi, and M. Ghogho, ``Deep recurrent neural network for intrusion detection in SDN-based networks,'' in \textit{Proc. 4th IEEE Conf. Netw. Softwarization (NetSoft)}, 2018, pp.~202--206, doi: 10.1109/NETSOFT.2018.8460090.
 \bibitem{b17} M. Roopak, G. Yun Tian, and J. Chambers, ``Deep learning models for cyber security in IoT networks,'' in \textit{Proc. IEEE 9th Annu. Comput. Commun. Workshop Conf. (CCWC)}, 2019, pp.~0452--0457, doi: 10.1109/CCWC.2019.8666588.
-\bibitem{b18} S. Islam, A. R. H. Muhtadi, and M. S. Rahman, ``Towards Smarter Security Orchestration and Automatic Response for CPS and IoT,'' in \textit{Proc. 15th IEEE Int. Conf. Cloud Comput. Technol. Sci. (CloudCom)}, 2023, pp.~112--119, doi: 10.1109/CloudCom58704.2023.00028.
+\bibitem{b18} P. H. Nguyen \textit{et al.}, ``Towards Smarter Security Orchestration and Automatic Response for CPS and IoT,'' in \textit{Proc. 14th IEEE Int. Conf. Cloud Comput. Technol. Sci. (CloudCom)}, Naples, Italy, 2023, pp.~298--302, doi: 10.1109/CloudCom59040.2023.00055.
 \bibitem{b19} B. Lantz, B. Heller, and N. McKeown, ``A network in a laptop: rapid prototyping for software-defined networks,'' in \textit{Proc. ACM HotNets}, 2010, pp.~1--6, doi: 10.1145/1868447.1868466.
-\bibitem{b20} J. He \textit{et al.}, ``Drain: An Online Log Parsing Approach with Fixed Depth Tree,'' in \textit{Proc. IEEE ICWS}, 2017, pp.~33--40, doi: 10.1109/ICWS.2017.13.
 \end{thebibliography}
 
 \end{document}
