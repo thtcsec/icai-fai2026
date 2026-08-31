@@ -1,6 +1,9 @@
 Detection Method,F1-Score,Inference Latency (ms),Model Footprint (MB)
-Isolation Forest (iForest),0.2000,12.5124,n/a
-LSTM Autoencoder (FP32),0.8687,1.6821,0.028 MB
-Transformer AE (FP32),0.8680,2.3629,0.068 MB
-TCN-GRU (FP32 Ablation),0.9725,6.5537,0.104 MB
-TCN-GRU (INT8 Proposed),0.9725,11.1171,0.048 MB
+Isolation Forest (iForest),0.2000,7.8573,n/a
+Random Forest,0.9843,46.3013,n/a
+XGBoost,0.9880,0.3874,n/a
+LightGBM,0.9886,0.7111,n/a
+LSTM Autoencoder (FP32),0.8687,0.6193,0.028 MB
+Transformer AE (FP32),0.8680,1.1746,0.068 MB
+TCN-GRU (FP32 Ablation),0.9725,2.8322,0.104 MB
+TCN-GRU (INT8 Proposed),0.9725,4.3037,0.048 MB

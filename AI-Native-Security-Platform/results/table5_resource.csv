@@ -1,5 +1,5 @@
-Offered Load (windows/s),Achieved Throughput (windows/s),Edge CPU (%/core),Process RSS (MB),INT8 Model Footprint (MB),Target Met
-100,100.0,6.10%,495.0 MB,0.048 MB,yes
-1000,999.9,39.14%,495.0 MB,0.048 MB,yes
-5000,4981.9,41.84%,495.0 MB,0.048 MB,yes
-10000,8171.2,43.82%,495.0 MB,0.048 MB,no
+Offered Load (windows/s),Achieved Throughput median of 5 (windows/s),Edge CPU median (%/core),"Peak Working Set (MB, runtime-dominated)",INT8 Model Footprint (MB),Target Met
+100,100.0,8.96%,540.5 MB,0.048 MB,yes
+1000,999.9,55.00%,540.5 MB,0.048 MB,yes
+5000,4999.4,56.48%,540.5 MB,0.048 MB,yes
+10000,9998.3,58.81%,540.5 MB,0.048 MB,yes

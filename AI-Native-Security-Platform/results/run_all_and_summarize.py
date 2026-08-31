@@ -38,16 +38,21 @@ def main():
 
     best_tau, best_m = prec["best_report"]
     summary = {
+        "latency_total_median_ms": round(lat["total_median"], 4),
+        "latency_total_p95_ms": round(lat["total_p95"], 4),
+        "latency_total_p99_ms": round(lat["total_p99"], 4),
         "latency_total_mean_ms": round(lat["total_mean"], 4),
-        "latency_total_std_ms": round(lat["total_std"], 4),
         "latency_stages": [
             {
                 "name": n,
-                "mean": round(m, 4),
-                "std": round(s, 4),
+                "median": round(med, 4),
+                "p95": round(p95, 4),
+                "p99": round(p99, 4),
                 "pct": round(p, 1),
             }
-            for n, m, s, p in zip(lat["stages"], lat["means"], lat["stds"], lat["percentages"])
+            for n, med, p95, p99, p in zip(
+                lat["stages"], lat["medians"], lat["p95s"], lat["p99s"], lat["percentages"]
+            )
         ],
         "mttr_manual_mean_s": round(mttr["means"][0], 4),
         "mttr_manual_std_s": round(mttr["stds"][0], 4),
@@ -74,13 +79,17 @@ def main():
             for t, m in prec["rows"]
         ],
         "resource_10k_cpu": round(res["ai_cpu"][-1], 2),
+        "resource_10k_cpu_range": [round(res["ai_cpu_min"][-1], 2), round(res["ai_cpu_max"][-1], 2)],
         "resource_10k_rss_mb": round(res["ai_ram"][-1], 1),
         "resource_model_mb": round(res["model_mb"], 3),
         "resource_deploy_batch": res["deploy_batch"],
+        "resource_repeats": res["repeats"],
         "resource_saturation": [
             {
                 "batch": s["batch"],
                 "windows_per_s": round(s["windows_per_s"], 1),
+                "windows_per_s_min": round(s["windows_per_s_min"], 1),
+                "windows_per_s_max": round(s["windows_per_s_max"], 1),
                 "ms_per_forward": round(s["ms_per_forward"], 3),
             }
             for s in res["saturation"]
@@ -89,18 +98,24 @@ def main():
             {
                 "offered": tp,
                 "achieved": round(a, 1),
+                "achieved_min": round(amin, 1),
+                "achieved_max": round(amax, 1),
                 "cpu": round(c, 2),
+                "cpu_min": round(cmin, 2),
+                "cpu_max": round(cmax, 2),
                 "rss": round(r, 1),
                 "target_met": bool(m),
             }
-            for tp, a, c, r, m in zip(
-                res["throughputs"], res["achieved"], res["ai_cpu"], res["ai_ram"], res["target_met"]
+            for tp, a, amin, amax, c, cmin, cmax, r, m in zip(
+                res["throughputs"], res["achieved"], res["achieved_min"], res["achieved_max"],
+                res["ai_cpu"], res["ai_cpu_min"], res["ai_cpu_max"], res["ai_ram"], res["target_met"]
             )
         ],
         "sota_methods": sota["methods"],
         "sota_f1": [round(x, 4) for x in sota["f1"]],
         "sota_latency_ms": [round(x, 4) for x in sota["latency"]],
         "sota_ram_mb": [None if x is None else round(x, 3) for x in sota["ram"]],
+        "sota_tree_serialized_mb": {k: round(v, 3) for k, v in sota["tree_serialized_mb"].items()},
         "sota_delta_f1": round(sota["delta_f1"], 4),
         "cross_dataset": {
             "opt_tau": round(cross["opt_tau"], 4),

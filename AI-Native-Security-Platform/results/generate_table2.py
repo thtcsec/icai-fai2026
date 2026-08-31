@@ -72,47 +72,68 @@ def run_real_latency_benchmark(num_trials: int = 1000, seed: int = 42):
         "Cloud Policy Reasoning (DQN)",
         "SOAR Playbook Execution",
     ]
-    means = [float(np.mean(x)) for x in (edge_ms, fusion_ms, dqn_ms, soar_ms)]
-    stds = [float(np.std(x, ddof=1)) for x in (edge_ms, fusion_ms, dqn_ms, soar_ms)]
+    # The per-trial latency distribution is heavy-tailed: OS scheduling and GC
+    # pauses produce rare trials orders of magnitude above the mode, which makes
+    # the mean and SD unstable across runs and not reproducible. We therefore
+    # report percentiles, which is also the conventional way to state a latency
+    # budget for a control loop.
+    stage_samples = (edge_ms, fusion_ms, dqn_ms, soar_ms)
+    medians = [float(np.median(x)) for x in stage_samples]
+    p95s = [float(np.percentile(x, 95)) for x in stage_samples]
+    p99s = [float(np.percentile(x, 99)) for x in stage_samples]
+    means = [float(np.mean(x)) for x in stage_samples]
+
     total_trials = np.array(edge_ms) + np.array(fusion_ms) + np.array(dqn_ms) + np.array(soar_ms)
+    total_median = float(np.median(total_trials))
+    total_p95 = float(np.percentile(total_trials, 95))
+    total_p99 = float(np.percentile(total_trials, 99))
     total_mean = float(np.mean(total_trials))
-    total_std = float(np.std(total_trials, ddof=1))
-    percentages = [(m / total_mean) * 100.0 for m in means]
+    percentages = [(m / total_median) * 100.0 for m in medians]
 
     os.makedirs(os.path.dirname(CSV_PATH), exist_ok=True)
     with open(CSV_PATH, "w", newline="", encoding="utf-8") as f:
         writer = csv.writer(f)
-        writer.writerow(["Pipeline Stage", "Mean Latency (ms)", "SD (ms)", "Percentage (%)"])
-        for stage, mean, sd, pct in zip(stages, means, stds, percentages):
-            writer.writerow([stage, f"{mean:.4f}", f"{sd:.4f}", f"{pct:.1f}%"])
-        writer.writerow(["End-to-End Total", f"{total_mean:.4f}", f"{total_std:.4f}", "100.0%"])
+        writer.writerow(["Pipeline Stage", "Median (ms)", "p95 (ms)", "p99 (ms)", "Share of Median Total (%)"])
+        for stage, med, p95, p99, pct in zip(stages, medians, p95s, p99s, percentages):
+            writer.writerow([stage, f"{med:.4f}", f"{p95:.4f}", f"{p99:.4f}", f"{pct:.1f}%"])
+        writer.writerow(
+            ["End-to-End Total", f"{total_median:.4f}", f"{total_p95:.4f}", f"{total_p99:.4f}", "100.0%"]
+        )
 
     fig, ax = plt.subplots(figsize=(6.2, 3.4))
     colors = ["#2b5c8f", "#4682b4", "#6897bb", "#d9534f"]
     y = np.arange(len(stages))
-    ax.barh(y, means, xerr=stds, color=colors, edgecolor="black", height=0.55, error_kw=dict(ecolor="#1A252C", lw=1.8, capsize=6, capthick=1.8))
+    err_up = [p - m for p, m in zip(p95s, medians)]
+    ax.barh(
+        y, medians, xerr=[[0] * len(medians), err_up], color=colors, edgecolor="black", height=0.55,
+        error_kw=dict(ecolor="#1A252C", lw=1.8, capsize=6, capthick=1.8),
+    )
     ax.set_yticks(y)
     ax.set_yticklabels(stages, fontsize=8)
-    ax.set_xlabel("Latency (ms)")
-    ax.set_title(f"Per-Stage Latency Breakdown (Total {total_mean:.3f} ± {total_std:.3f} ms)")
+    ax.set_xlabel("Latency (ms), bar = median, whisker = p95")
+    ax.set_title(f"Per-Stage Latency (Total median {total_median:.3f} ms, p95 {total_p95:.3f} ms)")
     ax.grid(axis="x", linestyle="--", alpha=0.5)
-    for i, (m, s) in enumerate(zip(means, stds)):
-        ax.text(m + max(means) * 0.02, i, f"{m:.3f}±{s:.3f}", va="center", fontsize=8, fontweight="bold")
-    ax.set_xlim(0, max(means) * 1.45)
+    for i, (m, p) in enumerate(zip(medians, p95s)):
+        ax.text(p + max(p95s) * 0.02, i, f"{m:.3f} / {p:.3f}", va="center", fontsize=8, fontweight="bold")
+    ax.set_xlim(0, max(p95s) * 1.45)
     plt.tight_layout()
     plt.savefig(PNG_PATH, dpi=300, bbox_inches="tight")
     os.makedirs(os.path.dirname(FIG_PATH), exist_ok=True)
     plt.savefig(FIG_PATH, dpi=300, bbox_inches="tight")
     plt.close()
 
-    print(f"  [+] Total: {total_mean:.4f} ± {total_std:.4f} ms")
-    for s, m, sd, p in zip(stages, means, stds, percentages):
-        print(f"      - {s}: {m:.4f} ± {sd:.4f} ms ({p:.1f}%)")
+    print(f"  [+] Total: median {total_median:.4f} ms, p95 {total_p95:.4f} ms, p99 {total_p99:.4f} ms")
+    for s, med, p95, p99, pct in zip(stages, medians, p95s, p99s, percentages):
+        print(f"      - {s}: median {med:.4f} p95 {p95:.4f} p99 {p99:.4f} ms ({pct:.1f}%)")
     return {
+        "medians": medians,
+        "p95s": p95s,
+        "p99s": p99s,
         "means": means,
-        "stds": stds,
+        "total_median": total_median,
+        "total_p95": total_p95,
+        "total_p99": total_p99,
         "total_mean": total_mean,
-        "total_std": total_std,
         "percentages": percentages,
         "stages": stages,
     }
