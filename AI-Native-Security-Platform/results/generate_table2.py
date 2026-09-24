@@ -1,11 +1,12 @@
 """
 generate_table2.py - Software control-path latency including Redis Streams.
 
-Measures the path: edge INT8 inference → identity enrichment → Redis XADD +
-XREADGROUP (consumer group) → DQN action selection → SOAR playbook *construction*.
+Measures: edge INT8 inference → local identity enrichment → HMAC principal_id
+→ Redis XADD + XREADGROUP → DQN action selection → SOAR playbook construction
+using the *selected* DQN action name.
 
-Excludes dataplane enforcement (no Ryu/OpenFlow flow_mod install). Requires a
-live Redis 7.x on localhost:6379.
+Excludes dataplane enforcement. Requires Redis 7.x on localhost:6379.
+Cloud-bound payloads carry principal_id only (no cleartext IP/MAC).
 """
 
 from __future__ import annotations
@@ -30,6 +31,7 @@ from prototype.cloud.policy_engine.drl_sdn_agent import DRLResilienceAgent
 from prototype.edge.detector.quantize import quantize_tcn_gru_model
 from prototype.edge.detector.tcn_gru_model import TCNGRUResilienceModel
 from prototype.edge.identity_fusion.fusion import IdentityFusionEngine
+from prototype.edge.privacy.pseudonymize import assert_no_raw_endpoint
 from prototype.edge.redis_stream.pubsub import require_redis
 from prototype.soar.playbooks import SOARPlaybooks
 
@@ -37,11 +39,22 @@ CSV_PATH = os.path.join(BASE_DIR, "results", "table2_latency.csv")
 PNG_PATH = os.path.join(BASE_DIR, "results", "table2_latency.png")
 FIG_PATH = os.path.join(BASE_DIR, "paper", "figures", "fig2_latency_breakdown.png")
 
-STREAM = "security:telemetry:stream"
+
+def _cloud_event(ctx: dict, pkt_rate: int, p_attack: float) -> dict:
+    event = {
+        "principal_id": ctx["principal_id"],
+        "pkt_rate": pkt_rate,
+        "p_attack": p_attack,
+        "role": ctx["role"],
+        "trust_score": float(ctx["trust_score"]),
+        "device": ctx["device"],
+    }
+    assert_no_raw_endpoint(event)
+    return event
 
 
 def run_real_latency_benchmark(num_trials: int = 1000, seed: int = 42, warmups: int = 50):
-    print(f"[*] Latency benchmark with Redis Streams ({num_trials} trials, seed={seed})...")
+    print(f"[*] Latency benchmark with Redis Streams + HMAC principals ({num_trials} trials)...")
     torch.manual_seed(seed)
     np.random.seed(seed)
     torch.set_num_threads(1)
@@ -61,17 +74,11 @@ def run_real_latency_benchmark(num_trials: int = 1000, seed: int = 42, warmups: 
         for _ in range(warmups):
             _ = quantized_model(sample_tensor)
             ctx = fusion.enrich("10.0.1.15")
-            event = {
-                "src_ip": "10.0.1.15",
-                "pkt_rate": 5000,
-                "p_attack": 0.91,
-                "role": ctx["role"],
-                "trust_score": ctx["trust_score"],
-            }
+            event = _cloud_event(ctx, 5000, 0.91)
             _ = bus.publish_and_consume(event, block_ms=2000)
             state = [0.91, 1200.0, float(ctx["trust_score"]), 0.68, 0.92]
-            action = dqn_agent.select_action(state, eval_mode=True)
-            _ = soar_playbooks.execute_playbook("TARGETED_FLOW_ISOLATION", event)
+            action_id = dqn_agent.select_action(state, eval_mode=True)
+            _ = soar_playbooks.execute_playbook(dqn_agent.get_action_name(action_id), event)
 
     bus.reset_stream()
 
@@ -89,14 +96,7 @@ def run_real_latency_benchmark(num_trials: int = 1000, seed: int = 42, warmups: 
         ctx = fusion.enrich(src_ip)
         fusion_ms.append((time.perf_counter() - t0) * 1000.0)
 
-        event = {
-            "src_ip": src_ip,
-            "pkt_rate": 5000 + (i % 100),
-            "p_attack": 0.91,
-            "role": ctx["role"],
-            "trust_score": float(ctx["trust_score"]),
-            "device": ctx["device"],
-        }
+        event = _cloud_event(ctx, 5000 + (i % 100), 0.91)
 
         t0 = time.perf_counter()
         _ = bus.publish_and_consume(event, block_ms=2000)
@@ -104,11 +104,12 @@ def run_real_latency_benchmark(num_trials: int = 1000, seed: int = 42, warmups: 
 
         state = [0.91, 1200.0, float(ctx["trust_score"]), 0.68, 0.92]
         t0 = time.perf_counter()
-        _ = dqn_agent.select_action(state, eval_mode=True)
+        action_id = dqn_agent.select_action(state, eval_mode=True)
+        action_name = dqn_agent.get_action_name(action_id)
         dqn_ms.append((time.perf_counter() - t0) * 1000.0)
 
         t0 = time.perf_counter()
-        _ = soar_playbooks.execute_playbook("TARGETED_FLOW_ISOLATION", event)
+        _ = soar_playbooks.execute_playbook(action_name, event)
         soar_ms.append((time.perf_counter() - t0) * 1000.0)
 
     stages = [
@@ -166,7 +167,7 @@ def run_real_latency_benchmark(num_trials: int = 1000, seed: int = 42, warmups: 
     ax.set_yticklabels(stages, fontsize=7)
     ax.set_xlabel("Latency (ms), bar = median, whisker = p95")
     ax.set_title(
-        f"Control-path latency with Redis Streams "
+        f"Control-path latency with Redis + HMAC "
         f"(median {total_median:.3f} ms, p99 {total_p99:.3f} ms)"
     )
     ax.grid(axis="x", linestyle="--", alpha=0.5)
@@ -197,6 +198,7 @@ def run_real_latency_benchmark(num_trials: int = 1000, seed: int = 42, warmups: 
         "percentages": percentages,
         "stages": stages,
         "redis_required": True,
+        "hmac_principals": True,
     }
 
 

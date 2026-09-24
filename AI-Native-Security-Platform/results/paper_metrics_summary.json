@@ -1,43 +1,43 @@
 {
-  "latency_total_median_ms": 4.1938,
-  "latency_total_p95_ms": 6.7533,
-  "latency_total_p99_ms": 7.47,
+  "latency_total_median_ms": 2.9317,
+  "latency_total_p95_ms": 4.1415,
+  "latency_total_p99_ms": 4.8508,
   "latency_total_mean_ms": 4.4861,
   "latency_stages": [
     {
       "name": "Edge TCN-GRU Inference",
-      "median": 2.4072,
-      "p95": 4.3801,
-      "p99": 4.7942,
-      "pct": 57.4
+      "median": 1.4749,
+      "p95": 2.1085,
+      "p99": 2.5343,
+      "pct": 50.3
     },
     {
       "name": "Identity Context Fusion",
-      "median": 0.0016,
-      "p95": 0.0028,
-      "p99": 0.0033,
-      "pct": 0.0
+      "median": 0.0284,
+      "p95": 0.0427,
+      "p99": 0.055,
+      "pct": 1.0
     },
     {
       "name": "Redis Streams (XADD+XREADGROUP)",
-      "median": 1.5797,
-      "p95": 2.3097,
-      "p99": 2.9429,
-      "pct": 37.7
+      "median": 1.262,
+      "p95": 1.9206,
+      "p99": 2.4273,
+      "pct": 43.0
     },
     {
       "name": "Cloud DQN Policy",
-      "median": 0.1755,
-      "p95": 0.2719,
-      "p99": 0.3308,
-      "pct": 4.2
+      "median": 0.1331,
+      "p95": 0.2166,
+      "p99": 0.2923,
+      "pct": 4.5
     },
     {
       "name": "SOAR Playbook Construction",
-      "median": 0.0019,
-      "p95": 0.0028,
-      "p99": 0.0037,
-      "pct": 0.0
+      "median": 0.0023,
+      "p95": 0.0034,
+      "p99": 0.0043,
+      "pct": 0.1
     }
   ],
   "mttr_manual_mean_s": 1518.4986,
@@ -345,5 +345,14 @@
     "controlled_f1_opt": 0.9679,
     "delta_f1_fixed": -0.0018,
     "delta_f1_opt": 0.0014
+  },
+  "latency_hmac_principals": true,
+  "measurement_host": {
+    "cpu": "13th Gen Intel Core i7-13620H (10 cores / 16 threads)",
+    "ram_gb": 16,
+    "os": "Windows 11 build 26200",
+    "python": "3.11.9",
+    "torch": "2.13.0+cpu",
+    "redis": "7.2.4 docker localhost"
   }
 }

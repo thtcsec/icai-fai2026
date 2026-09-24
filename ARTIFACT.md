@@ -39,7 +39,7 @@ Approximate wall time: tens of minutes on a laptop CPU (training + 5-repeat reso
 
 | Claim | Expected check (from summary JSON) | Generator |
 | :--- | :--- | :--- |
-| **RQ1 control-path latency** includes Redis Streams | Total median ≈ **4.194 ms**, p99 ≈ **7.470 ms**; Redis stage present | `results/generate_table2.py` → `table2_latency.csv` |
+| **RQ1 control-path latency** includes Redis Streams + HMAC principals | Total median ≈ **2.932 ms**, p99 ≈ **4.851 ms**; no cleartext IP on Redis | `results/generate_table2.py` → `table2_latency.csv` |
 | **Detection @ τ=0.65** | F1 ≈ **0.9340** | `results/generate_table4.py` |
 | **H2 edge CPU** | @10k win/s CPU ≈ **36.0% of one logical CPU** (H2 rejected vs 10%) | `results/generate_table5.py` |
 | **Trees beat TCN–GRU** | LightGBM F1 **0.9886** > INT8 TCN–GRU **0.9723** | `results/generate_table6.py` |

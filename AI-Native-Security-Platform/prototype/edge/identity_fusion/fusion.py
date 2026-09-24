@@ -1,9 +1,18 @@
-"""Identity Context Fusion Engine for Campus Telemetry Enrichment."""
-from typing import Dict, Any
+"""Identity Context Fusion Engine for Campus Telemetry Enrichment.
+
+The lookup table is a *simulated* campus DHCP/RADIUS lease map for the
+prototype. Production deployments would query real directory services; this
+artifact does not speak LDAP/RADIUS on the wire.
+"""
+
+from typing import Any, Dict
+
+from prototype.edge.privacy.pseudonymize import principal_id
+
 
 class IdentityFusionEngine:
     def __init__(self):
-        # Simulated Campus LDAP/RADIUS DHCP lease table
+        # Simulated campus LDAP/RADIUS DHCP lease table (local edge only).
         self._identity_table: Dict[str, Dict[str, Any]] = {
             "10.0.1.15": {"role": "STUDENT", "device": "BYOD_LAPTOP", "trust_score": 0.85},
             "10.0.1.50": {"role": "FACULTY", "device": "RESEARCH_WORKSTATION", "trust_score": 0.95},
@@ -13,9 +22,14 @@ class IdentityFusionEngine:
         }
 
     def enrich(self, src_ip: str) -> Dict[str, Any]:
-        """Looks up IP in identity database or assigns default guest context."""
+        """Look up IP locally and return cloud-safe fields (HMAC principal_id)."""
         context = self._identity_table.get(
-            src_ip, 
-            {"role": "GUEST_BYOD", "device": "UNMANAGED_DEVICE", "trust_score": 0.50}
+            src_ip,
+            {"role": "GUEST_BYOD", "device": "UNMANAGED_DEVICE", "trust_score": 0.50},
         )
-        return context
+        return {
+            "principal_id": principal_id(src_ip),
+            "role": context["role"],
+            "device": context["device"],
+            "trust_score": float(context["trust_score"]),
+        }
