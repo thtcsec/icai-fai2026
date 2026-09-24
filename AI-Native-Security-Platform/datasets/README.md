@@ -25,6 +25,28 @@ python datasets/build_windows.py --csv /path/to/standardized_flows.csv \
   --out datasets/processed/rebuild.npz --seq-len 10 --stride 1
 ```
 
+## How the 50,000 InSDN source rows were chosen
+
+Public InSDN has on the order of **343,939** flow instances. The frozen
+`insdn_windows.npz` was produced by the offline prepare path that originally
+built this archive (byte-identical copy; SHA-256 above), with defaults:
+
+1. Load the public InSDN flow CSV(s).
+2. If raw rows exceed the cap, take a **label-stratified subsample of
+   `max_rows=50_000` with `seed=42`** (proportions preserved across label
+   values; final class is residual-filled, then the subsample is shuffled with
+   the same seed).
+3. Map columns onto the 10 `FEATURE_COLUMNS` aggregates.
+4. Shuffle the canonical frame again with `seed=42`, then keep
+   `head(min(n, 50_000))` → exactly **50,000** source rows.
+5. Contiguous sliding windows: `T=10`, stride `1` → **49,991** windows
+   (`50000 - 10 + 1`), labeled attack if any flow in the window is attack.
+
+`datasets/build_windows.py` documents **step 5 only** (CSV → windows). Bit-
+identical reconstruction of the frozen NPZ additionally requires the same
+50k stratified subsample and feature map used when the archive was frozen;
+the SHA-256 digest is the ground truth for this artifact.
+
 ## Window construction (matches paper §V-B)
 
 * Sequence length `T = 10`, stride `1` (adjacent windows share 9 timesteps).
@@ -38,9 +60,11 @@ python datasets/build_windows.py --csv /path/to/standardized_flows.csv \
   7. `packet_in_count`
   8. `tcp_flags_syn_count`
   9. `flow_active_ratio`
-  10. `rsu_channel_occupancy`
+  10. `rsu_channel_occupancy` (legacy name; maps from Idle Mean / similar)
 * Binary labels: any attack class → `1`, else `0`.
-* Ordering: released record order (leakage protocol treats this as a temporal proxy).
+* Source-row ordering after the stratified subsample is seed-42 shuffled
+  (not raw CSV order); the leakage protocol still treats the resulting window
+  index order as a temporal proxy for blocking/purging.
 
 Paper experiments then apply `train_utils.blocked_split_npz` (20 blocks, purge 9, stratified 14k/6k, train-only scaler). Cross-dataset uses a 20k stratified CIC holdout drawn from `cic_windows.npz`.
 

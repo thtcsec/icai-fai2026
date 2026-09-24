@@ -1,42 +1,42 @@
 {
-  "latency_total_median_ms": 2.9317,
-  "latency_total_p95_ms": 4.1415,
-  "latency_total_p99_ms": 4.8508,
+  "latency_total_median_ms": 3.6851,
+  "latency_total_p95_ms": 5.1376,
+  "latency_total_p99_ms": 6.2854,
   "latency_total_mean_ms": 4.4861,
   "latency_stages": [
     {
-      "name": "Edge TCN-GRU Inference",
-      "median": 1.4749,
-      "p95": 2.1085,
-      "p99": 2.5343,
-      "pct": 50.3
+      "stage": "Edge TCN-GRU Inference",
+      "median": 1.8039,
+      "p95": 2.7694,
+      "p99": 3.5185,
+      "pct": 49.0
     },
     {
-      "name": "Identity Context Fusion",
-      "median": 0.0284,
-      "p95": 0.0427,
-      "p99": 0.055,
-      "pct": 1.0
+      "stage": "Identity Context Fusion",
+      "median": 0.0319,
+      "p95": 0.0494,
+      "p99": 0.0681,
+      "pct": 0.9
     },
     {
-      "name": "Redis Streams (XADD+XREADGROUP)",
-      "median": 1.262,
-      "p95": 1.9206,
-      "p99": 2.4273,
-      "pct": 43.0
+      "stage": "Redis Streams (XADD+XREADGROUP)",
+      "median": 1.6275,
+      "p95": 2.3503,
+      "p99": 2.7522,
+      "pct": 44.2
     },
     {
-      "name": "Cloud DQN Policy",
-      "median": 0.1331,
-      "p95": 0.2166,
-      "p99": 0.2923,
+      "stage": "Cloud DQN Policy",
+      "median": 0.1673,
+      "p95": 0.2873,
+      "p99": 0.374,
       "pct": 4.5
     },
     {
-      "name": "SOAR Playbook Construction",
-      "median": 0.0023,
-      "p95": 0.0034,
-      "p99": 0.0043,
+      "stage": "SOAR Playbook Construction",
+      "median": 0.0028,
+      "p95": 0.0045,
+      "p99": 0.0059,
       "pct": 0.1
     }
   ],
@@ -354,5 +354,6 @@
     "python": "3.11.9",
     "torch": "2.13.0+cpu",
     "redis": "7.2.4 docker localhost"
-  }
+  },
+  "latency_real_insdn_window": true
 }
