@@ -55,7 +55,10 @@ def run_real_mttr_benchmark(num_trials: int = 500, seed: int = 42):
         with torch.no_grad():
             _ = quantized_model(sample_tensor)
         _ = dqn_agent.select_action([0.45, 1200.0, 0.78, 0.68, 0.92], eval_mode=True)
-        _ = soar_playbooks.execute_playbook("TARGETED_FLOW_ISOLATION", {"src_ip": "10.0.1.15"})
+        _ = soar_playbooks.execute_playbook(
+            "TARGETED_FLOW_ISOLATION",
+            {"principal_id": "bench-principal", "device": "BYOD"},
+        )
         ai_native_times.append(time.perf_counter() - t0)
 
     ai_native_times = np.array(ai_native_times)

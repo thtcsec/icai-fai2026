@@ -19,7 +19,7 @@ Verify numbers only against `results/paper_metrics_summary.json` (not older draf
 
 Current headline checks:
 
-* Latency median ≈ **4.194 ms**, p99 ≈ **7.470 ms** (includes Redis XADD+XREADGROUP)
+* Latency median ≈ **2.932 ms**, p99 ≈ **4.851 ms** (Redis XADD+XREADGROUP + HMAC `principal_id`; DQN action wired to SOAR)
 * F1 @ τ=0.65 ≈ **0.9340**
 * CPU @ 10k ≈ **36.0% of one logical CPU** (H2 rejected)
 * LightGBM F1 **0.9886** > INT8 TCN–GRU **0.9723**

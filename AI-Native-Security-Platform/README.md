@@ -25,13 +25,13 @@ python results/run_all_and_summarize.py
 
 | Path | Includes | Excludes |
 | :--- | :--- | :--- |
-| Control-path latency (`generate_table2.py`) | INT8 inference, identity table lookup, Redis `XADD`+`XREADGROUP`, DQN, SOAR **dict construction** | Dataplane `flow_mod`, cross-host RTT |
+| Control-path latency (`generate_table2.py`) | INT8 inference, simulated identity + HMAC `principal_id`, Redis `XADD`+`XREADGROUP`, DQN→SOAR **selected** action descriptor | Dataplane `flow_mod`, capture/FE/windowing, cross-host RTT |
 | CPU @ paced load (`generate_table5.py`) | `psutil` % of **one** logical CPU, `torch.set_num_threads(1)` | Division by `cpu_count()` (removed; that was mislabelled) |
 | Redis vs REST ablation (`generate_table8.py`) | Live Redis Streams vs localhost HTTP | In-process list append labelled as Redis |
 
 ## Current headline numbers (seed 42)
 
-* Latency median **4.194 ms**, p99 **7.470 ms**
+* Latency median **2.932 ms**, p99 **4.851 ms** (HMAC principals; DQN→SOAR wired)
 * F1 @ τ=0.65 **0.9340**
 * CPU @ 10k windows/s **36.0%** of one logical CPU (H2 rejected vs 10%)
 * LightGBM **0.9886** > INT8 TCN–GRU **0.9723**

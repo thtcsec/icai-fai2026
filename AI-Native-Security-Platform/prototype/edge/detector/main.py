@@ -51,19 +51,23 @@ def run_edge_pipeline_demo():
         event = SecurityEvent(
             event_id=f"evt-{uuid.uuid4().hex[:8]}",
             flow_id=telemetry.flow_id,
-            src_ip=telemetry.src_ip,
-            dst_ip=telemetry.dst_ip,
+            src_ip="",  # cleartext stays edge-local; cloud payload uses principal_id
+            dst_ip="",
             anomaly_score=score,
             is_anomaly=is_anomaly,
             user_role=context["role"],
             device_type=context["device"],
-            trust_score=context["trust_score"]
+            trust_score=context["trust_score"],
         )
+        payload = event.dict()
+        payload["principal_id"] = context["principal_id"]
+        payload.pop("src_ip", None)
+        payload.pop("dst_ip", None)
 
-        msg_id = event_bus.publish("security:telemetry:stream", event.dict())
+        msg_id = event_bus.publish("security:telemetry:stream", payload)
 
         print(f"\n[Processed Flow {telemetry.flow_id}] ({latency_ms:.3f} ms)")
-        print(f"  Src IP: {telemetry.src_ip} | Role: {event.user_role} | Device: {event.device_type}")
+        print(f"  Principal: {context['principal_id'][:16]}… | Role: {event.user_role} | Device: {event.device_type}")
         print(f"  Anomaly Score: {score:.4f} | Is Anomaly: {is_anomaly}")
         print(f"  Published to Stream ID: {msg_id}")
 

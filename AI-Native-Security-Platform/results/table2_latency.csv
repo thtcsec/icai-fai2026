@@ -1,7 +1,7 @@
 Pipeline Stage,Median (ms),p95 (ms),p99 (ms),Share of Median Total (%)
-Edge TCN-GRU Inference,2.4072,4.3801,4.7942,57.4
-Identity Context Fusion,0.0016,0.0028,0.0033,0.0
-Redis Streams (XADD+XREADGROUP),1.5797,2.3097,2.9429,37.7
-Cloud DQN Policy,0.1755,0.2719,0.3308,4.2
-SOAR Playbook Construction,0.0019,0.0028,0.0037,0.0
-Control-Path Total,4.1938,6.7533,7.4700,100.0
+Edge TCN-GRU Inference,1.4749,2.1085,2.5343,50.3
+Identity Context Fusion,0.0284,0.0427,0.0550,1.0
+Redis Streams (XADD+XREADGROUP),1.2620,1.9206,2.4273,43.0
+Cloud DQN Policy,0.1331,0.2166,0.2923,4.5
+SOAR Playbook Construction,0.0023,0.0034,0.0043,0.1
+Control-Path Total,2.9317,4.1415,4.8508,100.0

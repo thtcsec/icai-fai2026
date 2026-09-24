@@ -1,0 +1,46 @@
+{
+  "expected": {
+    "insdn_windows.npz": {
+      "sha256": "0f69729684c2150bec93b4b96d9b1396bb860e54a9e9006cc05455273117e273",
+      "X_shape": [
+        49991,
+        10,
+        10
+      ],
+      "attack": 40043,
+      "normal": 9948
+    },
+    "cic_windows.npz": {
+      "sha256": "92dc7b8181e1caa8b75aa0d235158869c4ff854bfe5e81ac434bf3a633546b47",
+      "X_shape": [
+        79991,
+        10,
+        10
+      ],
+      "attack": 24465,
+      "normal": 55526
+    }
+  },
+  "observed": {
+    "insdn_windows.npz": {
+      "sha256": "0f69729684c2150bec93b4b96d9b1396bb860e54a9e9006cc05455273117e273",
+      "X_shape": [
+        49991,
+        10,
+        10
+      ],
+      "attack": 40043,
+      "normal": 9948
+    },
+    "cic_windows.npz": {
+      "sha256": "92dc7b8181e1caa8b75aa0d235158869c4ff854bfe5e81ac434bf3a633546b47",
+      "X_shape": [
+        79991,
+        10,
+        10
+      ],
+      "attack": 24465,
+      "normal": 55526
+    }
+  }
+}
