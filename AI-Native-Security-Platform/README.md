@@ -31,7 +31,7 @@ python results/run_all_and_summarize.py
 
 ## Current headline numbers (seed 42)
 
-* Latency median **2.932 ms**, p99 **4.851 ms** (HMAC principals; DQN→SOAR wired)
+* Latency median **3.685 ms**, p99 **6.285 ms** (HMAC principals; DQN→SOAR wired)
 * F1 @ τ=0.65 **0.9340**
 * CPU @ 10k windows/s **36.0%** of one logical CPU (H2 rejected vs 10%)
 * LightGBM **0.9886** > INT8 TCN–GRU **0.9723**

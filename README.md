@@ -25,9 +25,9 @@ Windows use sequence length 10 and **stride 1**. All reported accuracy tables us
 
 | Metric | Value |
 | :--- | :--- |
-| Software control-path latency (Redis + HMAC principals) | **median 2.932 ms**, p95 4.142 ms, **p99 4.851 ms** |
-| Redis stage alone (XADD+XREADGROUP) | median **1.262 ms** (43.0% of median total) |
-| Identity+HMAC stage | median **0.028 ms** |
+| Software control-path latency (Redis + HMAC principals) | **median 3.685 ms**, p95 5.138 ms, **p99 6.285 ms** |
+| Redis stage alone (XADD+XREADGROUP) | median **1.628 ms** (44.2% of median total) |
+| Identity+HMAC stage | median **0.032 ms** |
 | Detection @ τ=0.65 | P **0.978**, R **0.894**, F1 **0.9340**, FPR **8.20%** |
 | INT8 TCN–GRU SOTA F1 (test-tuned τ) | **0.9723** (FP32 0.9725; LightGBM **0.9886**) |
 | INT8 model footprint | **0.048 MB** (`|ΔF1|` vs FP32 = **0.0002**) |

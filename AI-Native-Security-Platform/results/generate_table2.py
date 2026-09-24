@@ -26,14 +26,17 @@ import torch
 BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 if BASE_DIR not in sys.path:
     sys.path.insert(0, BASE_DIR)
+sys.path.insert(0, os.path.dirname(__file__))
 
 from prototype.cloud.policy_engine.drl_sdn_agent import DRLResilienceAgent
+from prototype.data.data_loader import resolve_real_windows_npz
 from prototype.edge.detector.quantize import quantize_tcn_gru_model
 from prototype.edge.detector.tcn_gru_model import TCNGRUResilienceModel
 from prototype.edge.identity_fusion.fusion import IdentityFusionEngine
 from prototype.edge.privacy.pseudonymize import assert_no_raw_endpoint
 from prototype.edge.redis_stream.pubsub import require_redis
 from prototype.soar.playbooks import SOARPlaybooks
+from train_utils import blocked_split_npz, set_global_seed
 
 CSV_PATH = os.path.join(BASE_DIR, "results", "table2_latency.csv")
 PNG_PATH = os.path.join(BASE_DIR, "results", "table2_latency.png")
@@ -55,20 +58,27 @@ def _cloud_event(ctx: dict, pkt_rate: int, p_attack: float) -> dict:
 
 def run_real_latency_benchmark(num_trials: int = 1000, seed: int = 42, warmups: int = 50):
     print(f"[*] Latency benchmark with Redis Streams + HMAC principals ({num_trials} trials)...")
-    torch.manual_seed(seed)
-    np.random.seed(seed)
+    set_global_seed(seed)
     torch.set_num_threads(1)
 
     bus = require_redis()
     bus.reset_stream()
 
+    npz = resolve_real_windows_npz("insdn")
+    if npz is None:
+        raise FileNotFoundError("insdn_windows.npz required for latency microbenchmark")
+    # Same blocked+purged protocol as Table IV+; use one real test window (not randn).
+    _, _, X_te, _, _ = blocked_split_npz(npz, seq_len=10, seed=seed)
+    sample_tensor = X_te[:1].contiguous()
+    print(f"  [=] Prepared window: real InSDN X_te[0] shape={tuple(sample_tensor.shape)}")
+
     fp32_model = TCNGRUResilienceModel(num_features=10, num_classes=6)
     quantized_model = quantize_tcn_gru_model(fp32_model)
     quantized_model.eval()
     fusion = IdentityFusionEngine()
+    # Architecture-matched forward timing only; trained DQN weights live in Table IX.
     dqn_agent = DRLResilienceAgent(state_dim=5, action_dim=4)
     soar_playbooks = SOARPlaybooks()
-    sample_tensor = torch.randn(1, 10, 10)
 
     with torch.no_grad():
         for _ in range(warmups):
