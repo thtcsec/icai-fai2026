@@ -57,20 +57,21 @@ def blocked_split_npz(
     scaler=None,
     fit_scaler: bool = True,
 ):
-    """Leakage-free split for stride-1 sliding-window archives.
+    """Blocked+purged split controlling stride-1 *index* overlap leakage.
 
-    Windows are emitted in temporal order with stride 1, so window i shares
-    seq_len-1 timesteps with each of its seq_len-1 neighbours on either side.
-    Splitting at random therefore leaks nearly-identical observations across the
-    train/test boundary. This function instead:
+    Frozen InSDN/CIC windows use stride 1, so window i shares seq_len-1 feature
+    timesteps with each neighbour. A random split therefore places near-
+    duplicate windows on both sides of the train/test boundary. This function:
 
-      1. cuts the corpus into contiguous temporal blocks and assigns whole
-         blocks to train or test;
-      2. purges seq_len-1 windows from both ends of every block, which is
-         sufficient to guarantee that no surviving train window shares a single
-         timestep with any surviving test window;
+      1. cuts the *index-ordered* corpus into contiguous blocks and assigns
+         whole blocks to train or test;
+      2. purges seq_len-1 windows from both ends of every block so no surviving
+         train window shares a timestep index with any surviving test window;
       3. stratified-subsamples inside each side independently; and
       4. fits the scaler on train only, transforming test with those statistics.
+
+    Note: the frozen InSDN archive was shuffled before windowing, so this is
+    overlap control on artificial index order, not wall-clock session isolation.
     """
     from sklearn.preprocessing import StandardScaler
 
