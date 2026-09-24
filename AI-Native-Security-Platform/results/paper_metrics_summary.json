@@ -1,137 +1,144 @@
 {
-  "latency_total_median_ms": 2.6805,
-  "latency_total_p95_ms": 4.9515,
-  "latency_total_p99_ms": 5.7644,
-  "latency_total_mean_ms": 3.0525,
+  "latency_total_median_ms": 4.1938,
+  "latency_total_p95_ms": 6.7533,
+  "latency_total_p99_ms": 7.47,
+  "latency_total_mean_ms": 4.4861,
   "latency_stages": [
     {
-      "name": "Edge Telemetry & TCN-GRU Inference",
-      "median": 2.5388,
-      "p95": 4.7031,
-      "p99": 5.5304,
-      "pct": 94.7
+      "name": "Edge TCN-GRU Inference",
+      "median": 2.4072,
+      "p95": 4.3801,
+      "p99": 4.7942,
+      "pct": 57.4
     },
     {
       "name": "Identity Context Fusion",
-      "median": 0.0021,
-      "p95": 0.004,
-      "p99": 0.0051,
-      "pct": 0.1
+      "median": 0.0016,
+      "p95": 0.0028,
+      "p99": 0.0033,
+      "pct": 0.0
     },
     {
-      "name": "Cloud Policy Reasoning (DQN)",
-      "median": 0.117,
-      "p95": 0.2482,
-      "p99": 0.3035,
-      "pct": 4.4
+      "name": "Redis Streams (XADD+XREADGROUP)",
+      "median": 1.5797,
+      "p95": 2.3097,
+      "p99": 2.9429,
+      "pct": 37.7
     },
     {
-      "name": "SOAR Playbook Execution",
-      "median": 0.0018,
-      "p95": 0.0033,
-      "p99": 0.0042,
-      "pct": 0.1
+      "name": "Cloud DQN Policy",
+      "median": 0.1755,
+      "p95": 0.2719,
+      "p99": 0.3308,
+      "pct": 4.2
+    },
+    {
+      "name": "SOAR Playbook Construction",
+      "median": 0.0019,
+      "p95": 0.0028,
+      "p99": 0.0037,
+      "pct": 0.0
     }
   ],
   "mttr_manual_mean_s": 1518.4986,
   "mttr_manual_std_s": 335.2822,
   "mttr_siem_mean_s": 69.0936,
   "mttr_siem_std_s": 17.5493,
-  "mttr_ai_mean_s": 0.002958,
-  "mttr_ai_std_s": 0.000875,
-  "mttr_ai_mean_ms": 2.9578,
+  "mttr_ai_mean_s": 0.001937,
+  "mttr_ai_std_s": 0.000655,
+  "mttr_ai_mean_ms": 1.9367,
   "precision_best_tau": 0.35,
-  "precision": 0.9709,
-  "recall": 0.9297,
-  "f1": 0.9498,
-  "fpr": 11.21,
-  "fnr": 7.03,
+  "precision": 0.969,
+  "recall": 0.9421,
+  "f1": 0.9554,
+  "fpr": 12.13,
+  "fnr": 5.79,
   "precision_rows": [
     {
       "tau": 0.35,
-      "precision": 0.9709,
-      "recall": 0.9297,
-      "f1": 0.9498,
-      "fpr": 11.21,
-      "fnr": 7.03
+      "precision": 0.969,
+      "recall": 0.9421,
+      "f1": 0.9554,
+      "fpr": 12.13,
+      "fnr": 5.79
     },
     {
       "tau": 0.5,
-      "precision": 0.9759,
-      "recall": 0.9095,
-      "f1": 0.9415,
-      "fpr": 9.04,
-      "fnr": 9.05
+      "precision": 0.9735,
+      "recall": 0.9259,
+      "f1": 0.9491,
+      "fpr": 10.13,
+      "fnr": 7.41
     },
     {
       "tau": 0.65,
-      "precision": 0.9785,
-      "recall": 0.8818,
-      "f1": 0.9276,
-      "fpr": 7.78,
-      "fnr": 11.82
+      "precision": 0.9777,
+      "recall": 0.8941,
+      "f1": 0.934,
+      "fpr": 8.2,
+      "fnr": 10.59
     },
     {
       "tau": 0.75,
-      "precision": 0.9814,
-      "recall": 0.847,
-      "f1": 0.9093,
-      "fpr": 6.44,
-      "fnr": 15.3
+      "precision": 0.9803,
+      "recall": 0.8687,
+      "f1": 0.9211,
+      "fpr": 7.03,
+      "fnr": 13.13
     },
     {
       "tau": 0.85,
-      "precision": 0.9876,
-      "recall": 0.7788,
-      "f1": 0.8708,
+      "precision": 0.9879,
+      "recall": 0.7988,
+      "f1": 0.8833,
       "fpr": 3.93,
-      "fnr": 22.12
+      "fnr": 20.12
     }
   ],
-  "resource_10k_cpu": 58.81,
+  "resource_10k_cpu": 36.0,
   "resource_10k_cpu_range": [
-    57.64,
-    59.92
+    35.0,
+    49.1
   ],
-  "resource_10k_rss_mb": 540.5,
+  "resource_10k_rss_mb": 540.6,
   "resource_model_mb": 0.048,
   "resource_deploy_batch": 128,
   "resource_repeats": 5,
   "resource_saturation": [
     {
       "batch": 1,
-      "windows_per_s": 358.8,
-      "windows_per_s_min": 347.3,
-      "windows_per_s_max": 368.8,
-      "ms_per_forward": 2.787
+      "windows_per_s": 662.3,
+      "windows_per_s_min": 498.5,
+      "windows_per_s_max": 746.3,
+      "ms_per_forward": 1.51
     },
     {
       "batch": 8,
-      "windows_per_s": 1766.7,
-      "windows_per_s_min": 1720.6,
-      "windows_per_s_max": 1890.7,
-      "ms_per_forward": 4.528
+      "windows_per_s": 3830.5,
+      "windows_per_s_min": 2238.0,
+      "windows_per_s_max": 4078.0,
+      "ms_per_forward": 2.089
     },
     {
       "batch": 32,
-      "windows_per_s": 6634.4,
-      "windows_per_s_min": 6430.4,
-      "windows_per_s_max": 7096.5,
-      "ms_per_forward": 4.823
+      "windows_per_s": 10301.8,
+      "windows_per_s_min": 7337.4,
+      "windows_per_s_max": 12182.8,
+      "ms_per_forward": 3.106
     },
     {
       "batch": 128,
-      "windows_per_s": 17974.9,
-      "windows_per_s_min": 17146.6,
-      "windows_per_s_max": 18130.9,
-      "ms_per_forward": 7.121
+      "windows_per_s": 31475.5,
+      "windows_per_s_min": 27516.8,
+      "windows_per_s_max": 31959.6,
+      "ms_per_forward": 4.067
     },
     {
       "batch": 512,
-      "windows_per_s": 41329.2,
-      "windows_per_s_min": 40492.8,
-      "windows_per_s_max": 43205.9,
-      "ms_per_forward": 12.388
+      "windows_per_s": 51238.9,
+      "windows_per_s_min": 49247.1,
+      "windows_per_s_max": 56181.4,
+      "ms_per_forward": 9.992
     }
   ],
   "resource_rows": [
@@ -140,43 +147,43 @@
       "achieved": 100.0,
       "achieved_min": 100.0,
       "achieved_max": 100.0,
-      "cpu": 8.96,
-      "cpu_min": 8.76,
-      "cpu_max": 9.66,
-      "rss": 540.5,
+      "cpu": 0.0,
+      "cpu_min": 0.0,
+      "cpu_max": 0.6,
+      "rss": 540.6,
       "target_met": true
     },
     {
       "offered": 1000,
-      "achieved": 999.9,
+      "achieved": 999.8,
       "achieved_min": 999.7,
       "achieved_max": 1000.0,
-      "cpu": 55.0,
-      "cpu_min": 54.05,
-      "cpu_max": 56.29,
-      "rss": 540.5,
+      "cpu": 4.3,
+      "cpu_min": 2.4,
+      "cpu_max": 5.5,
+      "rss": 540.6,
       "target_met": true
     },
     {
       "offered": 5000,
-      "achieved": 4999.4,
-      "achieved_min": 4999.2,
-      "achieved_max": 4999.7,
-      "cpu": 56.48,
-      "cpu_min": 55.7,
-      "cpu_max": 57.39,
-      "rss": 540.5,
+      "achieved": 4999.5,
+      "achieved_min": 4998.8,
+      "achieved_max": 4999.8,
+      "cpu": 18.8,
+      "cpu_min": 17.5,
+      "cpu_max": 20.6,
+      "rss": 540.6,
       "target_met": true
     },
     {
       "offered": 10000,
-      "achieved": 9998.3,
-      "achieved_min": 9997.9,
-      "achieved_max": 9998.9,
-      "cpu": 58.81,
-      "cpu_min": 57.64,
-      "cpu_max": 59.92,
-      "rss": 540.5,
+      "achieved": 9998.1,
+      "achieved_min": 9997.4,
+      "achieved_max": 9998.6,
+      "cpu": 36.0,
+      "cpu_min": 35.0,
+      "cpu_max": 49.1,
+      "rss": 540.6,
       "target_met": true
     }
   ],
@@ -196,19 +203,19 @@
     0.988,
     0.9886,
     0.8687,
-    0.868,
+    0.8682,
     0.9725,
-    0.9725
+    0.9723
   ],
   "sota_latency_ms": [
-    7.8573,
-    46.3013,
-    0.3874,
-    0.7111,
-    0.6193,
-    1.1746,
-    2.8322,
-    4.3037
+    6.4584,
+    42.4456,
+    0.3985,
+    0.8088,
+    0.2767,
+    0.5322,
+    1.8899,
+    1.9345
   ],
   "sota_ram_mb": [
     null,
@@ -225,84 +232,84 @@
     "xgboost": 0.845,
     "lightgbm": 1.374
   },
-  "sota_delta_f1": 0.0,
+  "sota_delta_f1": -0.0002,
   "cross_dataset": {
-    "opt_tau": 0.072,
-    "insdn_f1_065": 0.9276,
-    "insdn_f1_star": 0.9687,
-    "cic_f1_065": 0.4611,
-    "cic_f1_star": 0.467
+    "opt_tau": 0.0672,
+    "insdn_f1_065": 0.934,
+    "insdn_f1_star": 0.9679,
+    "cic_f1_065": 0.4564,
+    "cic_f1_star": 0.4668
   },
-  "ablation_transport_async_ms": 0.0031,
-  "ablation_transport_sync_ms": 1.0137,
+  "ablation_transport_async_ms": 1.2926,
+  "ablation_transport_sync_ms": 0.7986,
   "ablation_rows": [
     {
       "config": "Full Proposed Pipeline",
-      "f1": 0.9602,
-      "fpr": 12.05,
-      "latency_ms": 6.6435
+      "f1": 0.9616,
+      "fpr": 16.74,
+      "latency_ms": 4.9455
     },
     {
       "config": "--- w/o Identity Context Fusion",
-      "f1": 0.9628,
-      "fpr": 20.67,
-      "latency_ms": 6.6432
+      "f1": 0.9644,
+      "fpr": 21.59,
+      "latency_ms": 4.9454
     },
     {
       "config": "--- w/o Cloud Risk Engine (Direct Edge Actuation)",
       "f1": 0.968,
-      "fpr": 25.19,
-      "latency_ms": 6.6432
+      "fpr": 23.77,
+      "latency_ms": 4.9454
     },
     {
       "config": "--- w/o INT8 Quantization (FP32 Baseline)",
-      "f1": 0.9699,
-      "fpr": 18.83,
-      "latency_ms": 2.7263
+      "f1": 0.9694,
+      "fpr": 19.16,
+      "latency_ms": 2.8384
     },
     {
       "config": "--- w/o Redis Streams (Synchronous REST Call)",
-      "f1": 0.9602,
-      "fpr": 12.05,
-      "latency_ms": 7.6541
+      "f1": 0.9616,
+      "fpr": 16.74,
+      "latency_ms": 4.4515
     }
   ],
   "ablation_rho_sweep": [
     {
       "rho": 0.5,
-      "full_f1": 0.9518,
-      "no_identity_f1": 0.9628,
-      "delta_f1": -0.011
+      "full_f1": 0.9547,
+      "no_identity_f1": 0.9644,
+      "delta_f1": -0.0097
     },
     {
       "rho": 0.6,
-      "full_f1": 0.9542,
-      "no_identity_f1": 0.9628,
-      "delta_f1": -0.0086
+      "full_f1": 0.9588,
+      "no_identity_f1": 0.9644,
+      "delta_f1": -0.0056
     },
     {
       "rho": 0.7,
-      "full_f1": 0.9602,
-      "no_identity_f1": 0.9628,
-      "delta_f1": -0.0027
+      "full_f1": 0.9616,
+      "no_identity_f1": 0.9644,
+      "delta_f1": -0.0028
     },
     {
       "rho": 0.8,
-      "full_f1": 0.9641,
-      "no_identity_f1": 0.9628,
-      "delta_f1": 0.0013
+      "full_f1": 0.9667,
+      "no_identity_f1": 0.9644,
+      "delta_f1": 0.0023
     },
     {
       "rho": 0.9,
-      "full_f1": 0.9725,
-      "no_identity_f1": 0.9628,
-      "delta_f1": 0.0096
+      "full_f1": 0.9731,
+      "no_identity_f1": 0.9644,
+      "delta_f1": 0.0087
     }
   ],
   "policy_rows": [
     {
       "policy": "Static Rule Lookup",
-      "latency_ms": 0.0004,
+      "latency_ms": 0.0008,
       "qos_disruption": 0.0447,
       "mean_regret": 0.0802,
       "action_accuracy_pct": 38.24
@@ -323,20 +330,20 @@
     },
     {
       "policy": "Deep Q-Network (DQN Agent)",
-      "latency_ms": 0.0942,
-      "qos_disruption": 0.1278,
+      "latency_ms": 0.0551,
+      "qos_disruption": 0.1276,
       "mean_regret": 0.0,
-      "action_accuracy_pct": 99.2
+      "action_accuracy_pct": 98.76
     }
   ],
   "leakage_effect": {
-    "leaky_f1_065": 0.9337,
-    "leaky_opt_tau": 0.0945,
-    "leaky_f1_opt": 0.9708,
-    "controlled_f1_065": 0.9276,
-    "controlled_opt_tau": 0.072,
-    "controlled_f1_opt": 0.9687,
-    "delta_f1_fixed": 0.0061,
-    "delta_f1_opt": 0.0021
+    "leaky_f1_065": 0.9322,
+    "leaky_opt_tau": 0.0924,
+    "leaky_f1_opt": 0.9693,
+    "controlled_f1_065": 0.934,
+    "controlled_opt_tau": 0.0672,
+    "controlled_f1_opt": 0.9679,
+    "delta_f1_fixed": -0.0018,
+    "delta_f1_opt": 0.0014
   }
 }

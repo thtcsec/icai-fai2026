@@ -7,9 +7,9 @@ whose informativeness is controlled by rho = P(low-trust identity | attack).
 rho = 0.5 makes the overlay pure noise; the sweep is written to CSV so the paper
 can report a range rather than a single convenient operating point.
 
-Transport cost is measured, not assumed: the asynchronous path appends to an
-in-process stream buffer, while the synchronous path performs a real loopback
-HTTP round-trip against a local server.
+Transport cost is measured against a live Redis 7.x instance (XADD + XREADGROUP)
+versus a real loopback HTTP round-trip. No in-process list append is labelled
+as Redis.
 """
 
 import csv
@@ -36,6 +36,7 @@ sys.path.insert(0, os.path.dirname(__file__))
 from prototype.edge.detector.quantize import quantize_tcn_gru_model
 from prototype.edge.detector.tcn_gru_model import TCNGRUResilienceModel
 from prototype.edge.identity_fusion.fusion import IdentityFusionEngine
+from prototype.edge.redis_stream.pubsub import require_redis
 from prototype.data.data_loader import resolve_real_windows_npz
 from train_utils import (
     best_threshold,
@@ -77,14 +78,19 @@ class _Handler(BaseHTTPRequestHandler):
 
 
 def _measure_transport_ms(trials: int = 300):
-    """Async in-process publish vs a real synchronous loopback HTTP round-trip."""
-    stream_buffer = []
+    """Redis Streams XADD+XREADGROUP vs synchronous loopback HTTP round-trip."""
+    bus = require_redis()
+    bus.reset_stream()
     payload = {"flow_id": "f-1", "p_attack": 0.91, "role": "STUDENT", "trust": 0.45}
+
+    for _ in range(20):
+        bus.publish_and_consume(payload, block_ms=2000)
+    bus.reset_stream()
 
     t0 = time.perf_counter()
     for _ in range(trials):
-        stream_buffer.append(json.dumps(payload))
-    async_ms = ((time.perf_counter() - t0) / trials) * 1000.0
+        bus.publish_and_consume(payload, block_ms=2000)
+    redis_ms = ((time.perf_counter() - t0) / trials) * 1000.0
 
     server = HTTPServer(("127.0.0.1", 0), _Handler)
     thread = threading.Thread(target=server.serve_forever, daemon=True)
@@ -106,7 +112,7 @@ def _measure_transport_ms(trials: int = 300):
         server.shutdown()
         server.server_close()
 
-    return async_ms, sync_ms
+    return redis_ms, sync_ms
 
 
 def _identity_overlay(y_true: np.ndarray, rho: float, seed: int) -> np.ndarray:
@@ -150,7 +156,7 @@ def run_ablation(seed: int = 42):
     fusion = IdentityFusionEngine()
     sample = X_te[:1]
     async_ms, sync_ms = _measure_transport_ms()
-    print(f"  [i] transport: async={async_ms:.4f}ms  sync-REST={sync_ms:.4f}ms")
+    print(f"  [i] transport: redis-streams={async_ms:.4f}ms  sync-REST={sync_ms:.4f}ms")
 
     def _infer_ms(model, runs: int = 200) -> float:
         with torch.no_grad():
@@ -244,7 +250,7 @@ def run_ablation(seed: int = 42):
     plt.savefig(FIG_PATH, dpi=300, bbox_inches="tight")
     plt.close()
 
-    return {"rows": rows, "sweep": sweep, "async_ms": async_ms, "sync_ms": sync_ms}
+    return {"rows": rows, "sweep": sweep, "async_ms": async_ms, "sync_ms": sync_ms, "redis_ms": async_ms}
 
 
 if __name__ == "__main__":

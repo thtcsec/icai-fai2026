@@ -1,6 +1,7 @@
 Pipeline Stage,Median (ms),p95 (ms),p99 (ms),Share of Median Total (%)
-Edge Telemetry & TCN-GRU Inference,2.5388,4.7031,5.5304,94.7%
-Identity Context Fusion,0.0021,0.0040,0.0051,0.1%
-Cloud Policy Reasoning (DQN),0.1170,0.2482,0.3035,4.4%
-SOAR Playbook Execution,0.0018,0.0033,0.0042,0.1%
-End-to-End Total,2.6805,4.9515,5.7644,100.0%
+Edge TCN-GRU Inference,2.4072,4.3801,4.7942,57.4
+Identity Context Fusion,0.0016,0.0028,0.0033,0.0
+Redis Streams (XADD+XREADGROUP),1.5797,2.3097,2.9429,37.7
+Cloud DQN Policy,0.1755,0.2719,0.3308,4.2
+SOAR Playbook Construction,0.0019,0.0028,0.0037,0.0
+Control-Path Total,4.1938,6.7533,7.4700,100.0

@@ -1,4 +1,4 @@
 Operational Paradigm,Mean MTTR (s),SD (s),Min MTTR (s),Max MTTR (s)
 Manual SOC Triage,1518.4986,335.2822,900.0000,2860.8560
 Legacy Rule SIEM,69.0936,17.5493,25.0000,115.8829
-AI-Native Decision Path,0.0030,0.0009,0.0016,0.0055
+AI-Native Decision Path,0.0019,0.0007,0.0012,0.0044

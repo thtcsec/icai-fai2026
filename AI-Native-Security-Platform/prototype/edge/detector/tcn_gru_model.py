@@ -94,10 +94,18 @@ class GRUAutoencoder(nn.Module):
 
 class TCNGRUResilienceModel(nn.Module):
     """
-    Hybrid TCN-GRU Network Resilience Anomaly Model.
+    Hybrid TCN-GRU network resilience model.
+
     Outputs:
-      1. x_hat: Reconstructed sequence for unsupervised anomaly scoring
-      2. logits: Threat taxonomy classification (Normal, DDoS, Probe, Botnet, Fault, LOFT)
+      1. x_hat: reconstructed sequence (auxiliary representation objective)
+      2. logits: classification head
+
+    The default ``num_classes=6`` head is a legacy multi-way layout
+    (Normal/DDoS/Probe/Botnet/Fault/LOFT). The training harness used in this
+    artifact collapses labels to binary normal-vs-attack and scores
+    ``1 - P(normal)``; logits for classes 2-5 are therefore unsupervised in the
+    reported experiments. Keep ``num_classes=6`` for checkpoint compatibility;
+    do not interpret reported F1 as a six-way taxonomy result.
     """
     def __init__(self, num_features: int = 10, num_classes: int = 6, tcn_channels: List[int] = [16, 32], hidden_dim: int = 32):
         super(TCNGRUResilienceModel, self).__init__()

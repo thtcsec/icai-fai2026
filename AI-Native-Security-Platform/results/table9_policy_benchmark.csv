@@ -1,5 +1,5 @@
 Policy Mechanism,Decision Latency (ms),QoS Disruption,Mean Regret,Action Accuracy (%)
-Static Rule Lookup,0.0004,0.0447,0.0802,38.24
+Static Rule Lookup,0.0008,0.0447,0.0802,38.24
 Round-Robin Action Assignment,0.0003,0.1865,0.2046,25.50
 Heuristic Risk Table,0.0004,0.0516,0.0722,34.78
-Deep Q-Network (DQN Agent),0.0942,0.1278,0.0000,99.20
+Deep Q-Network (DQN Agent),0.0551,0.1276,0.0000,98.76
