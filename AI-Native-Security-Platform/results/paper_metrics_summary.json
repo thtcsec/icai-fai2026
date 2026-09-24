@@ -256,7 +256,7 @@
       "latency_ms": 4.9454
     },
     {
-      "config": "--- w/o Cloud Risk Engine (Direct Edge Actuation)",
+      "config": "--- w/o Cloud Risk Engine (Direct Edge Scoring)",
       "f1": 0.968,
       "fpr": 23.77,
       "latency_ms": 4.9454

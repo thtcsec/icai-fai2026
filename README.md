@@ -47,7 +47,7 @@ cd AI-Native-Security-Platform
 python -m venv .venv
 # Windows: .venv\Scripts\activate
 source .venv/bin/activate
-pip install -r requirements-lock.txt   # exact measurement venv (preferred)
+pip install -r requirements-lock.txt   # exact measurement venv (preferred; includes PyTorch CPU index)
 # or: pip install -r requirements.txt  # flexible floors only
 python results/run_all_and_summarize.py
 ```

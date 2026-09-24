@@ -44,7 +44,7 @@ def main():
         "latency_total_mean_ms": round(lat["total_mean"], 4),
         "latency_stages": [
             {
-                "name": n,
+                "stage": n,
                 "median": round(med, 4),
                 "p95": round(p95, 4),
                 "p99": round(p99, 4),

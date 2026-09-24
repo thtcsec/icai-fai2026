@@ -1,6 +1,6 @@
 Architecture Configuration,F1-Score,FPR (%),Latency (ms)
 Full Proposed Pipeline,0.9616,16.74,4.9455
 --- w/o Identity Context Fusion,0.9644,21.59,4.9454
---- w/o Cloud Risk Engine (Direct Edge Actuation),0.9680,23.77,4.9454
+--- w/o Cloud Risk Engine (Direct Edge Scoring),0.9680,23.77,4.9454
 --- w/o INT8 Quantization (FP32 Baseline),0.9694,19.16,2.8384
 --- w/o Redis Streams (Synchronous REST Call),0.9616,16.74,4.4515
