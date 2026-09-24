@@ -203,7 +203,7 @@ def run_ablation(seed: int = 42):
     configs = [
         ("Full Proposed Pipeline", p_int8, p_int8_tr, True, True, int8_ms + fusion_ms + risk_ms + async_ms),
         ("--- w/o Identity Context Fusion", p_int8, p_int8_tr, False, True, int8_ms + risk_ms + async_ms),
-        ("--- w/o Cloud Risk Engine (Direct Edge Actuation)", p_int8, p_int8_tr, False, False, int8_ms + async_ms),
+        ("--- w/o Cloud Risk Engine (Direct Edge Scoring)", p_int8, p_int8_tr, False, False, int8_ms + async_ms),
         ("--- w/o INT8 Quantization (FP32 Baseline)", p_fp32, p_fp32_tr, True, True, fp32_ms + fusion_ms + risk_ms + async_ms),
         ("--- w/o Redis Streams (Synchronous REST Call)", p_int8, p_int8_tr, True, True, int8_ms + fusion_ms + risk_ms + sync_ms),
     ]
