@@ -22,16 +22,11 @@ cd icai-fai2026/AI-Native-Security-Platform
 python -m venv .venv
 # Windows: .venv\Scripts\activate
 source .venv/bin/activate
-pip install -r requirements.txt
-```
-
-Full regeneration (writes all CSVs/figures + `results/paper_metrics_summary.json`):
-
-```bash
+pip install -r requirements-lock.txt
 python results/run_all_and_summarize.py
 ```
 
-Approximate wall time: tens of minutes on a laptop CPU (training + 5-repeat resource loops).
+Approximate wall time: tens of minutes on a laptop CPU (training + 5-repeat resource loops). Use `requirements-lock.txt` for the exact measurement venv (`torch==2.13.0+cpu`); seeded scripts are bit-deterministic on a fixed lock + host class, not across arbitrary dependency floats.
 
 ---
 

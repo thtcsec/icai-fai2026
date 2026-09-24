@@ -1,4 +1,5 @@
-# Research Artifact Dependencies for ICAI-2026 Paper
+﻿# Flexible install for development. For bit-reproducible benches matching the paper,
+# use requirements-lock.txt (pip freeze of the measurement venv).
 numpy>=1.24.0
 pandas>=2.0.0
 scikit-learn>=1.2.0
