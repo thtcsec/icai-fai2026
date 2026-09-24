@@ -1,26 +1,30 @@
 cff-version: 1.2.0
 message: "If you use this research artifact or reference our paper, please cite it as below."
-title: "An AI-Native Event-Driven Edge-Cloud Architecture for Autonomous Network Security and Resilience in Campus Infrastructure"
+title: "An AI-Native Event-Driven Edge-Cloud Architecture for Autonomous Network Security in Campus Infrastructure"
 authors:
   - family-names: "Trinh"
     given-names: "Hoang Tu"
     email: "23dh113972@st.huflit.edu.vn"
-    affiliation: "Department of Cybersecurity, Faculty of Information Technology, Ho Chi Minh City University of Foreign Languages - Information Technology (HUFLIT)"
-    orcid: "https://orcid.org/0000-0000-0000-0000"
+    affiliation: "Faculty of Information Technology, Ho Chi Minh City University of Foreign Languages - Information Technology (HUFLIT)"
+  - family-names: "Cao"
+    given-names: "Tien Thanh"
+    email: "thanhct@huflit.edu.vn"
+    affiliation: "Faculty of Information Technology, Ho Chi Minh City University of Foreign Languages - Information Technology (HUFLIT)"
 type: conference-paper
 conference:
-  name: "The Second International Conference on AI: AI Native for University (ICAI-2026)"
+  name: "The Second International Conference on AI: AI-Native for Universities and Industry (ICAI-2026)"
   location: "Hanoi, Vietnam"
-  date-start: "2026-11-15"
-  date-end: "2026-11-17"
-date-released: 2026-07-27
+  date-start: "2026-12-03"
+  date-end: "2026-12-03"
+date-released: 2026-09-24
 repository-code: "https://github.com/thtcsec/icai-fai2026"
 keywords:
   - "AI-Native Security"
   - "Edge Computing"
   - "Event-Driven Architecture"
-  - "TCN-GRU Autoencoder"
+  - "TCN-GRU"
   - "Deep Reinforcement Learning"
   - "Software-Defined Networking"
+  - "Redis Streams"
 license: MIT
-version: 1.0.0
+version: 1.1.0

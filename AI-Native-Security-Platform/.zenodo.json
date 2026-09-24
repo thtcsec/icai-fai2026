@@ -1,24 +1,35 @@
 {
-  "title": "An AI-Native Event-Driven Edge-Cloud Architecture for Autonomous Network Security and Resilience in Campus Infrastructure: Research Artifact",
+  "title": "An AI-Native Event-Driven Edge-Cloud Architecture for Autonomous Network Security in Campus Infrastructure: Research Artifact",
   "upload_type": "publication",
   "publication_type": "conferencepaper",
-  "description": "Official reproducible research artifact containing complete prototype source code, PyTorch INT8 model quantization scripts, evaluation benchmarks, raw CSV result files, and figure plotting runners for the ICAI-2026 conference paper.",
+  "description": "Reproducible research artifact for ICAI-2026: prototype code, INT8 quantization, Redis Streams latency path, evaluation benchmarks, CSV/JSON results, and figure generators. Numbers are produced by results/run_all_and_summarize.py (seed 42) into results/paper_metrics_summary.json.",
   "creators": [
     {
-      "name": "Tu, Trinh Hoang",
-      "affiliation": "Ho Chi Minh City University of Foreign Languages - Information Technology (HUFLIT)",
-      "orcid": "0000-0000-0000-0000"
+      "name": "Trinh, Hoang Tu",
+      "affiliation": "Ho Chi Minh City University of Foreign Languages - Information Technology (HUFLIT)"
+    },
+    {
+      "name": "Cao, Tien Thanh",
+      "affiliation": "Ho Chi Minh City University of Foreign Languages - Information Technology (HUFLIT)"
     }
   ],
   "keywords": [
     "AI-Native Architecture",
     "Autonomous Incident Response",
     "Edge Telemetry",
-    "TCN-GRU Autoencoder",
+    "TCN-GRU",
     "Deep Reinforcement Learning",
     "Software-Defined Networking",
+    "Redis Streams",
     "Reproducible Artifact"
   ],
   "license": "MIT",
-  "access_right": "open"
+  "access_right": "open",
+  "related_identifiers": [
+    {
+      "identifier": "https://github.com/thtcsec/icai-fai2026",
+      "relation": "isSupplementTo",
+      "resource_type": "software"
+    }
+  ]
 }

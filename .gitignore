@@ -20,3 +20,8 @@ Thumbs.db
 
 # Bundled archives
 icai-fai2026-bundle.zip
+
+# Local LaTeX intermediates (PDF kept tracked)
+icaifai.aux
+icaifai.log
+

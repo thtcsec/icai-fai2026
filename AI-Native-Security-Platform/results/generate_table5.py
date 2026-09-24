@@ -54,11 +54,18 @@ TARGET_RATES = [100, 1000, 5000, 10000]
 REPEATS = 5
 
 
-def _cpu_per_core(process: psutil.Process, interval: float) -> float:
-    """Process CPU over the interval, normalised to a single logical core."""
+def _cpu_percent_one_logical_core(process: psutil.Process, interval: float) -> float:
+    """Process CPU over ``interval`` using psutil's one-core convention.
+
+    ``Process.cpu_percent()`` reports 100.0 when the process fully occupies one
+    logical CPU for the measurement window (and may exceed 100 with multiple
+    threads). We deliberately do *not* divide by ``cpu_count()``: that would
+    convert the reading into a fraction of *total machine* capacity and must
+    not be labelled "% of one core".
+    """
     process.cpu_percent(interval=None)
     time.sleep(interval)
-    return float(process.cpu_percent(interval=None)) / max(psutil.cpu_count(logical=True), 1)
+    return float(process.cpu_percent(interval=None))
 
 
 def _peak_memory_mb(process: psutil.Process) -> float:
@@ -115,7 +122,8 @@ def measure_paced(model, target_rate: int, batch_size: int, sustain_s: float = 2
                 time.sleep(sleep_for)
         elapsed = time.perf_counter() - t_start
 
-    cpu = float(process.cpu_percent(interval=None)) / max(psutil.cpu_count(logical=True), 1)
+    # 100% == one logical CPU fully busy over the paced window (psutil convention).
+    cpu = float(process.cpu_percent(interval=None))
     rss = _peak_memory_mb(process)
     achieved = n / elapsed
     return achieved, cpu, rss
@@ -124,6 +132,8 @@ def measure_paced(model, target_rate: int, batch_size: int, sustain_s: float = 2
 def run_real_resource_benchmark(seed: int = 42):
     print("[*] Throughput saturation and resource benchmark...")
     torch.manual_seed(seed)
+    # Pin to one host thread so "% of one logical CPU" is the meaningful H3 unit.
+    torch.set_num_threads(1)
 
     model = quantize_tcn_gru_model(TCNGRUResilienceModel())
     model.eval()
@@ -209,7 +219,7 @@ def run_real_resource_benchmark(seed: int = 42):
             [
                 "Offered Load (windows/s)",
                 f"Achieved Throughput median of {REPEATS} (windows/s)",
-                "Edge CPU median (%/core)",
+                "Edge CPU median (% of one logical CPU; 100%=1 core)",
                 "Peak Working Set (MB, runtime-dominated)",
                 "INT8 Model Footprint (MB)",
                 "Target Met",
@@ -220,7 +230,7 @@ def run_real_resource_benchmark(seed: int = 42):
                 [
                     r["target"],
                     f"{r['achieved']:.1f}",
-                    f"{r['cpu']:.2f}%",
+                    f"{r['cpu']:.2f}",
                     f"{r['rss']:.1f} MB",
                     f"{model_mb:.3f} MB",
                     "yes" if r["met"] else "no",
@@ -240,7 +250,7 @@ def run_real_resource_benchmark(seed: int = 42):
 
     ax2.plot([r["target"] for r in rows], [r["cpu"] for r in rows], "o-", color="#2b5c8f", lw=2)
     ax2.set_xlabel(f"Offered load (windows/s), batch={DEPLOY_BATCH}")
-    ax2.set_ylabel("CPU utilization (% / core)")
+    ax2.set_ylabel("CPU (% of one logical CPU)")
     ax2.grid(True, linestyle="--", alpha=0.5)
 
     plt.tight_layout()

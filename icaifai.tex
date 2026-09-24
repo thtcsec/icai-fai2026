@@ -26,7 +26,7 @@ Ho Chi Minh City, Vietnam\\ Email: 23dh113972@st.huflit.edu.vn, thanhct@huflit.e
 \maketitle
 
 \begin{abstract}
-University campus networks combine unmanaged BYOD endpoints, open research laboratories, and high-density IoT deployments, creating an expansive attack surface where traditional Security Operations Center (SOC) workflows struggle with long operational Mean Time to Respond (MTTR). We propose an AI-native, event-driven edge--cloud security platform engineered specifically for autonomous campus infrastructure defense. The architecture deploys lightweight INT8-quantized TCN--GRU sequence autoencoders at network edge gateways to score non-DPI flow telemetry. Enriched security events are carried asynchronously over a Redis Streams consumer group to a cloud risk resolver and Deep Q-Network (DQN) Software-Defined Networking (SDN) policy that emits SOAR playbooks; installing them in the dataplane is outside what we measure. Evaluated on \textbf{real InSDN} flow windows~\cite{b1} ($20{,}000$ stratified samples), the platform achieves a \emph{software control-path} latency --- telemetry ingestion to playbook emission, excluding dataplane enforcement --- with a $2.681$~ms median and a $5.764$~ms p99. Because stride-1 windows overlap by nine of ten timesteps, we evaluate under a temporally blocked and purged split with a train-only scaler, and quantifying that choice yields an unexpected null result: a conventional random split inflates fixed-threshold $F1$ only from $0.9276$ to $0.9337$, so window overlap is here a minor confound rather than the headline artefact we set out to document. Under the controlled protocol the INT8 detector reaches $F1 = 0.9276$ at $\tau = 0.65$ with a $0.048$~MB footprint and no measurable quantization loss ($\Delta F1 = 0.0000$). We further report four negative results: gradient-boosted trees on the same features outperform the proposed detector at a tenth of its latency (LightGBM $F1 = 0.9886$ against $0.9725$), leaving it only a footprint advantage; reconstruction-error scoring, the conventional rule for sequence autoencoders, is unusable on this attack-heavy corpus ($F1 = 0.036$), so detection rests entirely on the supervised head; our edge CPU budget is missed by nearly six times ($58.8\%$ of a core at a sustained $10{,}000$ windows/s against a pre-specified $10\%$); and zero-shot transfer to CIC-IDS2017 collapses ($F1 = 0.461$). We provide an ablation study, policy benchmarks against a brute-force oracle, and a deterministic reproducibility artifact.
+University campus networks combine unmanaged BYOD endpoints, open research laboratories, and high-density IoT deployments, creating an expansive attack surface where traditional Security Operations Center (SOC) workflows struggle with long operational Mean Time to Respond (MTTR). We propose an AI-native, event-driven edge--cloud security platform engineered specifically for autonomous campus infrastructure defense. The architecture deploys lightweight INT8-quantized TCN--GRU sequence models at network edge gateways to score non-DPI flow telemetry. Enriched security events are carried asynchronously over a Redis Streams consumer group to a cloud risk resolver and Deep Q-Network (DQN) Software-Defined Networking (SDN) policy that emits SOAR playbooks; installing them in the dataplane is outside what we measure. Evaluated on \textbf{real InSDN} flow windows~\cite{b1} ($20{,}000$ stratified samples), the platform achieves a \emph{software control-path} latency --- edge inference, identity enrichment, Redis \texttt{XADD}/\texttt{XREADGROUP}, DQN selection, and playbook construction, excluding dataplane enforcement --- with a $4.194$~ms median and a $7.470$~ms p99 on localhost Redis~7.2.4. Because stride-1 windows overlap by nine of ten timesteps, we evaluate under a temporally blocked and purged split with a train-only scaler; comparing that protocol to a conventional random split yields a near-null leakage effect ($|\Delta F1| < 0.002$ at fixed $\tau$). Under the controlled protocol the INT8 detector reaches $F1 = 0.9340$ at $\tau = 0.65$ with a $0.048$~MB footprint and negligible quantization loss ($|\Delta F1| \le 0.0002$). We further report five negative results: gradient-boosted trees on the same features outperform the proposed detector (LightGBM $F1 = 0.9886$ against $0.9723$), leaving it only a footprint advantage; reconstruction-error scoring is unusable on this attack-heavy corpus ($F1 \approx 0.035$), so detection rests entirely on the supervised head; our edge CPU budget is missed ($36.0\%$ of one logical CPU at a sustained $10{,}000$ windows/s against a pre-specified $10\%$, with \texttt{torch.set\_num\_threads(1)}); zero-shot transfer to CIC-IDS2017 collapses ($F1 = 0.456$); and localhost Redis Streams is not faster than a tight REST loopback, so the bus is justified by the multi-consumer deployment model rather than single-host IPC speed. We provide an ablation study, policy benchmarks against a brute-force oracle, and a deterministic reproducibility artifact.
 \end{abstract}
 
 \begin{IEEEkeywords}
@@ -43,22 +43,22 @@ This investigation is guided by four formal Research Questions (RQs):
 \begin{itemize}
     \item \textbf{RQ1 (Control-Path Latency):} Can an event-driven edge--cloud architecture reduce the software decision path, from telemetry ingestion to containment playbook emission, to sub-10~ms levels?
     \item \textbf{RQ2 (Quantization \& Accuracy):} Does INT8 dynamic quantization maintain NIDS classification accuracy while satisfying an edge gateway \emph{model-footprint} constraint ($\le 1$~MB of model storage)?
-    \item \textbf{RQ3 (Reinforcement Learning Efficiency):} Does a DQN policy controller outperform static rule tables and heuristic policies under modeled contention states?
+    \item \textbf{RQ3 (Reinforcement Learning Efficiency):} How closely can a DQN approximate the reward-optimal action under a modeled single-step contention environment relative to static and heuristic policies?
     \item \textbf{RQ4 (Domain Shift Generalization):} How effectively does an in-domain trained edge model generalize zero-shot across disparate network datasets (InSDN $\rightarrow$ CIC-IDS2017)?
 \end{itemize}
 
 \subsection{Formal Hypotheses}
-We test three explicit hypotheses:
+We test two explicit hypotheses:
 \begin{itemize}
-    \item \textbf{H1 (Quantization Degradation):} INT8 dynamic quantization incurs less than $0.5\%$ $F1$-score degradation ($\Delta F1 \le 0.005$) compared to full-precision FP32 models.
-    \item \textbf{H3 (Edge Resource Feasibility):} Edge inference requires $\le 10\%$ CPU utilization per core under a sustained offered load of $10{,}000$~telemetry windows/sec.
+    \item \textbf{H1 (Quantization Degradation):} INT8 dynamic quantization incurs less than $0.5\%$ $F1$-score degradation ($|\Delta F1| \le 0.005$) compared to full-precision FP32 models.
+    \item \textbf{H2 (Edge Resource Feasibility):} Edge inference requires $\le 10\%$ of one logical CPU (\texttt{psutil} convention: $100\% =$ one core fully busy) under a sustained offered load of $10{,}000$~telemetry windows/sec with a single PyTorch host thread.
 \end{itemize}
 
 \subsection{Contributions}
 The principal contributions of this work are:
 \begin{enumerate}
     \item \textbf{Decoupled AI-Native Pipeline:} An event-driven architecture combining PyTorch INT8 TCN--GRU edge detectors, identity context fusion, and a Redis Streams consumer-group event transport, with a DQN policy that \emph{emits} OpenFlow playbooks (rate limiting, rerouting, isolation, token revocation). We measure the software path that produces those playbooks, not their installation in the dataplane.
-    \item \textbf{Empirical Validation \& Negative Results:} Microbenchmarks on real InSDN~\cite{b1} traffic, with ablation, policy benchmarks against a brute-force oracle, saturation analysis, and a CIC-IDS2017~\cite{b2} holdout. We report five negative results --- failure of reconstruction-error scoring, a leakage effect far smaller than hypothesized, rejection of our edge CPU budget, severe zero-shot transfer failure, and gradient-boosted trees outperforming the proposed detector on both accuracy and latency --- that bound where this design is deployable.
+    \item \textbf{Empirical Validation \& Negative Results:} Microbenchmarks on real InSDN~\cite{b1} traffic, with Redis Streams in the timed path, ablation, policy benchmarks against a brute-force oracle, saturation analysis, and a CIC-IDS2017~\cite{b2} holdout. We report five negative results --- failure of reconstruction-error scoring, a near-null leakage effect from stride-1 overlap, rejection of our edge CPU budget (H2), severe zero-shot transfer failure, and gradient-boosted trees outperforming the proposed detector --- that bound where this design is deployable.
     \item \textbf{Deterministic Artifact:} A reproducibility artifact regenerating every table from one seeded entry point, at \url{https://github.com/thtcsec/icai-fai2026}.
 \end{enumerate}
 
@@ -193,19 +193,19 @@ Window $i$ shares $T-1 = 9$ of its $10$ timesteps with each neighbour, so an i.i
 
 \section{Quantitative Evaluation \& Results}
 
-\textbf{Reading the $F1$ values.} Each figure belongs to a distinct protocol and they are not interchangeable. $0.9276$ is the detector at the fixed $\tau=0.65$, the deployable accuracy. $0.9687$ is the same detector at $\tau^*=0.0720$ \emph{selected on the test split}, an oracle bound. $0.9725$ is the corresponding oracle figure in Section~\ref{sec:sota}, differing only because that harness trains the baselines first and so draws a different seeded initialization --- which bounds how finely any figure should be read. $0.9602$ is the full pipeline with $\tau$ tuned on the \emph{training} split (Section~\ref{sec:ablation}). Compare only within an experiment.
+\textbf{Reading the $F1$ values.} Each figure belongs to a distinct protocol and they are not interchangeable. $0.9340$ is the detector at the fixed $\tau=0.65$, the deployable accuracy. $0.9679$ is the same detector at $\tau^*=0.0672$ \emph{selected on the test split}, an oracle bound. $0.9723$ is the corresponding INT8 oracle figure in Section~\ref{sec:sota}, differing because that harness trains baselines first and advances the RNG --- which bounds how finely any figure should be read. $0.9616$ is the full pipeline with $\tau$ tuned on the \emph{training} split (Section~\ref{sec:ablation}). Compare only within an experiment.
 
 \textbf{All results below use the leakage-controlled protocol of Section~\ref{sec:protocol}.}
 
 \subsection{Latency Breakdown (RQ1)}
-\textbf{Scope.} We time the \emph{software control path}: telemetry ingestion, edge inference, identity enrichment, DQN action selection, and SOAR playbook serialization, ending when the playbook is emitted. It excludes controller transmission, \texttt{flow\_mod} installation in Open vSwitch, and the instant malicious traffic stops. We have no dataplane enforcement measurement and claim none: read every figure below as decision-to-playbook, not time-to-containment.
+\textbf{Scope.} We time the \emph{software control path}: edge INT8 inference, identity enrichment via the fusion table, Redis Streams \texttt{XADD} followed by consumer-group \texttt{XREADGROUP}/\texttt{XACK} on a live Redis~7.2.4 instance, DQN action selection, and SOAR playbook \emph{construction} (a structured action dict). It excludes controller transmission, \texttt{flow\_mod} installation in Open vSwitch, and the instant malicious traffic stops. Redis runs on localhost in the reported numbers; cross-host network RTT is not included. We have no dataplane enforcement measurement and claim none: read every figure below as decision-to-playbook, not time-to-containment.
 
-Table~\ref{tab:latency} presents the per-stage breakdown across 1{,}000 trials, timed with \texttt{time.perf\_counter\_ns()}. \textbf{We report percentiles rather than mean~$\pm$~SD} because the per-trial distribution is heavy-tailed: OS scheduling and garbage-collection pauses produce rare trials far above the mode, which makes the mean and SD unstable between runs of the identical benchmark. Identity fusion and SOAR serialization are effectively free (medians $2.1~\mu\text{s}$ and $1.8~\mu\text{s}$). Median control-path latency is $2.681$~ms, with edge inference dominating at $94.7\%$; the p99 is $5.764$~ms. The sub-10~ms target of \textbf{RQ1} is therefore met for the software path at the $99$th percentile, with roughly $4$~ms of headroom. That headroom is what dataplane enforcement, which we do not measure, would have to fit inside.
+Table~\ref{tab:latency} presents the per-stage breakdown across 1{,}000 trials, timed with \texttt{time.perf\_counter\_ns()}, after $50$ warm-up iterations. \textbf{We report percentiles rather than mean~$\pm$~SD} because the per-trial distribution is heavy-tailed. Identity fusion and SOAR construction remain negligible (medians $<3~\mu\text{s}$). Median control-path latency is $4.194$~ms, with edge inference at $57.4\%$ and Redis Streams at $37.7\%$ of the median total; the p99 is $7.470$~ms. The sub-10~ms target of \textbf{RQ1} is therefore met for this Redis-inclusive software path at the $99$th percentile.
 
-\textbf{Reconciling the detector latencies.} Three per-inference figures for the same INT8 model appear below --- $2.539$~ms inside the pipeline loop, $2.787$~ms at batch $=1$ in a tight loop, $4.304$~ms in the model-comparison harness with cold caches --- measured under different scaffolding rather than in contradiction. Per Section~\ref{sec:validity}, absolute timings on this host should be read to roughly a factor of two.
+\textbf{Reconciling detector latencies.} Per-inference figures for the same INT8 model differ across harnesses (pipeline loop vs.\ tight comparison loop) under different scaffolding rather than in contradiction. Per Section~\ref{sec:validity}, absolute timings on this host should be read to roughly a factor of two.
 
 \begin{table}[htbp]
-\caption{Per-Stage Software Control-Path Latency ($n=1000$ trials). Excludes dataplane enforcement. Shares are of the median total and do not sum to $100$ because medians are not additive.}
+\caption{Per-Stage Software Control-Path Latency ($n=1000$ trials, Redis~7.2.4 localhost). Excludes dataplane enforcement. Shares are of the median total and do not sum to $100$ because medians are not additive.}
 \label{tab:latency}
 \begin{center}
 \resizebox{\columnwidth}{!}{%
@@ -213,12 +213,13 @@ Table~\ref{tab:latency} presents the per-stage breakdown across 1{,}000 trials, 
 \hline
 \textbf{Stage} & \textbf{Median (ms)} & \textbf{p95 (ms)} & \textbf{p99 (ms)} & \textbf{\%} \\
 \hline
-Edge TCN--GRU Inference & 2.539 & 4.703 & 5.530 & 94.7 \\
-Identity Context Fusion & 0.002 & 0.004 & 0.005 & 0.1 \\
-Cloud DQN Policy & 0.117 & 0.248 & 0.304 & 4.4 \\
-SOAR Playbook Serialization & 0.002 & 0.003 & 0.004 & 0.1 \\
+Edge TCN--GRU Inference & 2.407 & 4.380 & 4.794 & 57.4 \\
+Identity Context Fusion & 0.002 & 0.003 & 0.003 & 0.0 \\
+Redis Streams (XADD+XREADGROUP) & 1.580 & 2.310 & 2.943 & 37.7 \\
+Cloud DQN Policy & 0.176 & 0.272 & 0.331 & 4.2 \\
+SOAR Playbook Construction & 0.002 & 0.003 & 0.004 & 0.0 \\
 \hline
-\textbf{Control-Path Total} & \textbf{2.681} & \textbf{4.952} & \textbf{5.764} & \textbf{100.0} \\
+\textbf{Control-Path Total} & \textbf{4.194} & \textbf{6.753} & \textbf{7.470} & \textbf{100.0} \\
 \hline
 \end{tabular}%
 }
@@ -227,7 +228,7 @@ SOAR Playbook Serialization & 0.002 & 0.003 & 0.004 & 0.1 \\
 
 \subsection{Detection Performance \& Threshold Sensitivity (RQ2, H1)}
 \label{sec:threshold}
-Table~\ref{tab:precision} shows metric variation across decision threshold $\tau$ under the leakage-controlled protocol. The detector is strongly precision-biased in this regime: at the fixed operating point $\tau = 0.65$ it yields $F1 = 0.9276$ (Precision~$=0.979$, Recall~$=0.882$, FPR~$=7.78\%$), and over the reported grid $F1$ peaks at $0.950$ at $\tau = 0.35$. Searching $\tau$ freely \emph{over the test split} reaches $F1 = 0.9687$ at $\tau^* = 0.0720$ (Precision~$=0.947$, Recall~$=0.992$, FPR~$=22.3\%$), the operating point Section~\ref{sec:sota} uses for model comparison. We flag the protocol because it matters: a test-selected threshold is an oracle --- the test-tuning pitfall of~\cite{b23} --- so $0.9687$ bounds what the detector could achieve, not what it would. The gap from $0.9276$ compounds threshold placement on an imbalanced corpus with oracle selection, not a better detector. The oracle point also trades a $22.3\%$ false positive rate for near-total recall, the opposite of what an autonomous controller needs, which is a further reason to treat $\tau=0.65$ as the honest operating point.
+Table~\ref{tab:precision} shows metric variation across decision threshold $\tau$ under the leakage-controlled protocol. The detector is strongly precision-biased in this regime: at the fixed operating point $\tau = 0.65$ it yields $F1 = 0.9340$ (Precision~$=0.978$, Recall~$=0.894$, FPR~$=8.20\%$), and over the reported grid $F1$ peaks at $0.955$ at $\tau = 0.35$. Searching $\tau$ freely \emph{over the test split} reaches $F1 = 0.9679$ at $\tau^* = 0.0672$, the operating point Section~\ref{sec:sota} uses for model comparison. We flag the protocol because it matters: a test-selected threshold is an oracle --- the test-tuning pitfall of~\cite{b23} --- so $0.9679$ bounds what the detector could achieve, not what it would.
 
 \begin{table}[htbp]
 \caption{Detection Metrics vs. Decision Threshold $\tau$ on Real InSDN}
@@ -238,11 +239,11 @@ Table~\ref{tab:precision} shows metric variation across decision threshold $\tau
 \hline
 \textbf{Threshold $\tau$} & \textbf{Precision} & \textbf{Recall} & \textbf{F1-Score} & \textbf{FPR (\%)} & \textbf{FNR (\%)} \\
 \hline
-0.35 & 0.971 & 0.930 & 0.950 & 11.21 & 7.0 \\
-0.50 & 0.976 & 0.910 & 0.942 & 9.04 & 9.1 \\
-\textbf{0.65} & \textbf{0.979} & \textbf{0.882} & \textbf{0.928} & \textbf{7.78} & \textbf{11.8} \\
-0.75 & 0.981 & 0.847 & 0.909 & 6.44 & 15.3 \\
-0.85 & 0.988 & 0.779 & 0.871 & 3.93 & 22.1 \\
+0.35 & 0.969 & 0.942 & 0.955 & 12.13 & 5.8 \\
+0.50 & 0.974 & 0.926 & 0.949 & 10.13 & 7.4 \\
+\textbf{0.65} & \textbf{0.978} & \textbf{0.894} & \textbf{0.934} & \textbf{8.20} & \textbf{10.6} \\
+0.75 & 0.980 & 0.869 & 0.921 & 7.03 & 13.1 \\
+0.85 & 0.988 & 0.799 & 0.883 & 3.93 & 20.1 \\
 \hline
 \end{tabular}%
 }
@@ -251,28 +252,30 @@ Table~\ref{tab:precision} shows metric variation across decision threshold $\tau
 
 \subsection{Why Reconstruction Error Is Not the Decision Rule}
 \label{sec:re_vs_cls}
-Since much of the sequence-autoencoder IDS literature scores on reconstruction error alone, it is worth reporting which of our two outputs actually works. We evaluated the standard unsupervised rule $\tau = \mu + k\sigma$, with $\mu, \sigma$ estimated on reconstruction errors of \emph{normal training} windows, for $k \in \{0.5, \ldots, 3.0\}$. It fails comprehensively: the best setting $k=0.5$ yields $F1 = 0.0358$ (Precision~$=0.752$, Recall~$=0.018$), decaying to $0.0062$ at $k=3.0$; precision reaches $0.882$ at $k=2.5$ but at recall below $2\%$, which is worthless operationally. Detection performance is thus entirely attributable to the supervised head, and the architecture should be cited as a supervised sequence classifier with an auxiliary reconstruction objective. On an attack-heavy corpus the premise of reconstruction-based detection is simply violated: the model sees enough attack structure in the joint pass that attacks reconstruct about as well as normal traffic. Practitioners inheriting the ``train on normal traffic, threshold the error'' recipe should check it against their own class balance.
+Since much of the sequence-autoencoder IDS literature scores on reconstruction error alone, it is worth reporting which of our two outputs actually works. We evaluated the standard unsupervised rule $\tau = \mu + k\sigma$, with $\mu, \sigma$ estimated on reconstruction errors of \emph{normal training} windows, for $k \in \{0.5, \ldots, 3.0\}$. It fails comprehensively: the best setting $k=0.5$ yields $F1 = 0.0354$; detection performance is thus entirely attributable to the supervised head, and the architecture should be cited as a supervised sequence classifier with an auxiliary reconstruction objective. The classifier head defaults to six logits for checkpoint compatibility, but training collapses labels to binary normal-vs-attack and scores $1-P(\text{normal})$, so classes $2$--$5$ are unsupervised in the reported experiments.
 
-\subsection{Throughput Saturation \& Edge Feasibility (H3)}
-Per-inference latency and throughput reconcile only once the batching regime is stated, so we report both, each as the median of $5$ repeats. Run flat out, the detector saturates at $359$~windows/s unbatched, rising through $6{,}634$ at batch $=32$ to $41{,}329$ at batch $=512$ ($2.787$ to $12.388$~ms per forward pass): batching, not the model, is what reaches campus scale. We give these in prose rather than a table because saturation is the least stable quantity we measure --- between-run variation exceeds the within-run spread by more than a factor of two --- so it indicates scale rather than precision and we rest no claim on it. Table~\ref{tab:resource} instead reports the \emph{paced} offered load at batch $=128$, rate-limited so a shortfall surfaces rather than hides; it is stable across repeats and runs, and is the evidence we rely on.
+\subsection{Throughput Saturation \& Edge Feasibility (H2)}
+Per-inference latency and throughput reconcile only once the batching regime is stated, so we report both, each as the median of $5$ repeats. Run flat out with a single PyTorch host thread, the detector saturates at $662$~windows/s unbatched, rising through $10{,}302$ at batch $=32$ to $51{,}239$ at batch $=512$: batching, not the model, is what reaches campus scale. Saturation remains the least stable quantity we measure, so we rest no claim on it. Table~\ref{tab:resource} instead reports the \emph{paced} offered load at batch $=128$.
 
-\textbf{H3 is rejected, but on one term rather than two.} The hypothesis asserted $\le 10\%$ CPU per core \emph{at} a sustained $10{,}000$~windows/s. The system does sustain that load --- $9{,}998$ of $10{,}000$ offered windows/s, met in every repeat --- while consuming $58.8\%$ of a core, nearly six times the budget. The budget holds only at $100$~windows/s ($9.0\%$); the jump to $55.0\%$ at $1{,}000$~windows/s then near-flat scaling indicates a fixed per-batch dispatch cost dominating until the pipeline is busy. \emph{An earlier single-run measurement reported a throughput shortfall here that repetition did not reproduce}, which is why every figure in this subsection is a median over repeats. Memory is favourable: peak working set is flat at $541$~MB across a $100\times$ load range, dominated by the Python/PyTorch runtime rather than the $0.048$~MB model. The system is memory- but not CPU-feasible on one commodity core; a compiled ONNX or TensorRT runtime is the obvious next step, making this an implementation rather than an architectural limit.
+\textbf{CPU metric.} We report \texttt{psutil.Process.cpu\_percent()} over the paced wall-clock window with \emph{no} division by \texttt{cpu\_count()}: $100\%$ means one logical CPU fully busy. Dividing by logical CPU count would convert the reading into a fraction of total machine capacity and must not be labelled ``\% of one core.'' PyTorch is pinned with \texttt{torch.set\_num\_threads(1)} so the unit matches H2. At low offered rates the window is sleep-dominated, so the reading understates busy-period cost; the H2 decision uses the $10{,}000$~windows/s row.
+
+\textbf{H2 is rejected.} The hypothesis asserted $\le 10\%$ of one logical CPU at a sustained $10{,}000$~windows/s. The system sustains that load ($9{,}998$ of $10{,}000$ offered windows/s in every repeat) while consuming a median $36.0\%$ of one logical CPU (range $35.0$--$49.1\%$ across repeats), about $3.6\times$ the budget. Memory is favourable: peak working set is flat at $\approx 541$~MB, dominated by the Python/PyTorch runtime rather than the $0.048$~MB model. The system is memory- but not CPU-feasible on one commodity logical CPU under this runtime; a compiled ONNX or TensorRT path is the obvious next step.
 
 We deliberately omit a legacy inline-DPI comparison. We have no DPI implementation on this testbed, and a baseline synthesised from an analytic formula would not constitute an experimental result.
 
 \begin{table}[htbp]
-\caption{Edge Cost at Paced Offered Load (batch $=128$), median of $5$ repeats. Offered load is input telemetry rate, not per-inference throughput. A target counts as met only if every repeat met it. Working set is peak, and is dominated by the Python/PyTorch runtime rather than the model.}
+\caption{Edge Cost at Paced Offered Load (batch $=128$, \texttt{torch.set\_num\_threads(1)}), median of $5$ repeats. CPU is \% of one logical CPU ($100\%=$ one core busy) over the paced wall-clock window, including rate-limit sleeps. A target counts as met only if every repeat met it.}
 \label{tab:resource}
 \begin{center}
 \resizebox{\columnwidth}{!}{%
 \begin{tabular}{|c|c|c|c|c|}
 \hline
-\textbf{Offered (win/s)} & \textbf{Achieved (win/s)} & \textbf{CPU (\%/core)} & \textbf{Peak WS (MB)} & \textbf{Met} \\
+\textbf{Offered (win/s)} & \textbf{Achieved (win/s)} & \textbf{CPU (\%/1~CPU)} & \textbf{Peak WS (MB)} & \textbf{Met} \\
 \hline
-100 & 100.0 & 8.96 & 540.5 & yes \\
-1{,}000 & 999.9 & 55.00 & 540.5 & yes \\
-5{,}000 & 4{,}999.4 & 56.48 & 540.5 & yes \\
-\textbf{10{,}000} & \textbf{9{,}998.3} & \textbf{58.81} & \textbf{540.5} & \textbf{yes} \\
+100 & 100.0 & 0.0 & 540.6 & yes \\
+1{,}000 & 999.8 & 4.3 & 540.6 & yes \\
+5{,}000 & 4{,}999.5 & 18.8 & 540.6 & yes \\
+\textbf{10{,}000} & \textbf{9{,}998.1} & \textbf{36.0} & \textbf{540.6} & \textbf{yes} \\
 \hline
 \end{tabular}%
 }
@@ -283,14 +286,14 @@ We deliberately omit a legacy inline-DPI comparison. We have no DPI implementati
 \label{sec:sota}
 Table~\ref{tab:sota} compares our INT8 TCN--GRU against unsupervised, tabular and sequence baselines trained on the identical InSDN split; Transformer AE is a 2-layer encoder-decoder with 4 attention heads and masked reconstruction loss. Every model is scored at its own optimal threshold, since a threshold favouring one architecture need not suit another. \emph{That threshold is selected by searching the test split}, so each $F1$ here is an optimistic bound rather than a deployable operating point; the identical search is applied to every model, so comparison between rows stays internally fair. The tree ensembles receive the window flattened to $T \times d = 100$ features --- the same raw information the sequence models see --- so the comparison does not handicap them.
 
-\textbf{Gradient-boosted trees beat the proposed detector, and this is our fifth negative result.} LightGBM~\cite{b25} reaches $F1 = 0.9886$ and XGBoost~\cite{b26} $0.9880$ against $0.9725$ for TCN--GRU, and XGBoost does it at $0.387$~ms per inference against $4.304$~ms --- higher accuracy at roughly a tenth of the latency. Random Forest also exceeds TCN--GRU ($0.9843$). These $F1$ values were bit-identical across every repeated run, so unlike our timings they are not measurement noise. On ten aggregate flow statistics, the temporal structure a TCN--GRU exists to exploit is evidently not where the discriminative signal lives. One advantage survives: serialized, the trees occupy $0.845$~MB (XGBoost), $1.374$~MB (LightGBM) and $20.562$~MB (Random Forest) against $0.048$~MB for the INT8 model --- but the RQ2 budget was $1$~MB and XGBoost fits inside it, so the footprint argument only becomes decisive an order of magnitude below the budget we specified. That is the same boundary condition we reached for quantization itself.
+\textbf{Gradient-boosted trees beat the proposed detector, and this is a negative result.} LightGBM~\cite{b25} reaches $F1 = 0.9886$ and XGBoost~\cite{b26} $0.9880$ against $0.9723$ for INT8 TCN--GRU, and XGBoost does it at $0.399$~ms per inference against $1.935$~ms. Random Forest also exceeds TCN--GRU ($0.9843$). On ten aggregate flow statistics, the temporal structure a TCN--GRU exists to exploit is evidently not where the discriminative signal lives. One advantage survives: the INT8 model footprint is $0.048$~MB against serialized tree objects of $0.845$--$20.6$~MB, but the RQ2 budget was $1$~MB and XGBoost fits inside it.
 
-The Isolation Forest row uses \texttt{contamination="auto"} on time-averaged windows; on an $80\%$-attack corpus this heuristic is badly mismatched, so $F1 = 0.2000$ evidences that an untuned classical outlier detector fails at this class balance rather than serving as a tuned baseline. Tree sizes above are serialized objects, not the parameter footprint of the table's Size column.
+The Isolation Forest row uses \texttt{contamination="auto"} on time-averaged windows; on an $80\%$-attack corpus this heuristic is badly mismatched, so $F1 = 0.2000$ evidences that an untuned classical outlier detector fails at this class balance rather than serving as a tuned baseline.
 
-INT8 quantization reduces the model footprint from $0.104$~MB to $0.048$~MB ($53.8\%$) at \emph{zero} measured accuracy cost ($\Delta F1 = 0.0000$ to four decimal places), supporting hypothesis \textbf{H1}. Counter-intuitively, dynamic INT8 on x86 CPU \emph{increases} latency ($4.304$~ms vs $2.832$~ms, a $1.52\times$ penalty) because activations are dequantized at every layer boundary without hardware INT8 acceleration: the technique buys memory, not speed, here. Since the RQ2 budget was $1$~MB and the FP32 model already meets it at $0.104$~MB, the honest reading of H1 is that quantization is \emph{harmless} rather than necessary, and justified only for gateways an order of magnitude more constrained than ours.
+INT8 quantization reduces the model footprint from $0.104$~MB to $0.048$~MB at negligible accuracy cost ($|\Delta F1| = 0.0002$), supporting hypothesis \textbf{H1}. Since the RQ2 budget was $1$~MB and the FP32 model already meets it at $0.104$~MB, the honest reading of H1 is that quantization is \emph{harmless} rather than necessary for gateways at this memory scale.
 
 \begin{table}[htbp]
-\caption{Baseline \& Model Quantization Comparison on Real InSDN. Each model is scored at its own $F1$-optimal threshold selected on the test split (see text). Italics mark models that outperform the proposed detector. Size is the parameter footprint, reported only for the PyTorch models, for which it is measured on a common basis; ``--'' denotes a quantity not measured on that basis.}
+\caption{Baseline \& Model Quantization Comparison on Real InSDN. Each model is scored at its own $F1$-optimal threshold selected on the test split (see text). Italics mark models that outperform the proposed detector. Size is the parameter footprint for PyTorch models only.}
 \label{tab:sota}
 \begin{center}
 \resizebox{\columnwidth}{!}{%
@@ -298,14 +301,14 @@ INT8 quantization reduces the model footprint from $0.104$~MB to $0.048$~MB ($53
 \hline
 \textbf{Model Algorithm} & \textbf{F1-Score} & \textbf{Latency (ms)} & \textbf{Size (MB)} \\
 \hline
-Isolation Forest (untuned) & 0.2000 & 7.857 & -- \\
-Random Forest & 0.9843 & 46.301 & -- \\
-XGBoost & \textit{0.9880} & \textit{0.387} & -- \\
-LightGBM & \textbf{\textit{0.9886}} & 0.711 & -- \\
-LSTM Autoencoder (FP32) & 0.8687 & 0.619 & 0.028 \\
-Transformer Autoencoder (FP32) & 0.8680 & 1.175 & 0.068 \\
-TCN--GRU (FP32) & 0.9725 & 2.832 & 0.104 \\
-\textbf{TCN--GRU (INT8 Quantized)} & 0.9725 & 4.304 & \textbf{0.048} \\
+Isolation Forest (untuned) & 0.2000 & 6.458 & -- \\
+Random Forest & 0.9843 & 42.446 & -- \\
+XGBoost & \textit{0.9880} & \textit{0.399} & -- \\
+LightGBM & \textbf{\textit{0.9886}} & 0.809 & -- \\
+LSTM Autoencoder (FP32) & 0.8687 & 0.277 & 0.028 \\
+Transformer Autoencoder (FP32) & 0.8682 & 0.532 & 0.068 \\
+TCN--GRU (FP32) & 0.9725 & 1.890 & 0.104 \\
+\textbf{TCN--GRU (INT8 Quantized)} & 0.9723 & 1.935 & \textbf{0.048} \\
 \hline
 \end{tabular}%
 }
@@ -316,10 +319,12 @@ TCN--GRU (FP32) & 0.9725 & 2.832 & 0.104 \\
 \label{sec:ablation}
 Table~\ref{tab:ablation} details the impact of removing components. Because each configuration scores on a different scale, we select the threshold on the training split and apply it unchanged to test; a shared fixed threshold would measure calibration mismatch instead of component contribution. InSDN has no identity annotations, so trust comes from a simulated overlay parameterised by $\rho = P(\text{low trust} \mid \text{attack})$, reported at $\rho = 0.7$.
 
-The result contradicts our expectation. Identity fusion and the risk engine \emph{do not} improve $F1$; removing them nudges it from $0.9602$ up to $0.9680$. What they buy is false-positive suppression: FPR falls from $25.19\%$ under direct edge actuation to $12.05\%$, a $52\%$ relative reduction. Since the controller autonomously isolates flows, trading $0.8$ points of $F1$ for less than half the false alarms is operationally correct --- but it is a trade, not a free gain. A sweep over $\rho \in [0.5, 0.9]$ (in the artifact) shows identity fusion improves $F1$ only once the overlay is strongly informative ($\rho \ge 0.8$), bounding what this mechanism can claim without real campus identity data.
+The result contradicts our expectation. Identity fusion and the risk engine \emph{do not} improve $F1$; removing them nudges it from $0.9616$ up to $0.9680$. What they buy is false-positive suppression: FPR falls from $23.77\%$ under direct edge actuation to $16.74\%$. Since the controller autonomously isolates flows, trading a fraction of a point of $F1$ for fewer false alarms is operationally correct --- but it is a trade, not a free gain. A sweep over $\rho \in [0.5, 0.9]$ (in the artifact) shows identity fusion improves $F1$ only once the overlay is strongly informative ($\rho \ge 0.8$).
+
+\textbf{Redis vs.\ REST on loopback.} Transport costs are measured, not assumed: Redis Streams \texttt{XADD}+\texttt{XREADGROUP} averages $1.293$~ms per event, while a synchronous localhost HTTP POST averages $0.799$~ms. Consequently the ``w/o Redis'' arm is \emph{faster} on this single-host harness. We retain Redis because the architecture targets an asynchronous multi-consumer cloud path, not because it wins a localhost IPC microbenchmark.
 
 \begin{table}[htbp]
-\caption{System Component Ablation Analysis ($\rho = 0.7$, threshold tuned on train). Latencies were measured in a separate run from Table~\ref{tab:latency}; only within-table comparison is meaningful.}
+\caption{System Component Ablation Analysis ($\rho = 0.7$, threshold tuned on train). Latencies include measured Redis or REST transport; only within-table comparison is meaningful.}
 \label{tab:ablation}
 \begin{center}
 \resizebox{\columnwidth}{!}{%
@@ -327,11 +332,11 @@ The result contradicts our expectation. Identity fusion and the risk engine \emp
 \hline
 \textbf{Architecture Configuration} & \textbf{F1-Score} & \textbf{FPR (\%)} & \textbf{Latency (ms)} \\
 \hline
-\textbf{Full Proposed Pipeline} & \textbf{0.9602} & \textbf{12.05} & \textbf{6.644} \\
---- w/o Identity Context Fusion & 0.9628 & 20.67 & 6.643 \\
---- w/o Cloud Risk Engine (Direct Edge Actuation) & 0.9680 & 25.19 & 6.643 \\
---- w/o INT8 Quantization (FP32 Baseline) & 0.9699 & 18.83 & 2.726 \\
---- w/o Redis Streams (Synchronous REST Call) & 0.9602 & 12.05 & 7.654 \\
+\textbf{Full Proposed Pipeline} & \textbf{0.9616} & \textbf{16.74} & \textbf{4.946} \\
+--- w/o Identity Context Fusion & 0.9644 & 21.59 & 4.945 \\
+--- w/o Cloud Risk Engine (Direct Edge Actuation) & 0.9680 & 23.77 & 4.945 \\
+--- w/o INT8 Quantization (FP32 Baseline) & 0.9694 & 19.16 & 2.838 \\
+--- w/o Redis Streams (Synchronous REST Call) & 0.9616 & 16.74 & 4.452 \\
 \hline
 \end{tabular}%
 }
@@ -341,7 +346,7 @@ The result contradicts our expectation. Identity fusion and the risk engine \emp
 \subsection{Policy Control Benchmarks (RQ3)}
 Table~\ref{tab:policy_benchmark} benchmarks the cloud DQN controller against static and heuristic baselines on a single-step contention environment whose reward $r(s,a)$ trades containment efficacy against collateral QoS damage and congestion relief. Because $r$ is analytic, the optimal action $a^*$ is obtained by exact enumeration over the four actions, giving a ground-truth oracle. The agent is trained by fitted Q-iteration over $4{,}000$ environment interactions with $\epsilon$-greedy exploration and evaluated on $5{,}000$ held-out states.
 
-The DQN selects the oracle-optimal action in $99.2\%$ of states and attains essentially zero mean regret, against $38.2\%$ for a static confidence ladder and $34.8\%$ for a hand-tuned heuristic table. Two caveats temper this. First, the agent is trained on the same reward function the oracle maximises, so this shows function-approximation capacity within a known environment, not generalisation to a live campus. Second, counter to expectation, the DQN inflicts \emph{more} raw QoS disruption on benign traffic ($0.128$) than the static ladder ($0.045$): reward-optimal behaviour is more aggressive than a conservative threshold rule, and the learned policy's advantage lies in near-zero regret rather than gentleness.
+The DQN selects the oracle-optimal action in $98.8\%$ of states and attains essentially zero mean regret, against $38.2\%$ for a static confidence ladder and $34.8\%$ for a hand-tuned heuristic table. Two caveats temper this. First, the agent is trained on the same reward function the oracle maximises, so this shows function-approximation capacity within a known environment, not generalisation to a live campus. Second, the DQN inflicts \emph{more} raw QoS disruption on benign traffic ($0.128$) than the static ladder ($0.045$): reward-optimal behaviour is more aggressive than a conservative threshold rule.
 
 \begin{table}[htbp]
 \caption{Policy Controller Benchmark against a Brute-Force Oracle ($n=5{,}000$ held-out states). QoS disruption and regret are lower-is-better.}
@@ -352,10 +357,10 @@ The DQN selects the oracle-optimal action in $99.2\%$ of states and attains esse
 \hline
 \textbf{Policy Mechanism} & \textbf{Latency (ms)} & \textbf{QoS Disr.} & \textbf{Regret} & \textbf{Action Acc. (\%)} \\
 \hline
-Static Rule Lookup & $0.0004$ & 0.045 & 0.080 & 38.2 \\
+Static Rule Lookup & $0.0008$ & 0.045 & 0.080 & 38.2 \\
 Round-Robin Action Assignment & $0.0003$ & 0.187 & 0.205 & 25.5 \\
 Heuristic Risk Table & $0.0004$ & 0.052 & 0.072 & 34.8 \\
-\textbf{Deep Q-Network (DQN Agent)} & $\mathbf{0.0942}$ & 0.128 & $\mathbf{0.000}$ & $\mathbf{99.2}$ \\
+\textbf{Deep Q-Network (DQN Agent)} & $\mathbf{0.0551}$ & 0.128 & $\mathbf{0.000}$ & $\mathbf{98.8}$ \\
 \hline
 \end{tabular}%
 }
@@ -366,7 +371,7 @@ Heuristic Risk Table & $0.0004$ & 0.052 & 0.072 & 34.8 \\
 \label{sec:leakage_effect}
 Rather than assert our leakage controls were necessary, we measured what they are worth, rerunning the identical detector, seed, and schedule while changing only the split and scaler. Protocol~A is the unsound one (i.i.d.\ split over overlapping windows, scaler fit on the pooled corpus); Protocol~B is that of Section~\ref{sec:protocol}.
 
-\textbf{The effect is real but small, and this is a negative result.} Leakage inflates fixed-threshold $F1$ by only $0.0061$ ($0.9276 \rightarrow 0.9337$) and optimal-threshold $F1$ by $0.0021$, far less than we expected given that $9$ of every $10$ timesteps cross the boundary. Two explanations fit and we cannot separate them: overlapping windows may be less informative than they look, since the one differing timestep is precisely the one carrying the transition; or this corpus may be easy enough that both protocols saturate above $0.92$. Our guidance is therefore narrower than we hoped --- blocked-and-purged splitting is cheap and principled and we recommend it, but a reviewer should not assume a random split has by itself inflated a result by a large margin.
+\textbf{The effect is near-null, and this is a negative result relative to our prior expectation.} On this run, Protocol~A yields fixed-threshold $F1 = 0.9322$ while Protocol~B yields $0.9340$ ($\Delta = -0.0018$); optimal-threshold $F1$ differs by only $+0.0014$. We therefore do not claim that blocked-and-purged splitting rescued a large inflated headline number here. Two explanations fit and we cannot separate them: overlapping windows may be less informative than they look, or this corpus may be easy enough that both protocols saturate above $0.93$. Blocked-and-purged splitting remains cheap and principled and we still recommend it; a reviewer should not assume a random split has by itself inflated a result by a large margin on this dataset.
 
 \begin{table}[htbp]
 \caption{Effect of the Evaluation Protocol. Identical model, seed, and schedule; only the split and scaler differ.}
@@ -377,10 +382,10 @@ Rather than assert our leakage controls were necessary, we measured what they ar
 \hline
 \textbf{Protocol} & \textbf{$F1$ @ $\tau=0.65$} & \textbf{$\tau^*$} & \textbf{$F1$ @ $\tau^*$} \\
 \hline
-A: random split + pooled scaler (unsound) & 0.9337 & 0.0945 & 0.9708 \\
-\textbf{B: blocked + purged + train-only scaler} & \textbf{0.9276} & \textbf{0.0720} & \textbf{0.9687} \\
+A: random split + pooled scaler (unsound) & 0.9322 & 0.0924 & 0.9693 \\
+\textbf{B: blocked + purged + train-only scaler} & \textbf{0.9340} & \textbf{0.0672} & \textbf{0.9679} \\
 \hline
-Inflation (A $-$ B) & $+0.0061$ & --- & $+0.0021$ \\
+Difference (A $-$ B) & $-0.0018$ & --- & $+0.0014$ \\
 \hline
 \end{tabular}%
 }
@@ -389,7 +394,7 @@ Inflation (A $-$ B) & $+0.0061$ & --- & $+0.0021$ \\
 
 \subsection{Cross-Dataset Domain Shift Evaluation (RQ4)}
 \label{sec:cross}
-Table~\ref{tab:cross} evaluates zero-shot transfer from InSDN ($14{,}000$ train / $6{,}000$ test windows) to a $20{,}000$-window CIC-IDS2017 holdout. In-domain $F1$ is $0.9276$ at $\tau=0.65$; zero-shot $F1$ collapses to $0.4611$. The failure mode is precision, not recall: the detector still recovers $92.8\%$ of attacks but its false positive rate explodes to $92.4\%$, close to a degenerate always-attack classifier. Since detection is driven by the supervised head (Section~\ref{sec:re_vs_cls}), the \emph{decision boundary} is what fails to transfer --- CIC-IDS2017 benign traffic falls on the attack side of a boundary fitted to InSDN statistics --- and re-tuning to $\tau^*=0.0720$ does not help ($F1 = 0.4670$), so the degradation is representational. One factor we did not isolate: the corpora were feature-extracted under different tooling and flow-timeout conventions, so the $10$ features may not be semantically identical.
+Table~\ref{tab:cross} evaluates zero-shot transfer from InSDN ($14{,}000$ train / $6{,}000$ test windows) to a $20{,}000$-window CIC-IDS2017 holdout. In-domain $F1$ is $0.9340$ at $\tau=0.65$; zero-shot $F1$ collapses to $0.4564$. The failure mode is precision, not recall: the detector still recovers most attacks but its false positive rate explodes, close to a degenerate always-attack classifier. Re-tuning to $\tau^*=0.0672$ does not rescue the transfer ($F1 = 0.4668$). One factor we did not isolate: the corpora were feature-extracted under different tooling and flow-timeout conventions, so the $10$ features may not be semantically identical.
 
 \begin{table}[htbp]
 \caption{Cross-Dataset Evaluation: Train InSDN $\rightarrow$ Test CIC-IDS2017}
@@ -400,10 +405,10 @@ Table~\ref{tab:cross} evaluates zero-shot transfer from InSDN ($14{,}000$ train 
 \hline
 \textbf{Protocol} & \textbf{Threshold $\tau$} & \textbf{Precision} & \textbf{Recall} & \textbf{F1-Score} \\
 \hline
-InSDN $\rightarrow$ InSDN & 0.65 & 0.9785 & 0.8818 & 0.9276 \\
-InSDN $\rightarrow$ InSDN & $\tau^*=0.0720$ & 0.9469 & 0.9915 & 0.9687 \\
-InSDN $\rightarrow$ CIC-IDS2017 & 0.65 & 0.3068 & 0.9281 & 0.4611 \\
-InSDN $\rightarrow$ CIC-IDS2017 & $\tau^*=0.0720$ & 0.3060 & 0.9858 & 0.4670 \\
+InSDN $\rightarrow$ InSDN & 0.65 & 0.9777 & 0.8941 & 0.9340 \\
+InSDN $\rightarrow$ InSDN & $\tau^*=0.0672$ & 0.9461 & 0.9906 & 0.9679 \\
+InSDN $\rightarrow$ CIC-IDS2017 & 0.65 & 0.3059 & 0.8980 & 0.4564 \\
+InSDN $\rightarrow$ CIC-IDS2017 & $\tau^*=0.0672$ & 0.3052 & 0.9913 & 0.4668 \\
 \hline
 \end{tabular}%
 }
@@ -415,14 +420,14 @@ InSDN $\rightarrow$ CIC-IDS2017 & $\tau^*=0.0720$ & 0.3060 & 0.9858 & 0.4670 \\
 \label{sec:validity}
 \begin{itemize}
     \item \textbf{Internal Validity (measurement stability):} Timing on this host is noisy enough that single measurements are not results. Every timing figure is now a median over repeats --- $5$ for throughput and per-model latency, $1{,}000$ trials summarised by percentiles for the control path --- after we found that a single-run measurement had produced a throughput shortfall that repetition did not reproduce. Saturation throughput remains unstable between runs by more than a factor of two and we rest no claim on it. Accuracy metrics, by contrast, were bit-identical across all runs. Absolute latencies should be read as order-of-magnitude on this hardware, not as hardware-independent guarantees.
-    \item \textbf{Reproducibility:} An earlier version of this artifact constructed models before seeding the global RNG, so detection metrics varied between runs of the same script. \texttt{set\_global\_seed} now runs at the head of every generator, before any module is built, making each script bit-deterministic. It is \emph{not} re-invoked before each individual model, so a model built after several others inherits an RNG advanced by their construction --- which is exactly why the same detector scores $0.9687$ in Section~\ref{sec:threshold} and $0.9725$ in Section~\ref{sec:sota}. Determinism at a fixed seed is not robustness across seeds; accuracy is single-seed throughout.
+    \item \textbf{Reproducibility:} An earlier version of this artifact constructed models before seeding the global RNG, so detection metrics varied between runs of the same script. \texttt{set\_global\_seed} now runs at the head of every generator, before any module is built, making each script bit-deterministic. It is \emph{not} re-invoked before each individual model, so a model built after several others inherits an RNG advanced by their construction --- which is exactly why the same detector scores $0.9679$ in Section~\ref{sec:threshold} and $0.9723$ in Section~\ref{sec:sota}. Determinism at a fixed seed is not robustness across seeds; accuracy is single-seed throughout.
     \item \textbf{External Validity:} Evaluation uses public InSDN and CIC benchmarks; broader IoT/IIoT corpora such as UNSW-NB15~\cite{b6}, ToN\_IoT~\cite{b7}, and Edge-IIoTset~\cite{b8} offer complementary vectors for multi-campus validation.
     \item \textbf{Construct Validity:} Metrics assume clean flow labels; noisy headers could affect precision. We report no human-SOC comparison: we have no measured analyst baseline, and a stipulated one would establish only that milliseconds beat minutes, which needs no experiment.
     \item \textbf{Residual Leakage Risk:} Purging guarantees no shared timestep, but blocks are cut over the released record ordering, a proxy for session boundaries rather than ground-truth grouping, so a single long attack episode could straddle two blocks. Session-aware grouping would be stronger; InSDN does not expose the required metadata.
 \end{itemize}
 
 \subsection{Limitations \& Future Work}
-Primary limitations: (i) a single-controller emulated SDN testbed rather than production hardware; (ii) no evaluation of adversarial robustness against evasion, the obvious attack on any AI-native control loop; (iii) severe zero-shot cross-dataset degradation; (iv) rejection of H3 on its CPU term, the runtime costing $58.8\%$ of a core against a $10\%$ budget; (v) a detector outperformed on these features by off-the-shelf gradient boosting, leaving its case resting on footprint alone; (vi) an operating point that misses roughly one attack window in eight at $\tau=0.65$, or trades that for a $12.1\%$ full-pipeline false positive rate when tuned; and (vii) single-seed reporting of accuracy. Future work: domain adaptation, compiled ONNX/TensorRT edge runtimes, online threshold tuning, multi-seed reporting, and federated multi-campus learning.
+Primary limitations: (i) a single-controller emulated SDN testbed rather than production hardware; (ii) no evaluation of adversarial robustness against evasion; (iii) severe zero-shot cross-dataset degradation; (iv) rejection of H2 on its CPU term, costing a median $36.0\%$ of one logical CPU against a $10\%$ budget at $10{,}000$~windows/s; (v) a detector outperformed on these features by off-the-shelf gradient boosting, leaving its case resting on footprint alone; (vi) Redis Streams measured on localhost, so cross-host network RTT is uncounted, and localhost REST can beat Redis on IPC alone; (vii) single-seed reporting of accuracy; and (viii) identity context remains a simulated overlay. Future work: domain adaptation, compiled ONNX/TensorRT edge runtimes, online threshold tuning, multi-seed reporting, and federated multi-campus learning.
 
 \section{Ethics, Privacy \& Public Artifact}
 \subsection{Privacy Posture}
@@ -432,9 +437,9 @@ The architecture operates strictly on non-DPI flow headers; payloads are uninspe
 Code, preprocessors, checkpoints, Docker files, and scripts are available under MIT License at \url{https://github.com/thtcsec/icai-fai2026}. Every table is regenerated by one entry point, \texttt{results/run\_all\_and\_summarize.py}, which seeds all generators (seed \texttt{42}) before model construction and emits the machine-readable summary the tables are transcribed from.
 
 \section{Conclusion}
-This paper presented an AI-native event-driven edge--cloud architecture for autonomous campus network security. Combining INT8-quantized TCN--GRU edge detectors, Redis Streams transport, and cloud DQN SDN actuation, it achieves a software control path with a $2.681$~ms median and a $5.764$~ms p99, from telemetry ingestion to playbook emission. We stop short of calling this closed-loop mitigation: dataplane enforcement is unmeasured and the SOC comparison uses stipulated baselines.
+This paper presented an AI-native event-driven edge--cloud architecture for autonomous campus network security. Combining INT8-quantized TCN--GRU edge detectors, Redis Streams transport (\texttt{XADD}/\texttt{XREADGROUP}), and cloud DQN SDN actuation, it achieves a software control path with a $4.194$~ms median and a $7.470$~ms p99 on localhost Redis~7.2.4, from edge inference to playbook construction. We stop short of calling this closed-loop mitigation: dataplane enforcement is unmeasured and the SOC comparison uses stipulated baselines.
 
-The results we think transfer beyond this system are the negative ones. Gradient-boosted trees on the same features beat the proposed detector on accuracy and are an order of magnitude faster ($F1 = 0.9886$ for LightGBM against $0.9725$; $0.387$~ms for XGBoost against $4.304$~ms), leaving the sequence model with only a footprint advantage that matters solely below a $1$~MB budget. Reconstruction-error scoring, the default rule for sequence autoencoders, is unusable on an attack-heavy corpus ($F1 = 0.036$), so what we report is a supervised classifier with an auxiliary reconstruction objective and should be cited as such. Leakage from stride-1 overlap is real but, contrary to expectation, small ($\Delta F1 = 0.006$). H3 fails on its CPU term, sustaining $10{,}000$ windows/s but at $58.8\%$ of a core against a $10\%$ budget. Zero-shot transfer to CIC-IDS2017 collapses to $F1 = 0.46$, driven by precision, locating the problem in a decision boundary that does not survive a change of capture domain. Together these bound where an AI-native campus defense is currently practical, and they point the architecture's value at integration and actuation rather than at the choice of detector.
+The results we think transfer beyond this system are the negative ones. Gradient-boosted trees on the same features beat the proposed detector ($F1 = 0.9886$ for LightGBM against $0.9723$). Reconstruction-error scoring is unusable on an attack-heavy corpus ($F1 \approx 0.035$). Leakage from stride-1 overlap is near-null on this run ($|\Delta F1| < 0.002$). H2 fails on its CPU term, sustaining $10{,}000$ windows/s but at $36.0\%$ of one logical CPU against a $10\%$ budget. Zero-shot transfer to CIC-IDS2017 collapses to $F1 = 0.456$. Together these bound where an AI-native campus defense is currently practical, and they point the architecture's value at integration and actuation rather than at the choice of detector.
 
 \section*{Acknowledgment}
 The authors thank the Faculty of Information Technology at HUFLIT for academic and computational support.
