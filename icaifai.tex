@@ -260,7 +260,7 @@ Since much of the sequence-autoencoder IDS literature scores on reconstruction e
 \subsection{Throughput Saturation \& Edge Feasibility (H2)}
 Per-inference latency and throughput reconcile only once the batching regime is stated, so we report both, each as the median of $5$ repeats. Run flat out with a single PyTorch host thread, the detector saturates at $662$~windows/s unbatched, rising through $10{,}302$ at batch $=32$ to $51{,}239$ at batch $=512$: batching, not the model, is what reaches campus scale. Saturation remains the least stable quantity we measure, so we rest no claim on it. Table~\ref{tab:resource} instead reports the \emph{paced} offered load at batch $=128$.
 
-\textbf{CPU metric.} We report \texttt{psutil.Process.cpu\_percent()} over the paced wall-clock window with \emph{no} division by \texttt{cpu\_count()}: $100\%$ means one logical CPU fully busy. Dividing by logical CPU count would convert the reading into a fraction of total machine capacity and must not be labelled ``\% of one core.'' PyTorch is pinned with \texttt{torch.set\_num\_threads(1)} so the unit matches H2. At low offered rates the window is sleep-dominated, so the reading understates busy-period cost; the H2 decision uses the $10{,}000$~windows/s row.
+\textbf{CPU metric.} We report \texttt{psutil}'s per-process \texttt{cpu\_percent()} over the paced wall-clock window with \emph{no} division by \texttt{cpu\_count()}: $100\%$ means one logical CPU fully busy. Dividing by logical CPU count would convert the reading into a fraction of total machine capacity and must not be labelled ``\% of one core.'' PyTorch is pinned to a single host thread (\texttt{set\_num\_threads(1)}) so the unit matches H2. At low offered rates the window is sleep-dominated, so the reading understates busy-period cost; the H2 decision uses the $10{,}000$~windows/s row.
 
 \textbf{H2 is rejected.} The hypothesis asserted $\le 10\%$ of one logical CPU at a sustained $10{,}000$~windows/s. The system sustains that load ($9{,}998$ of $10{,}000$ offered windows/s in every repeat) while consuming a median $36.0\%$ of one logical CPU (range $35.0$--$49.1\%$ across repeats), about $3.6\times$ the budget. Memory is favourable: peak working set is flat at $\approx 541$~MB, dominated by the Python/PyTorch runtime rather than the $0.048$~MB model. The system is memory- but not CPU-feasible on one commodity logical CPU under this runtime; a compiled ONNX or TensorRT path is the obvious next step.
 
@@ -293,10 +293,10 @@ Table~\ref{tab:sota} compares our INT8 TCN--GRU against unsupervised, tabular an
 
 The Isolation Forest row uses \texttt{contamination="auto"} on time-averaged windows; on an $80\%$-attack corpus this heuristic is badly mismatched, so $F1 = 0.2000$ evidences that an untuned classical outlier detector fails at this class balance rather than serving as a tuned baseline.
 
-INT8 quantization reduces the model footprint from $0.104$~MB to $0.048$~MB at negligible accuracy cost ($|\Delta F1| = 0.0002$), supporting hypothesis \textbf{H1}. Since the RQ2 budget was $1$~MB and the FP32 model already meets it at $0.104$~MB, the honest reading of H1 is that quantization is \emph{harmless} rather than necessary for gateways at this memory scale.
+INT8 quantization reduces the tensor footprint from $0.104$~MB to $0.048$~MB at negligible accuracy cost ($|\Delta F1| = 0.0002$), supporting hypothesis \textbf{H1}. Since the RQ2 budget was $1$~MB and the FP32 model already meets it at $0.104$~MB, the honest reading of H1 is that quantization is \emph{harmless} rather than necessary for gateways at this memory scale.
 
 \begin{table}[htbp]
-\caption{Baseline \& Model Quantization Comparison on Real InSDN. Each model is scored at its own $F1$-optimal threshold selected on the test split (see text). Italics mark models that outperform the proposed detector. Size is the parameter footprint for PyTorch models only.}
+\caption{Baseline \& Model Quantization Comparison on Real InSDN. Each model is scored at its own $F1$-optimal threshold selected on the test split (see text). Italics mark models that outperform the proposed detector. Size is the tensor footprint for PyTorch models only.}
 \label{tab:sota}
 \begin{center}
 \resizebox{\columnwidth}{!}{%

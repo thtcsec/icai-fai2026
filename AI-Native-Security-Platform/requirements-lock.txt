@@ -1,5 +1,9 @@
 ﻿# Exact versions from the measurement venv (Windows, Python 3.11.9).
-# Install: pip install -r requirements-lock.txt
+# Install:
+#   pip install -r requirements-lock.txt
+# torch==2.13.0+cpu wheels come from the PyTorch CPU index below.
+--extra-index-url https://download.pytorch.org/whl/cpu
+
 # Headline tables in the paper used this lock (torch==2.13.0+cpu).
 
 annotated-types==0.8.0

@@ -22,7 +22,7 @@ cd icai-fai2026/AI-Native-Security-Platform
 python -m venv .venv
 # Windows: .venv\Scripts\activate
 source .venv/bin/activate
-pip install -r requirements-lock.txt
+pip install -r requirements-lock.txt  # pulls torch CPU wheels via --extra-index-url
 python results/run_all_and_summarize.py
 ```
 
