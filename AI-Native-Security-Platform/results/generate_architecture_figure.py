@@ -51,14 +51,14 @@ def generate_architecture_figure():
     ax.text(9.25, 4.15, "Cloud Control Plane (Trusted Domain)", ha="center", fontsize=8.5, fontweight="bold", color="#4A148C")
 
     _box(ax, 0.55, 2.7, 2.7, 0.9, "Telemetry Vectorization\nΔt = 1.0 s (10-D flows)", "#FFFFFF", "#1565C0")
-    _box(ax, 0.55, 1.5, 2.7, 0.9, "INT8 TCN-GRU\nAnomaly Autoencoder", "#FFFFFF", "#1565C0")
+    _box(ax, 0.55, 1.5, 2.7, 0.9, "INT8 TCN-GRU\nDetector", "#FFFFFF", "#1565C0")
     _box(ax, 0.55, 0.8, 2.7, 0.5, "Identity Fusion (IP/MAC→Role)", "#FFFFFF", "#1565C0")
 
     _box(ax, 4.25, 1.7, 1.9, 1.6, "Redis Stream\nsecurity:\ntelemetry:stream", "#FFFFFF", "#EF6C00")
 
     _box(ax, 7.2, 2.7, 2.0, 0.9, "Dynamic Risk\nResolver R", "#FFFFFF", "#6A1B9A")
     _box(ax, 9.4, 2.7, 1.95, 0.9, "DQN SDN\nController", "#FFFFFF", "#6A1B9A")
-    _box(ax, 7.2, 1.2, 4.15, 1.1, "SOAR Playbooks\nFlowspec / 802.1X / Reroute / Token Revoke", "#FFFFFF", "#6A1B9A")
+    _box(ax, 7.2, 1.2, 4.15, 1.1, "SOAR Action Descriptors\nForward / Rate-Limit / Reroute / Isolate", "#FFFFFF", "#6A1B9A")
 
     arrows = [
         ((3.25, 1.95), (4.25, 2.3)),
@@ -79,7 +79,14 @@ def generate_architecture_figure():
             )
         )
 
-    ax.text(6.0, 0.2, "Closed-loop mitigation without human-in-the-loop triage", ha="center", fontsize=8, style="italic")
+    ax.text(
+        6.0,
+        0.2,
+        "Software orchestration path; dataplane enforcement not measured",
+        ha="center",
+        fontsize=8,
+        style="italic",
+    )
 
     os.makedirs(os.path.dirname(OUT_PNG), exist_ok=True)
     plt.tight_layout()
