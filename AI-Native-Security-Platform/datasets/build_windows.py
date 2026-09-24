@@ -3,14 +3,19 @@ build_windows.py — Reconstruct T×F sliding windows from a standardized flow C
 
 The frozen archives under datasets/processed/*.npz were produced offline from
 public InSDN / CIC-IDS2017 flow exports. This script is the *documented*
-reconstruction recipe reviewers can re-run once they place the raw CSVs locally.
+reconstruction recipe for the windowing step only (CSV rows → NPZ).
 
 Required CSV columns (case-insensitive aliases accepted via FEATURE_ALIASES):
   the 10 FEATURE_COLUMNS in prototype.data.data_loader, plus a binary/multi label
   column named ``label`` (any positive label → attack).
 
-Rows must already be ordered in the temporal order used for leakage control
-(released InSDN/CIC record order).
+Window label = label of the *last* flow in the window (matches the offline
+prepare path that produced the frozen InSDN/CIC NPZs). This is *not*
+``any-attack-in-window``.
+
+The frozen InSDN archive was built from a label-stratified 50k subsample that
+was shuffled (seed 42) *before* windowing, so row order is not capture order.
+Pass rows already in the intended index order; this script does not shuffle.
 
 Usage:
   python datasets/build_windows.py --csv path/to/flows.csv --out datasets/processed/out.npz \\
@@ -77,8 +82,8 @@ def build_windows(csv_path: str, seq_len: int = 10, stride: int = 1):
     for start in range(0, len(F) - seq_len + 1, stride):
         sl = slice(start, start + seq_len)
         windows.append(F[sl])
-        # Window label = attack if any flow in the window is attack
-        labels.append(1 if y_flow[sl].max() > 0 else 0)
+        # Window label = last flow in the window (frozen-archive convention)
+        labels.append(int(y_flow[start + seq_len - 1] > 0))
     X = np.stack(windows, axis=0).astype(np.float32)
     y = np.asarray(labels, dtype=np.int64)
     return X, y

@@ -19,15 +19,15 @@ Primary paper metrics use a stratified **20,000**-window InSDN subset under a bl
 
 ## Evaluation protocol: leakage control
 
-Windows use sequence length 10 and **stride 1**. All reported accuracy tables use `train_utils.blocked_split_npz` (20 temporal blocks, purge 9, train-only scaler). Comparing that protocol to a random split + pooled scaler on this run yields a **near-null** leakage effect (`|ΔF1| < 0.002` at fixed τ).
+Windows use sequence length 10 and **stride 1**. Window label = **last flow** in the window. The frozen InSDN 50k rows were **shuffled (seed 42) before windowing**, so blocked+purged splits control stride-1 **index-overlap** leakage, not wall-clock session isolation. All reported accuracy tables use `train_utils.blocked_split_npz` (20 blocks, purge 9, train-only scaler). Comparing that protocol to a random split + pooled scaler on this run yields a **near-null** leakage effect (`|ΔF1| < 0.002` at fixed τ).
 
 ## Headline results (from `paper_metrics_summary.json`)
 
 | Metric | Value |
 | :--- | :--- |
-| Software control-path latency (Redis + HMAC principals) | **median 3.685 ms**, p95 5.138 ms, **p99 6.285 ms** |
-| Redis stage alone (XADD+XREADGROUP) | median **1.628 ms** (44.2% of median total) |
-| Identity+HMAC stage | median **0.032 ms** |
+| Software control-path latency (Redis + HMAC principals) | **median 4.793 ms**, p95 6.604 ms, **p99 7.202 ms** |
+| Redis stage alone (XADD+XREADGROUP) | median **1.534 ms** (32.0% of median total) |
+| Identity+HMAC stage | median **0.030 ms** |
 | Detection @ τ=0.65 | P **0.978**, R **0.894**, F1 **0.9340**, FPR **8.20%** |
 | INT8 TCN–GRU SOTA F1 (test-tuned τ) | **0.9723** (FP32 0.9725; LightGBM **0.9886**) |
 | INT8 model footprint | **0.048 MB** (`|ΔF1|` vs FP32 = **0.0002**) |

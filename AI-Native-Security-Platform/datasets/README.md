@@ -25,27 +25,44 @@ python datasets/build_windows.py --csv /path/to/standardized_flows.csv \
   --out datasets/processed/rebuild.npz --seq-len 10 --stride 1
 ```
 
-## How the 50,000 InSDN source rows were chosen
+## How the 50,000 InSDN source rows were chosen (frozen archive)
 
 Public InSDN has on the order of **343,939** flow instances. The frozen
-`insdn_windows.npz` was produced by the offline prepare path that originally
-built this archive (byte-identical copy; SHA-256 above), with defaults:
+`insdn_windows.npz` is a byte-identical copy of the offline prepare output
+(SHA-256 above). Verified recipe:
 
 1. Load the public InSDN flow CSV(s).
-2. If raw rows exceed the cap, take a **label-stratified subsample of
-   `max_rows=50_000` with `seed=42`** (proportions preserved across label
-   values; final class is residual-filled, then the subsample is shuffled with
-   the same seed).
+2. **Label-stratified subsample** of `max_rows=50_000` with `seed=42`
+   (class proportions preserved; the stratified helper itself shuffles with
+   that seed).
 3. Map columns onto the 10 `FEATURE_COLUMNS` aggregates.
-4. Shuffle the canonical frame again with `seed=42`, then keep
+4. **Shuffle the canonical frame again** with `seed=42`, then
    `head(min(n, 50_000))` → exactly **50,000** source rows.
 5. Contiguous sliding windows: `T=10`, stride `1` → **49,991** windows
-   (`50000 - 10 + 1`), labeled attack if any flow in the window is attack.
+   (`50000 - 10 + 1`).
+6. **Window label = label of the last flow in the window**
+   (`y[i] = flow_label[i + T - 1]`), *not* any-attack-in-window.
 
-`datasets/build_windows.py` documents **step 5 only** (CSV → windows). Bit-
-identical reconstruction of the frozen NPZ additionally requires the same
-50k stratified subsample and feature map used when the archive was frozen;
-the SHA-256 digest is the ground truth for this artifact.
+### Why ~9,948 normal windows is consistent
+
+Under last-flow labeling, window class rates match flow class rates.
+The ~80% attack / ~20% normal window split therefore tracks the stratified
+InSDN subsample (~80% attack flows), not an any-attack inflation. An
+any-attack rule on a shuffled 80%-attack stream would yield almost zero
+all-normal windows; the frozen archive does **not** use that rule.
+
+### What this means for “temporal” claims
+
+Because steps 2 and 4 shuffle before windowing, adjacent timesteps inside a
+window are **not** guaranteed to be consecutive capture-time flows. The
+sequence model sees length-`T` contexts over a shuffled index order. The
+paper’s blocked+purged split therefore controls **stride-1 index overlap
+leakage** (shared window timesteps across train/test), not wall-clock
+session leakage over released CSV order.
+
+`datasets/build_windows.py` implements steps 5–6 only. Bit-identical
+reproduction of the frozen NPZ also needs the same 50k stratified+shuffled
+subsample and feature map; the SHA-256 digest is ground truth.
 
 ## Window construction (matches paper §V-B)
 
@@ -61,10 +78,9 @@ the SHA-256 digest is the ground truth for this artifact.
   8. `tcp_flags_syn_count`
   9. `flow_active_ratio`
   10. `rsu_channel_occupancy` (legacy name; maps from Idle Mean / similar)
-* Binary labels: any attack class → `1`, else `0`.
-* Source-row ordering after the stratified subsample is seed-42 shuffled
-  (not raw CSV order); the leakage protocol still treats the resulting window
-  index order as a temporal proxy for blocking/purging.
+* Binary labels: last-flow label; any positive class → `1`, else `0`.
+* Source-row ordering in the frozen archive is **seed-42 shuffled**, not raw
+  CSV order.
 
 Paper experiments then apply `train_utils.blocked_split_npz` (20 blocks, purge 9, stratified 14k/6k, train-only scaler). Cross-dataset uses a 20k stratified CIC holdout drawn from `cic_windows.npz`.
 
@@ -72,3 +88,4 @@ Paper experiments then apply `train_utils.blocked_split_npz` (20 blocks, purge 9
 
 * `evaluation/datasets/generator.py` is a **synthetic** telemetry helper for demos — it is **not** the InSDN/CIC preprocessor.
 * Exact vendor column maps from every CIC daily CSV variant into the 10 features are approximate aliases in `build_windows.py`; bit-identical reproduction of the frozen NPZ requires the same intermediate feature export used when the archives were frozen. The SHA-256 table above is the ground truth for this artifact.
+* The frozen windows are **not** authentic capture-time trajectories; rebuilding with preserve-order windowing would be a different corpus and would require re-running the accuracy tables.

@@ -41,6 +41,7 @@ from train_utils import blocked_split_npz, set_global_seed
 CSV_PATH = os.path.join(BASE_DIR, "results", "table2_latency.csv")
 PNG_PATH = os.path.join(BASE_DIR, "results", "table2_latency.png")
 FIG_PATH = os.path.join(BASE_DIR, "paper", "figures", "fig2_latency_breakdown.png")
+CKPT_PATH = os.path.join(BASE_DIR, "results", "checkpoints", "tcn_gru_ae_trained.pt")
 
 
 def _cloud_event(ctx: dict, pkt_rate: int, p_attack: float) -> dict:
@@ -73,8 +74,14 @@ def run_real_latency_benchmark(num_trials: int = 1000, seed: int = 42, warmups: 
     print(f"  [=] Prepared window: real InSDN X_te[0] shape={tuple(sample_tensor.shape)}")
 
     fp32_model = TCNGRUResilienceModel(num_features=10, num_classes=6)
+    if not os.path.isfile(CKPT_PATH):
+        raise FileNotFoundError(f"Trained detector checkpoint required: {CKPT_PATH}")
+    state = torch.load(CKPT_PATH, map_location="cpu")
+    fp32_model.load_state_dict(state)
+    fp32_model.eval()
     quantized_model = quantize_tcn_gru_model(fp32_model)
     quantized_model.eval()
+    print(f"  [=] Loaded trained detector checkpoint: {os.path.basename(CKPT_PATH)}")
     fusion = IdentityFusionEngine()
     # Architecture-matched forward timing only; trained DQN weights live in Table IX.
     dqn_agent = DRLResilienceAgent(state_dim=5, action_dim=4)

@@ -2,7 +2,8 @@
 
 Reruns the detector under the *flawed* evaluation protocol (i.i.d. random split over
 stride-1 windows, StandardScaler fit on the pooled corpus) and contrasts it with the
-leakage-controlled protocol (temporally blocked, purged, train-only scaler) used in
+leakage-controlled protocol (blocked and purged against stride-1 index overlap,
+train-only scaler) used in
 train_utils.blocked_split_npz. Everything else -- architecture, seed, epochs, quantization,
 scoring head -- is held fixed, so the delta isolates the split protocol.
 """
