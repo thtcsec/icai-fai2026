@@ -21,7 +21,10 @@ Thumbs.db
 # Bundled archives
 icai-fai2026-bundle.zip
 
-# Local LaTeX intermediates (PDF kept tracked)
+# Manuscript PDF is submitted via CMT only; do not republish on GitHub.
+/icaifai.pdf
+
+# Local LaTeX intermediates
 icaifai.aux
 icaifai.log
 
