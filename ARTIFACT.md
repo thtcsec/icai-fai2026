@@ -4,9 +4,11 @@ Paper title (must match PDF):
 
 > **An AI-Native Event-Driven Edge-Cloud Architecture for Autonomous Network Security in Campus Infrastructure**
 
-Conference: **The Second International Conference on AI: AI-Native for Universities and Industry (ICAI-2026)**, 3 December 2026, Hanoi.
+Conference: **The Second International Conference on AI: AI-Native for Universities and Industry (ICAI-2026)**, 3 December 2026, Hanoi. CMT Paper ID 26. Under review.
 
-This guide verifies claims against `results/paper_metrics_summary.json`. **Do not** expect legacy figures such as 4.218 ms mean latency, F1=0.9400, or CPU=14.30% — those belong to an older draft.
+The compiled manuscript PDF is **not** in this git repository (CMT submission only). Source remains `icaifai.tex`.
+
+This guide verifies claims against `AI-Native-Security-Platform/results/paper_metrics_summary.json`. **Do not** expect legacy figures such as 4.218 ms mean latency, F1=0.9400, or CPU=14.30% — those belong to an older draft.
 
 ---
 

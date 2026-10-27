@@ -18,7 +18,8 @@ __pycache__/
 .DS_Store
 Thumbs.db
 
-# Bundled archives
+# Bundled archives / leftover IEEE template packs
+/*.zip
 icai-fai2026-bundle.zip
 
 # Manuscript PDF is submitted via CMT only; do not republish on GitHub.
