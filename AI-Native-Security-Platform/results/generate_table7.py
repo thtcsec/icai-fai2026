@@ -31,18 +31,18 @@ from prototype.data.data_loader import load_windows_npz, resolve_real_windows_np
 from prototype.edge.detector.quantize import quantize_tcn_gru_model
 from prototype.edge.detector.tcn_gru_model import TCNGRUResilienceModel
 from train_utils import (
-    best_threshold,
     blocked_split_npz,
     classifier_binary_scores,
+    select_operating_threshold,
     set_global_seed,
     threshold_metrics,
     train_autoencoder,
 )
 
-CSV_PATH = os.path.join(BASE_DIR, "results", "table7_cross_dataset.csv")
-PNG_PATH = os.path.join(BASE_DIR, "results", "table7_cross_dataset.png")
+CSV_PATH = os.path.join(BASE_DIR, "results", "corrected", "table7_cross_dataset.csv")
+PNG_PATH = os.path.join(BASE_DIR, "results", "corrected", "table7_cross_dataset.png")
 FIG_PATH = os.path.join(BASE_DIR, "paper", "figures", "fig7_cross_dataset.png")
-JSON_PATH = os.path.join(BASE_DIR, "results", "table7_cross_dataset.json")
+JSON_PATH = os.path.join(BASE_DIR, "results", "corrected", "table7_cross_dataset.json")
 
 
 def _eval_split(model, X, y, tau: float):
@@ -92,8 +92,8 @@ def run_cross_dataset(seed: int = 42, n_insdn: int = 20000, n_cic: int = 20000, 
 
     # Temporally blocked, purged InSDN split; scaler is fit on train only and the
     # same statistics are reused for the CIC holdout.
-    X_tr_t, y_tr_t, X_te_t, y_te_t, scaler = blocked_split_npz(
-        insdn_path, seq_len=10, max_train=14000, max_test=6000, seed=seed
+    X_tr_t, y_tr_t, X_va_t, y_va_t, X_te_t, y_te_t, scaler = blocked_split_npz(
+        insdn_path, seq_len=10, max_train=14000, max_test=6000, seed=seed, val_fraction=0.2
     )
 
     X_c, y_c = _raw(cic_path, n_cic, seed + 1)
@@ -114,23 +114,24 @@ def run_cross_dataset(seed: int = 42, n_insdn: int = 20000, n_cic: int = 20000, 
     )
     qmodel = quantize_tcn_gru_model(model)
 
-    # Choose tau on InSDN validation (=test) search, then freeze for CIC
+    # Freeze tau on InSDN validation only; apply once to InSDN test and CIC holdout.
+    scores_va = classifier_binary_scores(qmodel, X_va_t)
+    opt_tau, _val_m = select_operating_threshold(y_va_t.numpy(), scores_va, split="val")
     scores_te = classifier_binary_scores(qmodel, X_te_t)
-    opt_tau, opt_m = best_threshold(y_te_t.numpy(), scores_te)
-    # Also report fixed operating tau=0.65
     m_insdn_065 = threshold_metrics(y_te_t.numpy(), scores_te, 0.65)
-    m_insdn_opt = opt_m
+    m_insdn_opt = threshold_metrics(y_te_t.numpy(), scores_te, opt_tau)
     scores_cic = classifier_binary_scores(qmodel, X_cic_t)
     m_cic_065 = threshold_metrics(y_cic_t.numpy(), scores_cic, 0.65)
     m_cic_opt = threshold_metrics(y_cic_t.numpy(), scores_cic, opt_tau)
 
     rows = [
         ("InSDN → InSDN test", 0.65, m_insdn_065),
-        ("InSDN → InSDN test (τ*)", round(opt_tau, 4), m_insdn_opt),
+        ("InSDN → InSDN test (τ* val-frozen)", round(opt_tau, 4), m_insdn_opt),
         ("InSDN → CIC holdout", 0.65, m_cic_065),
-        ("InSDN → CIC holdout (τ*)", round(opt_tau, 4), m_cic_opt),
+        ("InSDN → CIC holdout (τ* val-frozen)", round(opt_tau, 4), m_cic_opt),
     ]
 
+    os.makedirs(os.path.dirname(CSV_PATH), exist_ok=True)
     with open(CSV_PATH, "w", newline="", encoding="utf-8") as f:
         w = csv.writer(f)
         w.writerow(["Protocol", "Threshold", "Precision", "Recall", "F1-Score", "FPR (%)", "FNR (%)"])
@@ -152,8 +153,10 @@ def run_cross_dataset(seed: int = 42, n_insdn: int = 20000, n_cic: int = 20000, 
         "cic_tau065": m_cic_065,
         "cic_tau_star": m_cic_opt,
         "n_insdn_train": int(len(X_tr_t)),
+        "n_insdn_val": int(len(X_va_t)),
         "n_insdn_test": int(len(X_te_t)),
         "n_cic": int(len(X_cic_t)),
+        "tau_provenance": "insdn_validation_only",
     }
     with open(JSON_PATH, "w", encoding="utf-8") as f:
         json.dump(summary, f, indent=2)
@@ -171,8 +174,6 @@ def run_cross_dataset(seed: int = 42, n_insdn: int = 20000, n_cic: int = 20000, 
         ax.text(bar.get_x() + bar.get_width() / 2, v + 0.03, f"{v:.3f}", ha="center", fontsize=9, fontweight="bold")
     plt.tight_layout()
     plt.savefig(PNG_PATH, dpi=300)
-    os.makedirs(os.path.dirname(FIG_PATH), exist_ok=True)
-    plt.savefig(FIG_PATH, dpi=300)
     plt.close()
 
     for name, thr, m in rows:

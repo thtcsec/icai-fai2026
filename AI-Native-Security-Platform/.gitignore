@@ -46,6 +46,18 @@ ENV/
 evaluation/datasets/raw/*.pcap
 evaluation/datasets/raw/*.bin
 
+# Local corrected rebuilds: keep JSON/CSV; do not stage dumps or new weights.
+# Historical detector stays tracked. NPZ data remain local; historical tag is preserved.
+results/corrected/chrono_insdn/*.npz
+results/corrected/phase3_group_disjoint/*.npz
+results/corrected/phase3_group_disjoint/*.pt
+results/corrected/phase3_purged_chrono/*.npz
+results/corrected/checkpoints/
+results/corrected/dqn_train_state_hashes.bin
+results/corrected/smoke_windows/
+results/corrected/_smoke_flows.csv
+results/checkpoints/dqn_policy_trained.pt
+
 # IDEs & System
 .vscode/
 .idea/

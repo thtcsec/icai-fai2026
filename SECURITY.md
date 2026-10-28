@@ -1,23 +1,7 @@
-# Security Policy
+# Security and data policy
 
-## Reporting Vulnerabilities
+This is an academic research prototype, not an operational security product. Autonomous enforcement, campus AAA integration and production hardening are not claimed.
 
-As an academic research project focused on **AI-Native Autonomous Network Security and Resilience**, we take security vulnerabilities seriously. 
+For nonpublic security reports, contact **Hoang Tu Trinh** at `23dh113972@st.huflit.edu.vn`. This security-reporting contact does not designate the manuscript corresponding author. Include a bounded reproducer and affected version; do not post credentials, institutional logs or dataset records in public issues. Response times depend on maintainer availability.
 
-If you discover a security vulnerability or security issue in this codebase or prototype implementation, please report it responsibly rather than opening a public issue.
-
-### How to Report
-Please send an email detailing the security issue to:
-* **Lead Researcher**: Trinh Hoang Tu (`23dh113972@st.huflit.edu.vn`)
-* **Department**: Department of Cybersecurity, Faculty of Information Technology, HUFLIT
-
-Please include:
-1. Type of issue (e.g., buffer overflow, denial of service, improper authorization in SOAR playbooks).
-2. Proof of concept or steps to reproduce.
-3. Potential impact.
-
-### Response Timeline
-* **Initial Acknowledgment**: Within 48 hours.
-* **Assessment & Fix**: Within 7 business days.
-
-Thank you for helping keep open-source research secure!
+Raw datasets, row-level exports, institutional logs, secrets and credentials must stay outside the release. Dataset and logo rights are separate from the MIT code license. Inspect the explicit publication manifest and tagged source tree before a release. Keep author-only CMT records and the withheld manuscript local.

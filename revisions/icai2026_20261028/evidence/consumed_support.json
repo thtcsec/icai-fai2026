@@ -1,0 +1,65 @@
+{
+  "software": {
+    "python": "3.11.9",
+    "torch": "2.13.0+cpu",
+    "numpy": "2.4.6",
+    "sklearn": "1.9.0",
+    "lightgbm": "4.7.0"
+  },
+  "supports": {
+    "train": {
+      "full": {
+        "windows": 127979,
+        "attack_windows": 68592,
+        "normal_windows": 59387,
+        "groups": 108,
+        "attack_groups": 11,
+        "normal_groups": 97
+      },
+      "consumed": {
+        "windows": 14000,
+        "attack_windows": 7504,
+        "normal_windows": 6496,
+        "groups": 66,
+        "attack_groups": 9,
+        "normal_groups": 57
+      }
+    },
+    "val": {
+      "full": {
+        "windows": 89053,
+        "attack_windows": 84736,
+        "normal_windows": 4317,
+        "groups": 30,
+        "attack_groups": 5,
+        "normal_groups": 25
+      },
+      "consumed": {
+        "windows": 3000,
+        "attack_windows": 2855,
+        "normal_windows": 145,
+        "groups": 16,
+        "attack_groups": 4,
+        "normal_groups": 12
+      }
+    },
+    "test": {
+      "full": {
+        "windows": 955,
+        "attack_windows": 32,
+        "normal_windows": 923,
+        "groups": 22,
+        "attack_groups": 1,
+        "normal_groups": 21
+      },
+      "consumed": {
+        "windows": 955,
+        "attack_windows": 32,
+        "normal_windows": 923,
+        "groups": 22,
+        "attack_groups": 1,
+        "normal_groups": 21
+      }
+    }
+  }
+}

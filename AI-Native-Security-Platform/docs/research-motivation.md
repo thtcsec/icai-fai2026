@@ -13,6 +13,8 @@ Key security challenges in modern university environments include:
 
 To address these challenges, we propose an **AI-Native Autonomous Security Platform**. Rather than layering AI as an external secondary filter on legacy SIEM products, our architecture integrates AI directly into the event bus and edge pipeline. 
 
+> **Historical motivation text.** The ICAI revision does not claim autonomous SOAR or Isolation Forest edge detection. Evaluated work is group-aware InSDN evaluation plus an evidence-bounded prototype.
+
 By distributing lightweight unsupervised anomaly detection (Isolation Forests) to edge network taps and combining it with cloud-based dynamic risk scoring and autonomous SOAR playbooks, the platform achieves:
 * Real-time stream processing with sub-10ms event-to-policy evaluation.
 * Automated containment of high-confidence threats (e.g., active ransomware propagation, compromised IoT botnets) without requiring human intervention.

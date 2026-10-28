@@ -36,6 +36,6 @@ class MitigationAction(BaseModel):
     target_ip: str
     action_type: str  # e.g., BLOCK_IP, QUARANTINE_VLAN, REVOKE_TOKEN, THROTTLE
     risk_index: float
-    status: str = "EXECUTED"
+    status: str = "RECOMMENDED"
     executed_at: float = Field(default_factory=time.time)
     details: str = ""

@@ -1,30 +1,35 @@
+# Current canonical citation mirrors ../CITATION.cff.
 cff-version: 1.2.0
-message: "If you use this research artifact or reference our paper, please cite it as below."
-title: "An AI-Native Event-Driven Edge-Cloud Architecture for Autonomous Network Security in Campus Infrastructure"
+message: "Audited ICAI-2026 Paper 26 research artifact. Submitted / Under Review, not accepted; no publisher DOI. Historical title is preserved at icai2026-submission-artifact."
 authors:
   - family-names: "Trinh"
     given-names: "Hoang Tu"
     email: "23dh113972@st.huflit.edu.vn"
-    affiliation: "Faculty of Information Technology, Ho Chi Minh City University of Foreign Languages - Information Technology (HUFLIT)"
+    affiliation: "Faculty of Information Technology, Ho Chi Minh City University of Foreign Languages -- Information Technology"
   - family-names: "Cao"
     given-names: "Tien Thanh"
     email: "thanhct@huflit.edu.vn"
-    affiliation: "Faculty of Information Technology, Ho Chi Minh City University of Foreign Languages - Information Technology (HUFLIT)"
-type: conference-paper
-conference:
-  name: "The Second International Conference on AI: AI-Native for Universities and Industry (ICAI-2026)"
-  location: "Hanoi, Vietnam"
-  date-start: "2026-12-03"
-  date-end: "2026-12-03"
-date-released: 2026-09-24
+    affiliation: "Faculty of Information Technology, Ho Chi Minh City University of Foreign Languages -- Information Technology"
+title: "Evaluating an Event-Driven Edge–Cloud Intrusion Detection Prototype: Host-Day Grouping and Threshold Transfer on InSDN"
+version: "2026.10.28"
+url: "https://github.com/thtcsec/icai-fai2026"
 repository-code: "https://github.com/thtcsec/icai-fai2026"
-keywords:
-  - "AI-Native Security"
-  - "Edge Computing"
-  - "Event-Driven Architecture"
-  - "TCN-GRU"
-  - "Deep Reinforcement Learning"
-  - "Software-Defined Networking"
-  - "Redis Streams"
 license: MIT
-version: 1.1.0
+preferred-citation:
+  type: conference-paper
+  authors:
+    - family-names: "Trinh"
+      given-names: "Hoang Tu"
+    - family-names: "Cao"
+      given-names: "Tien Thanh"
+  title: "Evaluating an Event-Driven Edge–Cloud Intrusion Detection Prototype: Host-Day Grouping and Threshold Transfer on InSDN"
+  collection-title: "ICAI-2026, CMC University (submitted manuscript)"
+  conference:
+    name: "The Second International Conference on AI: AI-Native for Universities and Industry (ICAI-2026)"
+    city: "Hanoi"
+    country: "VN"
+    date-start: "2026-12-03"
+    date-end: "2026-12-03"
+  year: 2026
+  status: submitted
+  url: "https://github.com/thtcsec/icai-fai2026"

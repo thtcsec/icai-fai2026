@@ -1,0 +1,144 @@
+{
+  "retrained": false,
+  "min_test_attack_groups": 3,
+  "n_seeds": 10,
+  "n_meeting_floor": 3,
+  "executed_seed": 42,
+  "executed_test_attack_groups": 1,
+  "decision": "single_split_case_study",
+  "rows": [
+    {
+      "seed": 42,
+      "n_attack_train": 11,
+      "n_attack_val": 5,
+      "n_attack_test": 1,
+      "test_groups": [
+        "31/12/2019|192.168.20.132"
+      ],
+      "meets_multi_attack_test_floor": false,
+      "models_trained": true
+    },
+    {
+      "seed": 0,
+      "n_attack_train": 11,
+      "n_attack_val": 3,
+      "n_attack_test": 3,
+      "test_groups": [
+        "1/1/2020|192.168.20.134",
+        "10/1/2020|192.168.3.130",
+        "27/12/2019|200.175.2.130"
+      ],
+      "meets_multi_attack_test_floor": true,
+      "models_trained": false
+    },
+    {
+      "seed": 1,
+      "n_attack_train": 11,
+      "n_attack_val": 5,
+      "n_attack_test": 1,
+      "test_groups": [
+        "26/12/2019|200.175.2.130"
+      ],
+      "meets_multi_attack_test_floor": false,
+      "models_trained": false
+    },
+    {
+      "seed": 2,
+      "n_attack_train": 8,
+      "n_attack_val": 6,
+      "n_attack_test": 3,
+      "test_groups": [
+        "10/1/2020|192.168.3.130",
+        "27/12/2019|192.168.20.134",
+        "1/1/2020|200.175.2.130"
+      ],
+      "meets_multi_attack_test_floor": true,
+      "models_trained": false
+    },
+    {
+      "seed": 3,
+      "n_attack_train": 15,
+      "n_attack_val": 1,
+      "n_attack_test": 1,
+      "test_groups": [
+        "9/1/2020|192.168.3.130"
+      ],
+      "meets_multi_attack_test_floor": false,
+      "models_trained": false
+    },
+    {
+      "seed": 7,
+      "n_attack_train": 13,
+      "n_attack_val": 3,
+      "n_attack_test": 1,
+      "test_groups": [
+        "1/1/2020|200.175.2.130"
+      ],
+      "meets_multi_attack_test_floor": false,
+      "models_trained": false
+    },
+    {
+      "seed": 13,
+      "n_attack_train": 8,
+      "n_attack_val": 7,
+      "n_attack_test": 2,
+      "test_groups": [
+        "1/1/2020|200.175.2.130",
+        "31/12/2019|192.168.20.131"
+      ],
+      "meets_multi_attack_test_floor": false,
+      "models_trained": false
+    },
+    {
+      "seed": 17,
+      "n_attack_train": 11,
+      "n_attack_val": 3,
+      "n_attack_test": 3,
+      "test_groups": [
+        "10/1/2020|200.175.2.130",
+        "1/1/2020|200.175.2.130",
+        "31/12/2019|192.168.20.131"
+      ],
+      "meets_multi_attack_test_floor": true,
+      "models_trained": false
+    },
+    {
+      "seed": 99,
+      "n_attack_train": 14,
+      "n_attack_val": 1,
+      "n_attack_test": 2,
+      "test_groups": [
+        "26/12/2019|200.175.2.130",
+        "31/12/2019|192.168.20.131"
+      ],
+      "meets_multi_attack_test_floor": false,
+      "models_trained": false
+    },
+    {
+      "seed": 2026,
+      "n_attack_train": 15,
+      "n_attack_val": 1,
+      "n_attack_test": 1,
+      "test_groups": [
+        "12/1/2020|200.175.2.130"
+      ],
+      "meets_multi_attack_test_floor": false,
+      "models_trained": false
+    }
+  ],
+  "note": "Fixed-list ten-seed support census only. Seed 42 already had detector results. Advance declaration and absence of prior seed search are not independently established; no additional models were trained in this census.",
+  "seeds_fixed_list": [
+    42,
+    0,
+    1,
+    2,
+    3,
+    7,
+    13,
+    17,
+    99,
+    2026
+  ],
+  "advance_declaration_verified": false,
+  "repeated_model_performance_experiment": false
+}

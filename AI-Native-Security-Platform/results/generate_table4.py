@@ -26,51 +26,61 @@ from train_utils import (
     blocked_split_npz,
     classifier_binary_scores,
     reconstruction_errors,
+    select_operating_threshold,
     threshold_metrics,
     train_autoencoder,
-    best_threshold,
     set_global_seed,
 )
 
 DATASET_CSV = os.path.join(BASE_DIR, "results", "insdn_telemetry_sample.csv")
-CSV_PATH = os.path.join(BASE_DIR, "results", "table4_precision.csv")
-PNG_PATH = os.path.join(BASE_DIR, "results", "table4_precision.png")
+CSV_PATH = os.path.join(BASE_DIR, "results", "corrected", "table4_precision.csv")
+PNG_PATH = os.path.join(BASE_DIR, "results", "corrected", "table4_precision.png")
 FIG_PATH = os.path.join(BASE_DIR, "paper", "figures", "fig4_precision_recall_sensitivity.png")
-CKPT_PATH = os.path.join(BASE_DIR, "results", "checkpoints", "tcn_gru_ae_trained.pt")
+CKPT_PATH = os.path.join(BASE_DIR, "results", "corrected", "checkpoints", "tcn_gru_ae_retrained.pt")
 
 
 def run_real_precision_eval(seed: int = 42):
     print("[*] Training TCN-GRU on REAL InSDN windows and evaluating thresholds...")
     set_global_seed(seed)
-    X_tr, y_tr, X_te, y_te, _ = blocked_split_npz(
-        resolve_real_windows_npz("insdn"), seq_len=10, seed=seed
+    X_tr, y_tr, X_va, y_va, X_te, y_te, _ = blocked_split_npz(
+        resolve_real_windows_npz("insdn"), seq_len=10, seed=seed, val_fraction=0.2
     )
     y_true = y_te.numpy()
+    y_val = y_va.numpy()
 
     base_model = TCNGRUResilienceModel(num_features=10, num_classes=6)
     trained = train_autoencoder(base_model, X_tr, y_tr, epochs=12, batch_size=128, lr=1e-3, seed=seed)
     quantized = quantize_tcn_gru_model(trained)
 
     os.makedirs(os.path.dirname(CKPT_PATH), exist_ok=True)
+    os.makedirs(os.path.dirname(CSV_PATH), exist_ok=True)
     torch.save(trained.state_dict(), CKPT_PATH)
 
     # Primary score: classifier attack probability (stable for campus IDS)
+    cls_val = classifier_binary_scores(quantized, X_va)
     cls_scores = classifier_binary_scores(quantized, X_te)
     # Also compute RE for architecture narrative
     re_test = reconstruction_errors(quantized, X_te, forward_mode="tcn_gru")
     re_train_normal = reconstruction_errors(quantized, X_tr[y_tr == 0], forward_mode="tcn_gru")
 
-    # Report classifier threshold sweep on probability scores
+    # Operating point is frozen on validation, then applied to test once.
     report_taus = [0.35, 0.50, 0.65, 0.75, 0.85]
+    opt_tau, _val_m = select_operating_threshold(
+        y_val, cls_val, split="val", candidates=report_taus
+    )
+    frozen_test = threshold_metrics(y_true, cls_scores, opt_tau)
+    opt_m = frozen_test
+    best_report = (opt_tau, frozen_test)
+
+    # Diagnostic sweep on test (not used for model selection).
     rows = []
     for tau in report_taus:
         m = threshold_metrics(y_true, cls_scores, tau)
         rows.append((tau, m))
-    best_report = max(rows, key=lambda x: x[1]["f1"])
-    opt_tau, opt_m = best_threshold(y_true, cls_scores)
 
-    # Adaptive RE table for appendix-style transparency
-    re_rows, re_best = adaptive_threshold_table(y_true, re_test, re_train_normal)
+    # Adaptive RE table: k-grid is a sensitivity report, not a test-tuned claim.
+    re_rows, re_best = adaptive_threshold_table(y_val, reconstruction_errors(quantized, X_va, forward_mode="tcn_gru"), re_train_normal)
+    re_test_at_val_k = threshold_metrics(y_true, re_test, re_best[1])
 
     with open(CSV_PATH, "w", newline="", encoding="utf-8") as f:
         writer = csv.writer(f)
@@ -84,17 +94,17 @@ def run_real_precision_eval(seed: int = 42):
                 f"{m['f1']:.4f}",
                 f"{m['fpr']:.1f}%",
                 f"{m['fnr']:.1f}%",
-                "YES" if tau == best_report[0] else "",
+                "YES" if abs(float(tau) - float(best_report[0])) < 1e-12 else "",
             ])
         writer.writerow([
-            "classifier_search",
+            "classifier_val_frozen",
             f"{opt_tau:.4f}",
             f"{opt_m['precision']:.4f}",
             f"{opt_m['recall']:.4f}",
             f"{opt_m['f1']:.4f}",
             f"{opt_m['fpr']:.1f}%",
             f"{opt_m['fnr']:.1f}%",
-            "SEARCH",
+            "VAL_FROZEN",
         ])
         for k, tau, m in re_rows:
             writer.writerow([
@@ -122,19 +132,18 @@ def run_real_precision_eval(seed: int = 42):
     ax.set_ylim(-0.05, 1.05)
     plt.tight_layout()
     plt.savefig(PNG_PATH, dpi=300)
-    os.makedirs(os.path.dirname(FIG_PATH), exist_ok=True)
-    plt.savefig(FIG_PATH, dpi=300)
     plt.close()
 
-    print(f"  [+] Best classifier τ={best_report[0]} F1={best_report[1]['f1']:.4f}")
-    print(f"  [+] Search best τ={opt_tau:.4f} F1={opt_m['f1']:.4f}")
-    print(f"  [+] Best RE k={re_best[0]} F1={re_best[2]['f1']:.4f}")
+    print(f"  [+] Val-frozen classifier τ={best_report[0]} test F1={best_report[1]['f1']:.4f}")
+    print(f"  [+] RE k selected on val={re_best[0]} val F1={re_best[2]['f1']:.4f} test F1={re_test_at_val_k['f1']:.4f}")
     return {
         "rows": rows,
         "best_report": best_report,
         "opt_tau": opt_tau,
         "opt_m": opt_m,
+        "tau_provenance": "validation_split_carved_from_train",
         "re_best": re_best,
+        "re_test_at_val_k": re_test_at_val_k,
         "trained_model": trained,
         "X_te": X_te,
         "y_te": y_te,

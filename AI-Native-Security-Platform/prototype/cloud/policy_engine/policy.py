@@ -22,6 +22,7 @@ class CloudPolicyEngine:
             self.w_criticality * asset_criticality
         )
 
+        # Action types are recommended descriptors, not enforced controls.
         if risk_index >= 0.70:
             severity = "CRITICAL"
             action_type = "BLOCK_IP_AND_REVOKE_TOKEN"

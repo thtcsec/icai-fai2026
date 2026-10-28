@@ -1,10 +1,14 @@
 # Methodology: Algorithmic & Architectural Design
 
+> **Documentation status (2026-10-28).** This file describes an Isolation Forest edge path that is **not** the evaluated ICAI detector. Measured models are TCN–GRU and LightGBM. Use `ARTIFACT.md` and `revisions/icai2026_20261028/`.
+
 ## 1. Edge Telemetry Vectorization
 
 Network packet streams at campus edge nodes are vectorized into lightweight statistical feature vectors over sliding time windows $\Delta t = 1.0\text{ s}$:
 
 $$X = \left[ f_{\text{duration}}, f_{\text{pkt\_count}}, f_{\text{byte\_rate}}, f_{\text{port\_entropy}}, f_{\text{syn\_ratio}} \right]$$
+
+> **Stale relative to the ICAI-2026 evaluated pipeline.** Isolation Forest is **not** the detector used in the submitted or revised experiments. Evaluated models are supervised TCN–GRU (dynamic INT8 on Linear+GRU) and LightGBM on InSDN windows. See `revisions/icai2026_20261028/` and `ARTIFACT.md`.
 
 ## 2. Edge Anomaly Detection (Unsupervised Isolation Forest)
 

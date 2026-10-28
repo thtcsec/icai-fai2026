@@ -56,6 +56,7 @@ def blocked_split_npz(
     seed: int = 42,
     scaler=None,
     fit_scaler: bool = True,
+    val_fraction: float = 0.0,
 ):
     """Blocked+purged split controlling stride-1 *index* overlap leakage.
 
@@ -116,6 +117,12 @@ def blocked_split_npz(
     tr_idx = _subsample(tr_idx, max_train)
     te_idx = _subsample(te_idx, max_test)
 
+    va_idx = np.array([], dtype=int)
+    if val_fraction:
+        if not (0.0 < val_fraction < 1.0):
+            raise ValueError("val_fraction must be in (0, 1)")
+        va_idx, tr_idx = _carve_val(tr_idx, y, val_fraction, rng)
+
     n_feat = X.shape[2]
     tr_flat = np.nan_to_num(X[tr_idx].reshape(-1, n_feat), nan=0.0, posinf=0.0, neginf=0.0)
     te_flat = np.nan_to_num(X[te_idx].reshape(-1, n_feat), nan=0.0, posinf=0.0, neginf=0.0)
@@ -137,8 +144,49 @@ def blocked_split_npz(
         f"train={len(tr_idx)} (attack {int(y[tr_idx].sum())}), "
         f"test={len(te_idx)} (attack {int(y[te_idx].sum())}), "
         f"{n_blocks} blocks, purge={purge}"
+        + (f", val={len(va_idx)}" if val_fraction else "")
     )
+    if val_fraction:
+        va_flat = np.nan_to_num(X[va_idx].reshape(-1, n_feat), nan=0.0, posinf=0.0, neginf=0.0)
+        va_flat = scaler.transform(va_flat).astype(np.float32)
+        X_va = torch.tensor(va_flat.reshape(len(va_idx), seq_len, n_feat), dtype=torch.float32)
+        y_va = torch.tensor(y[va_idx], dtype=torch.long)
+        _assert_disjoint_indices(tr_idx, va_idx, te_idx)
+        return X_tr, y_tr, X_va, y_va, X_te, y_te, scaler
+    _assert_disjoint_indices(tr_idx, te_idx)
     return X_tr, y_tr, X_te, y_te, scaler
+
+
+def _carve_val(tr_idx: np.ndarray, y: np.ndarray, val_fraction: float, rng: np.random.Generator):
+    """Hold out a stratified slice of *train* indices as validation. Never uses test."""
+    yy = y[tr_idx]
+    va_parts, tr_parts = [], []
+    for cls in (0, 1):
+        cls_idx = tr_idx[yy == cls]
+        rng.shuffle(cls_idx)
+        n_va = max(1, int(round(len(cls_idx) * val_fraction))) if len(cls_idx) else 0
+        n_va = min(n_va, max(0, len(cls_idx) - 1)) if len(cls_idx) > 1 else 0
+        va_parts.append(cls_idx[:n_va])
+        tr_parts.append(cls_idx[n_va:])
+    va_idx = np.concatenate(va_parts) if va_parts else np.array([], dtype=int)
+    new_tr = np.concatenate(tr_parts) if tr_parts else np.array([], dtype=int)
+    if len(new_tr) == 0:
+        raise RuntimeError("Validation carve emptied the training split")
+    rng.shuffle(va_idx)
+    rng.shuffle(new_tr)
+    return np.sort(va_idx), np.sort(new_tr)
+
+
+def _assert_disjoint_indices(*groups: np.ndarray) -> None:
+    seen = {}
+    for gi, g in enumerate(groups):
+        for v in np.unique(g):
+            v_i = int(v)
+            if v_i in seen:
+                raise AssertionError(
+                    f"Index {v_i} present in split {seen[v_i]} and split {gi}"
+                )
+            seen[v_i] = gi
 
 
 def train_autoencoder(
@@ -301,6 +349,42 @@ def best_threshold(y_true: np.ndarray, scores: np.ndarray, candidates: List[floa
         if m["f1"] > best["f1"]:
             best_tau, best = float(tau), m
     return best_tau, best
+
+
+_TEST_SPLIT_ALIASES = {
+    "test",
+    "holdout",
+    "eval_test",
+    "cic",
+    "cic_test",
+    "cic_holdout",
+    "insdn_test",
+}
+
+
+def select_operating_threshold(
+    y: np.ndarray,
+    scores: np.ndarray,
+    *,
+    split: str,
+    candidates: List[float] | None = None,
+) -> Tuple[float, Dict[str, float]]:
+    """Choose a decision threshold. Refuses test/holdout labels.
+
+    Callers must pass train or validation scores, freeze ``tau``, and only then
+    evaluate on the test split via ``threshold_metrics``.
+    """
+    key = str(split).strip().lower()
+    if key in _TEST_SPLIT_ALIASES or key.endswith("_test") or key.endswith("_holdout"):
+        raise ValueError(
+            f"Refusing to select an operating threshold on split={split!r}. "
+            "Use train or validation scores only, freeze tau, then evaluate test."
+        )
+    tau, metrics = best_threshold(y, scores, candidates)
+    metrics = dict(metrics)
+    metrics["tau"] = float(tau)
+    metrics["split"] = split
+    return float(tau), metrics
 
 
 def model_param_mb(model: nn.Module) -> float:

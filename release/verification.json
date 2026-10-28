@@ -1,0 +1,55 @@
+{
+  "scientific_pdf_sha256": "ccba97053f3c93ba27e7a8cf99ce422246ea63f698b835092f7d10a547f2b83d",
+  "pdf_pages": 5,
+  "full_local_suite": {
+    "passed": 62,
+    "skipped": 0,
+    "warning_count": 1,
+    "seconds": 8.26,
+    "command": "project-venv python -B -: pytest AI-Native-Security-Platform/tests revisions/icai2026_20261028/test_p1_remediation.py tests --import-mode=importlib -o addopts= -q -p no:cacheprovider"
+  },
+  "clean_export_suite": {
+    "passed": 42,
+    "skipped": 2,
+    "deselected": 1,
+    "warning_count": 1,
+    "seconds": 6.26,
+    "command": "python tools/run_public_checks.py",
+    "export_tree": "4350e1a46e7e99a543c960f830a47b711acbe8e1",
+    "scope": "Export before adding publication_manifest.json/verification.json; executable/scientific payload unchanged. Dataset-dependent checks skipped, root duplicate-logo preservation check deselected."
+  },
+  "limited_verifiers": {
+    "local_claim_check": "PASS; limited smoke check",
+    "public_check": "PASS; 16 payload hashes; stored evidence/metadata/local links"
+  },
+  "metadata": {
+    "root_and_nested_cff": "official CFF schema valid",
+    "root_and_nested_zenodo": "equal; unpublished preparation; no upload"
+  },
+  "protected_files": {
+    "count": 52,
+    "changed": 0,
+    "historical_tag_object": "5fd9251624461446c27f07f1c2827f7cee2fb49f",
+    "historical_commit": "4540dbf8c7b8b50ac638c034b1c6c8fb090e06b9"
+  },
+  "security": {
+    "high_confidence_secret_findings": 0,
+    "dataset_payloads_in_candidate_tree": 0,
+    "withheld_manuscript_files_in_candidate_tree": 0,
+    "machine_specific_paths_in_public_docs_json": 0,
+    "index_only_exclusions": 7,
+    "historical_tag_preserved": true,
+    "prospective_tree_files": 202,
+    "python_files_compiled": 83,
+    "credential_literal_review": "Only documented deterministic development HMAC fixture secret; no real credential literal found",
+    "staged_whitespace_check": "PASS after removing an extra final blank line from a test (no scientific source changed)",
+    "all_important_readme_external_links": "HTTP 200: conference, historical tag, pinned dataset page"
+  },
+  "publication_gate": {
+    "cmt_replacement_confirmed": false,
+    "conference_sharing_clearance_confirmed": false,
+    "github_release_required_state": "draft",
+    "revised_pdf_or_tex_in_public_git": false,
+    "release_assets": []
+  }
+}

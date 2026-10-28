@@ -1,0 +1,21 @@
+{
+  "algorithm": "SHA-256",
+  "files": {
+    "AI-Native-Security-Platform/results/checkpoints/dqn_policy_trained.pt": "41b7fb7cc2bcb68d9212f63483b1fa4d4b11c13fe0c653d32f0eb98ce420fce3",
+    "AI-Native-Security-Platform/results/checkpoints/tcn_gru_ae_trained.pt": "1a260bcbfae4cae7cb0c0c24973a90a2d0948cbe0a160737fc6e7aed10b77e02",
+    "AI-Native-Security-Platform/results/corrected/checkpoints/tcn_gru_chrono.pt": "33ac8ce5c4e542e44c2c6e2059c5305221854730839b94bf6034c1b542618301",
+    "AI-Native-Security-Platform/results/corrected/phase3_group_disjoint/tcn_gru_fp32.pt": "6ed5a15542739ecc6752404805a518bdca81fef5cd952d3bd748596675fd3c0c",
+    "assets/organizers/cmc.png": "539d62f71398c6f49cf18edcb628c7d90bde4f2814386642ff5bb2b08b12d93d",
+    "assets/organizers/steinbeis.png": "1c40a5c5f0b81ac5ab69e94ed4106ec6ae06cf7619708341a39d669ffadb3035",
+    "assets/organizers/tsinghua_shenzhen.png": "a8b57e6e00662e470932b0aa0675b847f740ea09a139d652747c3de4658483e4",
+    "revisions/icai2026_20261028/evidence/consumed_support.json": "cebac3b835946e5044e5134a63351fb244fc456d0a26a9001c68c83bdbf4bb0b",
+    "revisions/icai2026_20261028/evidence/experiment_manifest.json": "4f1afd7f1cade700809bc66fa42300af7be02889815ce8247bf3ef51c6ac0a89",
+    "revisions/icai2026_20261028/evidence/fixed_seed_support.json": "4e5ee55f6ca42a828a1387da5599870a7144d663c05a29c3978f25b043f7f6e8",
+    "revisions/icai2026_20261028/evidence/historical_repaired_latency.json": "fdda5e55bf5ed63c08df7687b5c8a7922665f04c367b9d4ed7c3d6726e08cd8c",
+    "revisions/icai2026_20261028/evidence/metric_integrity.json": "776b2c504167f49e97a3890f646398a20b7b2f5f66493d97ae470d6b620dab52",
+    "revisions/icai2026_20261028/evidence/p1_model_comparison.json": "d4ad7482788d5d1b436e2d8cfdef11f66ce2f7f29d06a576bf5b78b7393a4fe9",
+    "revisions/icai2026_20261028/evidence/p3_model_comparison.json": "0b1749ccea8f3786530c1b751090e32e0829918449d05df79d7b579b79c9cfab",
+    "revisions/icai2026_20261028/evidence/policy_evaluation.json": "5e7626796761cc58f8c5bcd6c92fce79b6c8fcdc8377b2cc700b0ff315484e2b",
+    "revisions/icai2026_20261028/evidence/scientific_freeze.json": "5d3590e4953e36416b6c0d2310c95b591645e26bc75eebce67c9fcbfa4f58e60"
+  }
+}

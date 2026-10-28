@@ -1,80 +1,54 @@
-# Artifact Evaluation Guide
+# Artifact evaluation guide
 
-Paper title (must match PDF):
+## Scope and status
 
-> **An AI-Native Event-Driven Edge-Cloud Architecture for Autonomous Network Security in Campus Infrastructure**
+ICAI-2026 Paper 26, Submitted / Under Review, not accepted. Current title and authors are in [CITATION.cff](CITATION.cff). The scientific PDF is frozen at SHA-256 `ccba97053f3c93ba27e7a8cf99ce422246ea63f698b835092f7d10a547f2b83d`, five A4 pages. It stays in the local author packet pending CMT replacement and public-sharing verification. No revised PDF/TeX is bundled in public Git.
 
-Conference: **The Second International Conference on AI: AI-Native for Universities and Industry (ICAI-2026)**, 3 December 2026, Hanoi. CMT Paper ID 26. Under review.
+[Public revision evidence](revisions/icai2026_20261028/PUBLIC_ARTIFACT.md) contains portable copies of aggregate result JSONs. Only machine-specific paths are normalized; scientific values are unchanged. Owned model checkpoints are listed in the evidence checksums. Dataset payloads and row-level samples are excluded from the new release tree. The historical tag and all local protected files remain intact.
 
-The compiled manuscript PDF is **not** in this git repository (CMT submission only). Source remains `icaifai.tex`.
+## Level A — portable consistency and fixture tests
 
-This guide verifies claims against `AI-Native-Security-Platform/results/paper_metrics_summary.json`. **Do not** expect legacy figures such as 4.218 ms mean latency, F1=0.9400, or CPU=14.30% — those belong to an older draft.
-
----
-
-## 1. Prerequisites
-
-* Python 3.10+
-* Redis **7.x** on `localhost:6379` (latency + Redis ablation require a live server; silent in-memory fallback is disabled for those benches)
-* Optional: Docker (`docker run -d -p 6379:6379 redis:7.2.4`)
+From the repository root:
 
 ```bash
-git clone https://github.com/thtcsec/icai-fai2026.git
-cd icai-fai2026/AI-Native-Security-Platform
+python tools/verify_public_artifact.py
 python -m venv .venv
 # Windows: .venv\Scripts\activate
-source .venv/bin/activate
-pip install -r requirements-lock.txt  # pulls torch CPU wheels via --extra-index-url
-python results/run_all_and_summarize.py
+python -m pip install -r AI-Native-Security-Platform/requirements-lock.txt
+python -m pip install -r requirements-test.txt
+python tools/run_public_checks.py
 ```
 
-Approximate wall time: tens of minutes on a laptop CPU (training + 5-repeat resource loops). Use `requirements-lock.txt` for the exact measurement venv (`torch==2.13.0+cpu`); seeded scripts are bit-deterministic on a fixed lock + host class, not across arbitrary dependency floats.
+The standard-library verifier checks selected stored numbers, metadata and file hashes. It does not replay predictions, validate training history or replace the independent scientific audit. Fixture tests do not require raw data, Docker or Redis. Dataset-dependent tests skip when local archives are missing. The original 62-test local closure suite additionally needs the withheld paper packet and local datasets; it is not advertised as a complete clean-checkout replay.
 
----
+The dependency lock describes detector verification on Windows/Python 3.11.9, Torch 2.13.0+cpu, NumPy 2.4.6, sklearn 1.9.0 and LightGBM 4.7.0. Historical repaired no-Redis timing instead records Python 3.13.5/Torch 2.8.0+cpu. Past training execution environments lack immutable traces.
 
-## 2. Claims ↔ evidence (current run)
+## Level B — optional dataset-dependent reproduction
 
-| Claim | Expected check (from summary JSON) | Generator |
-| :--- | :--- | :--- |
-| **RQ1 control-path latency** includes Redis Streams + HMAC principals | Total median ≈ **4.793 ms**, p99 ≈ **7.202 ms**; no cleartext IP on Redis | `results/generate_table2.py` → `table2_latency.csv` |
-| **Detection @ τ=0.65** | F1 ≈ **0.9340** | `results/generate_table4.py` |
-| **H2 edge CPU** | @10k win/s CPU ≈ **36.0% of one logical CPU** (H2 rejected vs 10%) | `results/generate_table5.py` |
-| **Trees beat TCN–GRU** | LightGBM F1 **0.9886** > INT8 TCN–GRU **0.9723** | `results/generate_table6.py` |
-| **Zero-shot CIC collapse** | CIC F1 @0.65 ≈ **0.4564** | `results/generate_table7.py` |
-| **Redis transport is real** | Ablation prints `redis-streams=…ms` (not a Python list append) | `results/generate_table8.py` |
-| **DQN vs analytic oracle** | Action accuracy ≈ **98.8%** | `results/generate_table9.py` |
-| **Leakage near-null** | `|ΔF1|` at fixed τ ≈ **0.0018** | `results/generate_table10_leakage.py` |
+Acquire the exact third-party derivative described in [dataset documentation](AI-Native-Security-Platform/datasets/README.md), check its CSV hash, and keep it outside Git. Existing builders accept explicit source/output arguments through their Python functions, avoiding machine-specific default locations:
 
-MTTR table (`generate_table3.py`) still reports a **stipulated** manual-SOC baseline for contrast; the paper does not treat that baseline as a measured human study.
-
----
-
-## 3. CPU metric definition (important)
-
-`generate_table5.py` reports `psutil.Process.cpu_percent()` **without** dividing by `cpu_count()`. Under the psutil convention, **100% = one logical CPU fully busy**. PyTorch is pinned with `torch.set_num_threads(1)` for the H2 experiment. Low offered-load rows are sleep-dominated and can understate busy-period CPU; the H2 decision uses the 10,000 windows/s row.
-
----
-
-## 4. Mapping to paper tables
-
-| Paper content | Artifact file |
-| :--- | :--- |
-| Latency breakdown | `results/table2_latency.csv` |
-| Threshold sensitivity | `results/table4_precision.csv` |
-| Resource / CPU | `results/table5_resource.csv`, `table5_saturation.csv` |
-| SOTA / quantization | `results/table6_sota_comparison.csv` |
-| Cross-dataset | `results/table7_*.csv` (via generator) |
-| Ablation + ρ sweep | `results/table8_ablation.csv`, `table8_ablation_rho_sweep.csv` |
-| Policy oracle | `results/table9_policy_benchmark.csv` |
-| Machine-readable digest | `results/paper_metrics_summary.json` |
-
----
-
-## 5. Docker tip
-
-```bash
-docker run -d --name icai-redis -p 6379:6379 redis:7.2.4
-python results/generate_table2.py
+```python
+from pathlib import Path
+import sys
+app = Path('AI-Native-Security-Platform').resolve()
+sys.path[:0] = [str(app), str(app / 'results')]
+from build_chrono_insdn import main as build_p1
+from build_phase3_splits import build_group_disjoint
+source = str(Path('external-data/Dataset.csv').resolve())
+build_p1(src=source, out_dir=str(app / 'results/corrected/chrono_insdn'))
+build_group_disjoint(src=source, out_dir=str(app / 'results/corrected/phase3_group_disjoint'))
 ```
 
-If Redis is down, latency/ablation generators **fail loudly** rather than silently substituting an in-process list.
+These are optional output-writing rebuilds, not commands run during release preparation. Do not overwrite local frozen arrays. Put exploratory reproductions in a separate checkout/output location. With appropriately prepared arrays, the original runners are `results/train_eval_chrono.py` and `results/train_eval_phase3.py` inside the nested platform. They retrain and can be expensive; they are not quick checks. Saved detector files are FP32 state dictionaries, dynamically quantized at inference. Whole-tensor validation/test sizes are P1 3,000/6,000 and P3 3,000/955.
+
+To use the existing locally retained full regression packet, run pytest over the nested tests and `revisions/icai2026_20261028/test_p1_remediation.py` with `--import-mode=importlib`. Those private/local files are not silently fabricated for a public clone.
+
+## Interpretation
+
+P1 and P3 differ in test population/prevalence and trained weights. Their F1 difference is not a causal leakage effect. P3 test has one attack host-day; 32 positives are overlapping windows. Scores are uncalibrated and batch-sensitive. The ten-seed census reports support only. Policy results are simulator-only one-step Q-regression. Corrected Redis-inclusive timing, received-event-to-policy integration and enforcement are unmeasured/unverified.
+
+## Packaging and history
+
+The release manifest lists included and excluded files; checksums identify the owned models and aggregate evidence. Local dataset archives and protected historical tables are preserved. GitHub's automatic source archives use the tagged tree, so historical dataset payloads and a row-level telemetry sample are removed from the new tree's index without deleting their local copies or rewriting the original submission tag. Historical notebooks with embedded outputs are also retained locally rather than repackaged.
+
+[Release notes](release/RELEASE_NOTES.md) describe the revision. GitHub Release remains a draft while CMT/public-sharing checks are unverified. Zenodo JSON is unpublished preparation; no DOI or acceptance is claimed.

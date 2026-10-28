@@ -30,19 +30,20 @@ from prototype.data.data_loader import resolve_real_windows_npz
 from prototype.edge.detector.quantize import quantize_tcn_gru_model
 from prototype.edge.detector.tcn_gru_model import TCNGRUResilienceModel
 from train_utils import (
-    best_threshold,
     blocked_split_npz,
     classifier_binary_scores,
     model_param_mb,
+    select_operating_threshold,
     set_global_seed,
     reconstruction_errors,
+    threshold_metrics,
     train_autoencoder,
     train_reconstruction_model,
 )
 
 DATASET_CSV = os.path.join(BASE_DIR, "results", "insdn_telemetry_sample.csv")
-CSV_PATH = os.path.join(BASE_DIR, "results", "table6_sota_comparison.csv")
-PNG_PATH = os.path.join(BASE_DIR, "results", "table6_sota_comparison.png")
+CSV_PATH = os.path.join(BASE_DIR, "results", "corrected", "table6_sota_comparison.csv")
+PNG_PATH = os.path.join(BASE_DIR, "results", "corrected", "table6_sota_comparison.png")
 FIG_PATH = os.path.join(BASE_DIR, "paper", "figures", "fig6_sota_comparison.png")
 
 
@@ -78,21 +79,21 @@ class TransformerAutoencoder(nn.Module):
         return out, rec_err
 
 
-def _fit_tabular(model, X_tr_flat, y_tr_flat, X_te_flat, y_true):
-    """Supervised tabular baseline scored under the same test-split threshold search.
+def _fit_tabular(model, X_tr_flat, y_tr_flat, X_va_flat, y_val, X_te_flat, y_true):
+    """Supervised tabular baseline; threshold frozen on validation.
 
     Trees receive the window flattened to seq_len*num_features, i.e. the same raw
     information the sequence models see, rather than the time-averaged view used
     for the unsupervised iForest row. Anything less would handicap the baseline.
     """
     model.fit(X_tr_flat, y_tr_flat)
-    scores = model.predict_proba(X_te_flat)[:, 1]
-    _, best = best_threshold(y_true, scores)
+    val_scores = model.predict_proba(X_va_flat)[:, 1]
+    tau, _ = select_operating_threshold(y_val, val_scores, split="val")
+    te_scores = model.predict_proba(X_te_flat)[:, 1]
+    best = threshold_metrics(y_true, te_scores, tau)
     latency = _latency_ms(lambda: model.predict_proba(X_te_flat[:1]))
-    # Serialized size, reported separately from model_param_mb: a tree ensemble
-    # has no parameter-tensor analogue, so the two are not the same basis.
     serialized_mb = len(pickle.dumps(model)) / (1024.0 * 1024.0)
-    return best["f1"], latency, serialized_mb
+    return best["f1"], latency, serialized_mb, float(tau)
 
 
 def _latency_ms(fn, warmup=20, runs=200, repeats=5):
@@ -117,10 +118,11 @@ def run_sota_comparison(seed: int = 42):
     print("[*] Trained SOTA / ablation on REAL InSDN windows...")
     set_global_seed(seed)
 
-    X_tr, y_tr, X_te, y_te, _ = blocked_split_npz(
-        resolve_real_windows_npz("insdn"), seq_len=10, seed=seed
+    X_tr, y_tr, X_va, y_va, X_te, y_te, _ = blocked_split_npz(
+        resolve_real_windows_npz("insdn"), seq_len=10, seed=seed, val_fraction=0.2
     )
     y_true = y_te.numpy()
+    y_val = y_va.numpy()
     X_tr_2d = X_tr.numpy().mean(axis=1)
     X_te_2d = X_te.numpy().mean(axis=1)
     sample = X_te[:1]
@@ -138,27 +140,28 @@ def run_sota_comparison(seed: int = 42):
     # unreported: model_param_mb measures torch state_dict tensors and has no
     # comparable basis for a tree ensemble.
     X_tr_flat = X_tr.numpy().reshape(X_tr.shape[0], -1)
+    X_va_flat = X_va.numpy().reshape(X_va.shape[0], -1)
     X_te_flat = X_te.numpy().reshape(X_te.shape[0], -1)
     y_tr_flat = y_tr.numpy().astype(int)
 
-    rf_f1, rf_lat, rf_mb = _fit_tabular(
+    rf_f1, rf_lat, rf_mb, rf_tau = _fit_tabular(
         RandomForestClassifier(n_estimators=300, random_state=seed, n_jobs=-1),
-        X_tr_flat, y_tr_flat, X_te_flat, y_true,
+        X_tr_flat, y_tr_flat, X_va_flat, y_val, X_te_flat, y_true,
     )
-    xgb_f1, xgb_lat, xgb_mb = _fit_tabular(
+    xgb_f1, xgb_lat, xgb_mb, xgb_tau = _fit_tabular(
         XGBClassifier(
             n_estimators=400, max_depth=6, learning_rate=0.1,
             subsample=0.9, colsample_bytree=0.9,
             eval_metric="logloss", random_state=seed, n_jobs=-1,
         ),
-        X_tr_flat, y_tr_flat, X_te_flat, y_true,
+        X_tr_flat, y_tr_flat, X_va_flat, y_val, X_te_flat, y_true,
     )
-    lgbm_f1, lgbm_lat, lgbm_mb = _fit_tabular(
+    lgbm_f1, lgbm_lat, lgbm_mb, lgbm_tau = _fit_tabular(
         LGBMClassifier(
             n_estimators=400, learning_rate=0.1, num_leaves=31,
             random_state=seed, n_jobs=-1, verbose=-1,
         ),
-        X_tr_flat, y_tr_flat, X_te_flat, y_true,
+        X_tr_flat, y_tr_flat, X_va_flat, y_val, X_te_flat, y_true,
     )
     print(
         f"  [i] serialized tree size (pickle, not comparable to param footprint): "
@@ -166,25 +169,37 @@ def run_sota_comparison(seed: int = 42):
     )
 
     lstm = train_reconstruction_model(LSTMAutoencoder(), X_tr, y_tr, epochs=10, forward_mode="pair", seed=seed)
-    _, lstm_best = best_threshold(y_true, reconstruction_errors(lstm, X_te, forward_mode="pair"))
+    lstm_tau, _ = select_operating_threshold(
+        y_val, reconstruction_errors(lstm, X_va, forward_mode="pair"), split="val"
+    )
+    lstm_best = threshold_metrics(y_true, reconstruction_errors(lstm, X_te, forward_mode="pair"), lstm_tau)
     lstm_f1 = lstm_best["f1"]
     lstm_lat = _latency_ms(lambda: lstm(sample))
     lstm_ram = model_param_mb(lstm)
 
     trans = train_reconstruction_model(TransformerAutoencoder(), X_tr, y_tr, epochs=8, forward_mode="pair", seed=seed)
-    _, trans_best = best_threshold(y_true, reconstruction_errors(trans, X_te, forward_mode="pair"))
+    trans_tau, _ = select_operating_threshold(
+        y_val, reconstruction_errors(trans, X_va, forward_mode="pair"), split="val"
+    )
+    trans_best = threshold_metrics(y_true, reconstruction_errors(trans, X_te, forward_mode="pair"), trans_tau)
     trans_f1 = trans_best["f1"]
     trans_lat = _latency_ms(lambda: trans(sample))
     trans_ram = model_param_mb(trans)
 
     tcn_fp32 = train_autoencoder(TCNGRUResilienceModel(), X_tr, y_tr, epochs=12, seed=seed)
-    _, fp32_best = best_threshold(y_true, classifier_binary_scores(tcn_fp32, X_te))
+    fp32_tau, _ = select_operating_threshold(
+        y_val, classifier_binary_scores(tcn_fp32, X_va), split="val"
+    )
+    fp32_best = threshold_metrics(y_true, classifier_binary_scores(tcn_fp32, X_te), fp32_tau)
     tcn_fp32_f1 = fp32_best["f1"]
     tcn_fp32_lat = _latency_ms(lambda: tcn_fp32(sample))
     tcn_fp32_ram = model_param_mb(tcn_fp32)
 
     tcn_int8 = quantize_tcn_gru_model(tcn_fp32)
-    _, int8_best = best_threshold(y_true, classifier_binary_scores(tcn_int8, X_te))
+    int8_tau, _ = select_operating_threshold(
+        y_val, classifier_binary_scores(tcn_int8, X_va), split="val"
+    )
+    int8_best = threshold_metrics(y_true, classifier_binary_scores(tcn_int8, X_te), int8_tau)
     tcn_int8_f1 = int8_best["f1"]
     tcn_int8_lat = _latency_ms(lambda: tcn_int8(sample))
     tcn_int8_ram = model_param_mb(tcn_int8)
@@ -203,6 +218,7 @@ def run_sota_comparison(seed: int = 42):
     latencies = [if_lat, rf_lat, xgb_lat, lgbm_lat, lstm_lat, trans_lat, tcn_fp32_lat, tcn_int8_lat]
     ram_sizes = [if_ram, None, None, None, lstm_ram, trans_ram, tcn_fp32_ram, tcn_int8_ram]
 
+    os.makedirs(os.path.dirname(CSV_PATH), exist_ok=True)
     with open(CSV_PATH, "w", newline="", encoding="utf-8") as f:
         writer = csv.writer(f)
         writer.writerow(["Detection Method", "F1-Score", "Inference Latency (ms)", "Model Footprint (MB)"])
@@ -235,8 +251,6 @@ def run_sota_comparison(seed: int = 42):
 
     plt.tight_layout()
     plt.savefig(PNG_PATH, dpi=300)
-    os.makedirs(os.path.dirname(FIG_PATH), exist_ok=True)
-    plt.savefig(FIG_PATH, dpi=300)
     plt.close()
 
     for m, f1, l, r in zip(methods, f1_scores, latencies, ram_sizes):
@@ -249,6 +263,16 @@ def run_sota_comparison(seed: int = 42):
         "latency": latencies,
         "ram": ram_sizes,
         "tree_serialized_mb": {"random_forest": rf_mb, "xgboost": xgb_mb, "lightgbm": lgbm_mb},
+        "tau_provenance": "validation_split_carved_from_train",
+        "operating_tau": {
+            "random_forest": rf_tau,
+            "xgboost": xgb_tau,
+            "lightgbm": lgbm_tau,
+            "lstm": lstm_tau,
+            "transformer": trans_tau,
+            "tcn_fp32": fp32_tau,
+            "tcn_int8": int8_tau,
+        },
         "delta_f1": tcn_int8_f1 - tcn_fp32_f1,
     }
 

@@ -1,0 +1,54 @@
+{
+  "temporal_validity": "within_recording_day_clock_order_srcip_grouped",
+  "frozen_npz_used": false,
+  "n_train": 14000,
+  "n_val": 3000,
+  "n_test": 6000,
+  "models": {
+    "majority": {
+      "precision": 0.6268333333333334,
+      "recall": 1.0,
+      "f1": 0.7706177645733019,
+      "support_normal": 2239,
+      "support_attack": 3761,
+      "confusion_matrix": {
+        "tn": 0,
+        "fp": 2239,
+        "fn": 0,
+        "tp": 3761
+      }
+    },
+    "lightgbm": {
+      "precision": 0.9977521775779713,
+      "recall": 0.9441637862270673,
+      "f1": 0.9702185792349727,
+      "support_normal": 2239,
+      "support_attack": 3761,
+      "confusion_matrix": {
+        "tn": 2231,
+        "fp": 8,
+        "fn": 210,
+        "tp": 3551
+      },
+      "tau": 0.20489806630325563,
+      "tau_provenance": "val"
+    },
+    "tcn_gru_int8": {
+      "precision": 0.9926798217695735,
+      "recall": 0.829300717894177,
+      "f1": 0.9036650731565986,
+      "support_normal": 2239,
+      "support_attack": 3761,
+      "confusion_matrix": {
+        "tn": 2216,
+        "fp": 23,
+        "fn": 642,
+        "tp": 3119
+      },
+      "tau": 0.7832796236317032,
+      "tau_provenance": "val",
+      "checkpoint": "AI-Native-Security-Platform/results/corrected/checkpoints/tcn_gru_chrono.pt"
+    }
+  },
+  "label": "chronological_recording_day_srcip_windows_val_frozen_tau"
+}

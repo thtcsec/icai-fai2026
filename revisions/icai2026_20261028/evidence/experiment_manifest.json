@@ -1,0 +1,262 @@
+{
+  "paper": "ICAI-FAI 2026 CMT 26 revision 2026-10-28",
+  "retrained_this_revision": false,
+  "original_submission_tag": "icai2026-submission-artifact",
+  "original_commit": "4540dbf8c7b8b50ac638c034b1c6c8fb090e06b9",
+  "source_csv": "external-data/Dataset.csv",
+  "thang6_touched": false,
+  "docker_started": false,
+  "redis_repaired_e2e": "NOT_MEASURED",
+  "protocols": {
+    "P1_clock_forward_entity_overlap": {
+      "metrics": "AI-Native-Security-Platform/results/corrected/chrono_model_comparison.json",
+      "ckpt_tcn": "AI-Native-Security-Platform/results/corrected/checkpoints/tcn_gru_chrono.pt",
+      "ckpt_sha256": "33ac8ce5c4e542e44c2c6e2059c5305221854730839b94bf6034c1b542618301",
+      "n_test": 6000,
+      "lightgbm_f1": 0.9702185792349727,
+      "tcn_int8_f1": 0.9036650731565986,
+      "always_attack_f1": 0.7706177645733019,
+      "temporal_validity": "within_recording_day_clock_order_srcip_grouped",
+      "entity_overlap": true
+    },
+    "P2_purged_clock_forward": {
+      "manifest": "AI-Native-Security-Platform/results/corrected/phase3_purged_chrono/manifest.json",
+      "models_trained": false,
+      "role": "negative_control_purge_does_not_remove_entity_overlap"
+    },
+    "P3_group_disjoint": {
+      "manifest": "AI-Native-Security-Platform/results/corrected/phase3_group_disjoint/manifest.json",
+      "metrics": "AI-Native-Security-Platform/results/corrected/phase3_group_disjoint/model_comparison.json",
+      "integrity": "revisions/icai2026_20261028/metric_integrity.json",
+      "ckpt_fp32": "AI-Native-Security-Platform/results/corrected/phase3_group_disjoint/tcn_gru_fp32.pt",
+      "ckpt_sha256": "6ed5a15542739ecc6752404805a518bdca81fef5cd952d3bd748596675fd3c0c",
+      "n_test": 955,
+      "n_test_attack": 32,
+      "n_test_attack_groups": 1,
+      "test_attack_group": "31/12/2019|192.168.20.132",
+      "lightgbm_f1": 0.17486338797814208,
+      "tcn_int8_f1": 0.12075471698113208,
+      "tcn_ap": 1.0,
+      "tau_val": 0.002417233586311342,
+      "always_normal_f1": 0.0,
+      "always_attack_f1": 0.06484295845997974,
+      "group_hash_overlap": 0,
+      "reused_chrono_ckpt": false,
+      "support": {
+        "train": {
+          "full": {
+            "windows": 127979,
+            "attack_windows": 68592,
+            "normal_windows": 59387,
+            "groups": 108,
+            "attack_groups": 11,
+            "normal_groups": 97
+          },
+          "consumed": {
+            "windows": 14000,
+            "attack_windows": 7504,
+            "normal_windows": 6496,
+            "groups": 66,
+            "attack_groups": 9,
+            "normal_groups": 57
+          }
+        },
+        "val": {
+          "full": {
+            "windows": 89053,
+            "attack_windows": 84736,
+            "normal_windows": 4317,
+            "groups": 30,
+            "attack_groups": 5,
+            "normal_groups": 25
+          },
+          "consumed": {
+            "windows": 3000,
+            "attack_windows": 2855,
+            "normal_windows": 145,
+            "groups": 16,
+            "attack_groups": 4,
+            "normal_groups": 12
+          }
+        },
+        "test": {
+          "full": {
+            "windows": 955,
+            "attack_windows": 32,
+            "normal_windows": 923,
+            "groups": 22,
+            "attack_groups": 1,
+            "normal_groups": 21
+          },
+          "consumed": {
+            "windows": 955,
+            "attack_windows": 32,
+            "normal_windows": 923,
+            "groups": 22,
+            "attack_groups": 1,
+            "normal_groups": 21
+          }
+        }
+      }
+    }
+  },
+  "policy": {
+    "objective": "MSE(Q(s,a), r(s,a)) iid Uniform[0,1]^5",
+    "eval": "AI-Native-Security-Platform/results/corrected/table9_policy_eval.json",
+    "oracle_match_pct": 99.28,
+    "eval_seed": 2026,
+    "train_seed": 42,
+    "bellman_td": false,
+    "operational_enforcement": false
+  },
+  "latency": {
+    "corrected": "AI-Native-Security-Platform/results/corrected/table2_latency.json",
+    "redis_included": false,
+    "detector_median_ms": 1.0814499692060053,
+    "e2e_no_redis_median_ms": 1.1937000090256333,
+    "historical_redis_median_ms": 4.793,
+    "historical_hardcoded_p_attack": true
+  },
+  "identity_probe": "docs/audit/phase3_identity_probe.json",
+  "figure_scores": "revisions/icai2026_20261028/paper/figures/fig_scores.pdf",
+  "dataset_provenance": {
+    "repository": "Sharukesh/INSDN",
+    "file": "Dataset.csv",
+    "revision": "f59330c8ff0f1b231b382e05fc41b1e8fb0df6b4",
+    "rows": 343889,
+    "sha256": "a93d51e1c2debc7246728578f22d84a442f156628be64b8c9bae5ccc5dd88a42",
+    "source_kind": "third-party InSDN derivative; not authenticated original publisher export",
+    "binary_mapping": "target > 0",
+    "scope": "All host-day findings apply only to this extract and binary mapping",
+    "url": "https://huggingface.co/datasets/Sharukesh/INSDN/tree/f59330c8ff0f1b231b382e05fc41b1e8fb0df6b4"
+  },
+  "software_verification": {
+    "python": "3.11.9",
+    "torch": "2.13.0+cpu",
+    "numpy": "2.4.6",
+    "sklearn": "1.9.0",
+    "lightgbm": "4.7.0"
+  },
+  "training_environment": "Immutable execution trace unavailable; executable settings inspected, verification environment observed.",
+  "inference": {
+    "P1_whole_tensor_val_test": [
+      3000,
+      6000
+    ],
+    "P3_whole_tensor_val_test": [
+      3000,
+      955
+    ],
+    "headline_cm": [
+      [
+        457,
+        466
+      ],
+      [
+        0,
+        32
+      ]
+    ],
+    "audit_batch1_cm": [
+      [
+        454,
+        469
+      ],
+      [
+        0,
+        32
+      ]
+    ],
+    "audit_max_score_delta": 0.1356378794,
+    "batch1_source": "independent_codex_audit.md; not a new remediation experiment",
+    "streaming_equivalence_verified": false
+  },
+  "historical_model_comparison": "WITHDRAWN as independent model-selection evidence: TCN validation carve is in-sample; unequal effective training pools",
+  "seed_protocol": "fixed seed-42 group-hash split; fixed-list ten-seed support census, not repeated model-performance experiment; advance declaration unverified",
+  "architecture_limits": {
+    "typed_SecurityEvent": "legacy schema, no first-class principal_id/p_attack; scored harness uses dictionaries",
+    "Redis_received_payload_used_for_policy": false,
+    "unknown_identity": {
+      "role": "UNKNOWN",
+      "device": "UNREGISTERED",
+      "identity_source": "none",
+      "authenticated": false,
+      "trust": 0.1
+    }
+  },
+  "methodology": {
+    "features": [
+      "Flow Duration",
+      "Flow Pkts/s",
+      "Flow Byts/s",
+      "Flow IAT Mean",
+      "Flow IAT Std",
+      "Pkt Len Mean",
+      "Tot Fwd Pkts",
+      "SYN Flag Cnt",
+      "Active Mean",
+      "Idle Mean"
+    ],
+    "seq_len": 10,
+    "stride": 1,
+    "group_key": "opaque recording-day|Src IP",
+    "label": "last flow, binary target > 0",
+    "scaler": "training-flow-only StandardScaler",
+    "TCN": {
+      "channels": [
+        16,
+        32
+      ],
+      "kernel": 3,
+      "dilations": [
+        1,
+        2
+      ],
+      "convs_per_residual_block": 2,
+      "dropout": 0.2
+    },
+    "GRU": {
+      "encoder_layers": 1,
+      "decoder_layers": 1,
+      "hidden": 32
+    },
+    "classifier_head": [
+      32,
+      16,
+      6
+    ],
+    "target_classes": [
+      0,
+      1
+    ],
+    "epochs": 12,
+    "two_pass_schedule": [
+      "normal-only MSE(x_hat,x)",
+      "all-training MSE(x_hat,x) + 0.5 * weighted_CE(logits,y)"
+    ],
+    "optimizer": "Adam",
+    "learning_rate": 0.001,
+    "training_batch_size": 128,
+    "CE_weights": "class 0: n_attack/n_normal from consumed training pool; classes 1-5: 1",
+    "threshold_grid": "unique validation quantiles at 60 equally spaced levels from 0.05 to 0.99",
+    "threshold_ties": "first maximum in ascending threshold order",
+    "decision_rule": "score > tau",
+    "score": "uncalibrated 1-softmax(logits)[:,0]",
+    "dynamic_INT8": [
+      "Linear",
+      "GRU"
+    ],
+    "FP32_modules": [
+      "Conv1d"
+    ],
+    "checkpoint_storage": "FP32 state_dict; dynamic INT8 at inference",
+    "LightGBM": {
+      "n_estimators": 200,
+      "learning_rate": 0.1,
+      "num_leaves": 31,
+      "random_state": 42,
+      "n_jobs": 2,
+      "input": "flattened 100 dimensions"
+    }
+  }
+}

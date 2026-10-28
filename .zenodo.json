@@ -1,0 +1,32 @@
+{
+  "title": "Evaluating an Event-Driven Edge–Cloud Intrusion Detection Prototype: Host-Day Grouping and Threshold Transfer on InSDN",
+  "upload_type": "software",
+  "description": "UNPUBLISHED PREPARATION ONLY. ICAI-2026, CMC University; Paper ID 26. Submitted / Under Review, not accepted. Audited hybrid flow-window detector, host-day evaluation and threshold transfer research artifact. No publisher DOI, indexing or IEEE publication is claimed. The approved manuscript remains local pending CMT replacement and sharing verification. No Zenodo upload or DOI minting is part of this task.",
+  "creators": [
+    {
+      "name": "Trinh, Hoang Tu",
+      "affiliation": "Faculty of Information Technology, Ho Chi Minh City University of Foreign Languages -- Information Technology (HUFLIT)"
+    },
+    {
+      "name": "Cao, Tien Thanh",
+      "affiliation": "Faculty of Information Technology, Ho Chi Minh City University of Foreign Languages -- Information Technology (HUFLIT)"
+    }
+  ],
+  "keywords": [
+    "intrusion detection",
+    "edge computing",
+    "InSDN",
+    "evaluation protocol",
+    "reproducible research"
+  ],
+  "license": "MIT",
+  "access_right": "open",
+  "related_identifiers": [
+    {
+      "identifier": "https://github.com/thtcsec/icai-fai2026",
+      "relation": "isSupplementTo",
+      "resource_type": "software"
+    }
+  ],
+  "version": "2026.10.28"
+}

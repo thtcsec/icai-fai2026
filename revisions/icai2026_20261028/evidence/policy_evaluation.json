@@ -1,0 +1,49 @@
+{
+  "rows": [
+    {
+      "policy": "Uniform Random Policy",
+      "latency_ms": 0.00025080000050365926,
+      "qos": 0.18836674920215948,
+      "regret": 0.20421968962310916,
+      "accuracy": 25.44
+    },
+    {
+      "policy": "Static Rule Lookup",
+      "latency_ms": 0.00023053998593240975,
+      "qos": 0.04282496740196158,
+      "regret": 0.07965792556313474,
+      "accuracy": 38.12
+    },
+    {
+      "policy": "Round-Robin Action Assignment",
+      "latency_ms": 0.00016715999227017163,
+      "qos": 0.18968642479658684,
+      "regret": 0.20591836355166215,
+      "accuracy": 25.52
+    },
+    {
+      "policy": "Heuristic Risk Table",
+      "latency_ms": 0.0002198799978941679,
+      "qos": 0.04889235882360238,
+      "regret": 0.07153594328307859,
+      "accuracy": 35.92
+    },
+    {
+      "policy": "Deep Q-Network (DQN Agent, simulated reward)",
+      "latency_ms": 0.048468540003523235,
+      "qos": 0.1278531520548219,
+      "regret": 9.701663125819883e-06,
+      "accuracy": 99.28
+    }
+  ],
+  "n_eval": 5000,
+  "eval_seed": 2026,
+  "train_seed": 42,
+  "checkpoint": "AI-Native-Security-Platform/results/checkpoints/dqn_policy_trained.pt",
+  "n_eval_train_hash_overlap": 0,
+  "reward_environment": "simulated_analytic_campus_contention",
+  "operational_enforcement": false,
+  "historical_dqn_accuracy_pct": 98.76,
+  "trained_this_process": false,
+  "saved_checkpoint": false
+}

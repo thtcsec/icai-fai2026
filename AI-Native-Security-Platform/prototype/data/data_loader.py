@@ -147,6 +147,8 @@ def load_windows_npz(
         y = (y > 0).astype(np.int64)
 
     if max_samples is not None and len(X) > max_samples:
+        # Shuffle completed *windows* only (never raw flows). The frozen NPZ is
+        # already windowed; this subsample is a post-window selection.
         rng = np.random.default_rng(seed)
         idx0 = np.where(y == 0)[0]
         idx1 = np.where(y == 1)[0]
@@ -176,6 +178,10 @@ def load_windows_npz(
         f"[+] Loaded windows from {npz_path}: X={X.shape}, "
         f"attacks={int((y > 0).sum())}, normal={int((y == 0).sum())}, fit_scaler={fit_scaler}"
     )
+    print(
+        "[!] temporal_validity=index_order_after_shuffle: frozen NPZ has no timestamps; "
+        "adjacent timesteps are not capture-time trajectories."
+    )
     return torch.tensor(X, dtype=torch.float32), torch.tensor(y, dtype=torch.long), scaler
 
 
@@ -200,6 +206,8 @@ def load_telemetry_dataset(
     else:
         df = pd.read_csv(csv_path)
 
+    from prototype.data.temporal_windows import windows_from_ordered_flows
+
     X_raw = df[FEATURE_COLUMNS].values
     y_raw = df["label"].values
 
@@ -207,13 +215,25 @@ def load_telemetry_dataset(
     scaler = StandardScaler()
     X_scaled = scaler.fit_transform(X_raw)
 
-    num_samples = len(X_scaled)
-    X_seq = np.zeros((num_samples, seq_len, len(FEATURE_COLUMNS)), dtype=np.float32)
-    for i in range(num_samples):
-        noise = np.random.normal(0, 0.05, (seq_len, len(FEATURE_COLUMNS)))
-        X_seq[i] = np.tile(X_scaled[i], (seq_len, 1)) + noise
-
-    X_tensor = torch.tensor(X_seq, dtype=torch.float32)
-    y_tensor = torch.tensor((y_raw > 0).astype(int), dtype=torch.long)
-    print(f"[!] Using CSV/synthetic telemetry from {csv_path}: n={len(X_tensor)}")
+    # Contiguous last-flow windows over CSV row order. Do not tile a single
+    # flow into a fake sequence, and do not shuffle before windowing.
+    batch = windows_from_ordered_flows(
+        X_scaled.astype(np.float32),
+        y_raw,
+        seq_len=seq_len,
+        stride=1,
+        temporal_validity="csv_row_order_unverified",
+        notes=("CSV fallback; timestamps were not present or not requested.",),
+    )
+    if len(batch.X) == 0:
+        raise ValueError(
+            f"CSV {csv_path} produced zero windows with seq_len={seq_len} "
+            f"from {len(X_scaled)} flows"
+        )
+    X_tensor = torch.tensor(batch.X, dtype=torch.float32)
+    y_tensor = torch.tensor(batch.y, dtype=torch.long)
+    print(
+        f"[!] Using CSV/synthetic telemetry from {csv_path}: n={len(X_tensor)} "
+        f"temporal_validity={batch.temporal_validity} label={batch.label_semantics}"
+    )
     return X_tensor, y_tensor

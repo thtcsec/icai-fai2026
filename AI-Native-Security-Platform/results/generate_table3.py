@@ -19,13 +19,16 @@ if BASE_DIR not in sys.path:
     sys.path.insert(0, BASE_DIR)
 
 from prototype.cloud.policy_engine.drl_sdn_agent import DRLResilienceAgent
-from prototype.edge.detector.quantize import quantize_tcn_gru_model
-from prototype.edge.detector.tcn_gru_model import TCNGRUResilienceModel
+from prototype.cloud.policy_engine.observation import observation_from_detector_window
+from prototype.data.data_loader import resolve_real_windows_npz
+from prototype.edge.detector.inference import infer_window, load_detector_checkpoint
 from prototype.soar.playbooks import SOARPlaybooks
 
-CSV_PATH = os.path.join(BASE_DIR, "results", "table3_mttr.csv")
-PNG_PATH = os.path.join(BASE_DIR, "results", "table3_mttr.png")
+CSV_PATH = os.path.join(BASE_DIR, "results", "corrected", "table3_mttr.csv")
+PNG_PATH = os.path.join(BASE_DIR, "results", "corrected", "table3_mttr.png")
 FIG_PATH = os.path.join(BASE_DIR, "paper", "figures", "fig3_mttr_comparison.png")
+DETECTOR_CKPT = os.path.join(BASE_DIR, "results", "checkpoints", "tcn_gru_ae_trained.pt")
+DQN_CKPT = os.path.join(BASE_DIR, "results", "checkpoints", "dqn_policy_trained.pt")
 
 
 def run_real_mttr_benchmark(num_trials: int = 500, seed: int = 42):
@@ -39,26 +42,36 @@ def run_real_mttr_benchmark(num_trials: int = 500, seed: int = 42):
     manual_soc_times = np.clip(np.random.normal(loc=1512.4, scale=350.0, size=num_trials), 900.0, 3200.0)
     legacy_siem_times = np.clip(np.random.normal(loc=68.5, scale=18.0, size=num_trials), 25.0, 150.0)
 
-    fp32_model = TCNGRUResilienceModel(num_features=10, num_classes=6)
-    quantized_model = quantize_tcn_gru_model(fp32_model)
-    dqn_agent = DRLResilienceAgent(state_dim=5, action_dim=4)
+    detector, _meta = load_detector_checkpoint(DETECTOR_CKPT, quantize=True)
+    dqn_agent = DRLResilienceAgent.from_checkpoint(DQN_CKPT)
     soar_playbooks = SOARPlaybooks()
-    sample_tensor = torch.randn(1, 10, 10)
+    npz = resolve_real_windows_npz("insdn")
+    if npz is None:
+        raise FileNotFoundError("insdn_windows.npz required for MTTR software-path timing")
+    data = np.load(npz)
+    sample_tensor = torch.tensor(data["X"][:1], dtype=torch.float32)
 
-    with torch.no_grad():
-        for _ in range(30):
-            _ = quantized_model(sample_tensor)
+    for _ in range(30):
+        det = infer_window(detector, sample_tensor, checkpoint_path=DETECTOR_CKPT, quantized=True)
+        obs = observation_from_detector_window(
+            det.p_attack, det.reconstruction_error, sample_tensor[0, -1].tolist()
+        )
+        _ = dqn_agent.select_action(obs.as_list(), eval_mode=True)
 
     ai_native_times = []
     for _ in range(num_trials):
         t0 = time.perf_counter()
-        with torch.no_grad():
-            _ = quantized_model(sample_tensor)
-        _ = dqn_agent.select_action([0.45, 1200.0, 0.78, 0.68, 0.92], eval_mode=True)
-        _ = soar_playbooks.execute_playbook(
-            "TARGETED_FLOW_ISOLATION",
+        det = infer_window(detector, sample_tensor, checkpoint_path=DETECTOR_CKPT, quantized=True)
+        obs = observation_from_detector_window(
+            det.p_attack, det.reconstruction_error, sample_tensor[0, -1].tolist()
+        )
+        action_id = dqn_agent.select_action(obs.as_list(), eval_mode=True)
+        descriptor = soar_playbooks.execute_playbook(
+            dqn_agent.get_action_name(action_id),
             {"principal_id": "bench-principal", "device": "BYOD"},
         )
+        if descriptor.get("enforced") is True:
+            raise RuntimeError("MTTR path must not claim SOAR enforcement")
         ai_native_times.append(time.perf_counter() - t0)
 
     ai_native_times = np.array(ai_native_times)
@@ -69,6 +82,7 @@ def run_real_mttr_benchmark(num_trials: int = 500, seed: int = 42):
     mins = [float(np.min(s)) for s in series]
     maxs = [float(np.max(s)) for s in series]
 
+    os.makedirs(os.path.dirname(CSV_PATH), exist_ok=True)
     with open(CSV_PATH, "w", newline="", encoding="utf-8") as f:
         writer = csv.writer(f)
         writer.writerow(["Operational Paradigm", "Mean MTTR (s)", "SD (s)", "Min MTTR (s)", "Max MTTR (s)"])
@@ -91,14 +105,21 @@ def run_real_mttr_benchmark(num_trials: int = 500, seed: int = 42):
     ax.set_ylim(1e-4, 1e4)
     plt.tight_layout()
     plt.savefig(PNG_PATH, dpi=300)
-    os.makedirs(os.path.dirname(FIG_PATH), exist_ok=True)
-    plt.savefig(FIG_PATH, dpi=300)
     plt.close()
 
     print("  [+] MTTR results:")
     for p, m, s in zip(paradigms, means, stds):
         print(f"      - {p}: {m:.4f} ± {s:.4f} s")
-    return {"paradigms": paradigms, "means": means, "stds": stds, "mins": mins, "maxs": maxs}
+    return {
+        "paradigms": paradigms,
+        "means": means,
+        "stds": stds,
+        "mins": mins,
+        "maxs": maxs,
+        "human_baselines": "stipulated_not_measured",
+        "ai_path": "software_decision_time_loaded_detector_and_dqn",
+        "soar_enforced": False,
+    }
 
 
 if __name__ == "__main__":

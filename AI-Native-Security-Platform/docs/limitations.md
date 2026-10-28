@@ -1,6 +1,8 @@
 # System Limitations & Architectural Boundaries
 
 ## 1. Edge Hardware Constraints
+> **Stale Isolation Forest throughput claim.** The evaluated edge detector is a TCN–GRU (partial dynamic INT8), not Isolation Forest. Do not cite 15,000 events/s as a measured ICAI result.
+
 While the Isolation Forest model exhibits $O(n \log n)$ time complexity during training and $O(h)$ during inference, edge deployment on resource-constrained embedded systems (e.g., dual-core ARM devices) limits maximum un-batched throughput to approximately 15,000 events/second per edge instance.
 
 ## 2. Encryption & Deep Packet Inspection (DPI)

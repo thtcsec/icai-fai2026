@@ -1,0 +1,29 @@
+{
+  "title": "Evaluating an Event-Driven Edge–Cloud Intrusion Detection Prototype: Host-Day Grouping and Threshold Transfer on InSDN",
+  "authors": [
+    "Hoang Tu Trinh",
+    "Tien Thanh Cao"
+  ],
+  "conference": "ICAI-2026, CMC University",
+  "paper_id": 26,
+  "status": "Submitted / Under Review; not accepted; status supplied by repository owner",
+  "scientific_freeze": {
+    "local_pdf": "revisions/icai2026_20261028/paper/icai_revision.pdf",
+    "sha256": "ccba97053f3c93ba27e7a8cf99ce422246ea63f698b835092f7d10a547f2b83d",
+    "pages": 5,
+    "included_in_public_git": false,
+    "cmt_replacement_confirmed": false,
+    "preprint_sharing_clearance_confirmed": false
+  },
+  "closure": {
+    "verdict": "PASS WITH CAVEATS",
+    "original_p1_verified_fixed": 9,
+    "remaining_confirmed_p0_p1": 0,
+    "full_local_regression_tests": 62,
+    "protected_files": 52
+  },
+  "release_mode": "code, owned model checkpoints and aggregate evidence; GitHub release must remain draft while paper-sharing checks are unverified",
+  "historical_tag": "icai2026-submission-artifact",
+  "historical_commit": "4540dbf8c7b8b50ac638c034b1c6c8fb090e06b9",
+  "public_evidence_note": "Copies of frozen result JSONs with machine-specific file paths normalized; scientific values unchanged."
+}

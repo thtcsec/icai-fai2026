@@ -81,7 +81,8 @@ def _measure_transport_ms(trials: int = 300):
     """Redis Streams XADD+XREADGROUP vs synchronous loopback HTTP round-trip."""
     bus = require_redis()
     bus.reset_stream()
-    payload = {"flow_id": "f-1", "p_attack": 0.91, "role": "STUDENT", "trust": 0.45}
+    # Isolated transport fixture (not a detector output; not a policy evaluation).
+    payload = {"flow_id": "f-1", "p_attack": 0.91, "role": "STUDENT", "trust": 0.45, "fixture": True}
 
     for _ in range(20):
         bus.publish_and_consume(payload, block_ms=2000)

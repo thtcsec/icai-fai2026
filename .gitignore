@@ -29,3 +29,23 @@ icai-fai2026-bundle.zip
 icaifai.aux
 icaifai.log
 
+
+# Audited revision release: third-party data and private paper packet stay local.
+*.npz
+*.rar
+*.7z
+*.pcap
+.env
+.env.*
+*.pem
+*.key
+/cmc.png
+/tsinghua_shenzhen.png
+/steinbeis.png
+/AI-Native-Security-Platform/results/insdn_telemetry_sample.csv
+/revisions/icai2026_20261028/*
+!/revisions/icai2026_20261028/PUBLIC_ARTIFACT.md
+!/revisions/icai2026_20261028/evidence/
+!/revisions/icai2026_20261028/evidence/**
+/docs/audit/
+/AI-Native-Security-Platform/results/*.ipynb

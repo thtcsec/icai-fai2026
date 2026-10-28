@@ -1,0 +1,102 @@
+{
+  "historical_paper_total_median_ms": 4.793,
+  "historical_paper_note": "Submitted Table II discarded detector outputs, injected p_attack=0.91, and constructed DRLResilienceAgent without loading trained DQN weights.",
+  "detector_only_ms": {
+    "median": 1.0814499692060053,
+    "p95": 1.5286299807485184,
+    "p99": 2.0408330543432385,
+    "mean": 1.1593430035281926,
+    "n": 200
+  },
+  "policy_only_ms": {
+    "median": 0.08145003812387586,
+    "p95": 0.13627498410642142,
+    "p99": 0.21791091421619058,
+    "mean": 0.09036300354637206,
+    "n": 200
+  },
+  "end_to_end_ms": {
+    "median": 1.1937000090256333,
+    "p95": 1.7448899045120925,
+    "p99": 2.2013881115708496,
+    "mean": 1.2789544963743538,
+    "n": 200
+  },
+  "stages": {
+    "Window preprocess (nan_to_num + tensor)": {
+      "median": 0.008499948307871819,
+      "p95": 0.013999996008351445,
+      "p99": 0.02125692903064177,
+      "mean": 0.009716498316265643,
+      "n": 200
+    },
+    "Edge TCN-GRU Inference (trained INT8)": {
+      "median": 1.0814499692060053,
+      "p95": 1.5286299807485184,
+      "p99": 2.0408330543432385,
+      "mean": 1.1593430035281926,
+      "n": 200
+    },
+    "Identity Context Fusion (simulated lease table)": {
+      "median": 0.014450051821768284,
+      "p95": 0.028419983573257916,
+      "p99": 0.03511391929350792,
+      "mean": 0.01697899599093944,
+      "n": 200
+    },
+    "Redis Streams (XADD+XREADGROUP)": {
+      "median": null,
+      "p95": null,
+      "p99": null,
+      "mean": null,
+      "n": 0
+    },
+    "Cloud DQN Policy (loaded checkpoint)": {
+      "median": 0.08145003812387586,
+      "p95": 0.13627498410642142,
+      "p99": 0.21791091421619058,
+      "mean": 0.09036300354637206,
+      "n": 200
+    },
+    "SOAR Playbook Descriptor (not enforced)": {
+      "median": 0.002400018274784088,
+      "p95": 0.0035999168176203966,
+      "p99": 0.004202030831947921,
+      "mean": 0.00255299499258399,
+      "n": 200
+    }
+  },
+  "redis_included": false,
+  "redis_error": "Could not connect to Redis at localhost:6379: Redis required but unavailable at localhost:6379: No module named 'redis'. Start Redis 7.x (e.g. docker run -p 6379:6379 redis:7.2.4) before running latency/ablation benchmarks that claim Redis Streams.",
+  "p_attack": {
+    "source": "trained_int8_tcn_gru_classifier_head",
+    "scoring_rule": "1 - P(normal)",
+    "mean": 0.7483999741077423,
+    "min": 0.001146554946899414,
+    "max": 0.9988526701927185,
+    "hardcoded_override": false
+  },
+  "detector_checkpoint": {
+    "checkpoint_path": "AI-Native-Security-Platform/results/checkpoints/tcn_gru_ae_trained.pt",
+    "quantized": true,
+    "seq_len": 10,
+    "num_features": 10,
+    "num_classes": 6,
+    "scoring_rule": "1 - P(normal)"
+  },
+  "dqn_checkpoint": "AI-Native-Security-Platform/results/checkpoints/dqn_policy_trained.pt",
+  "warmup": 20,
+  "num_trials": 200,
+  "seed": 42,
+  "host": {
+    "cpu": "Intel64 Family 6 Model 186 Stepping 2, GenuineIntel",
+    "machine": "AMD64",
+    "os": "Windows 11 10.0.26200",
+    "python": "3.13.5",
+    "torch": "2.8.0+cpu",
+    "torch_threads": 1
+  },
+  "soar_enforced": false,
+  "identity_table": "simulated_lease_fixture",
+  "label": "corrected_real_detector_loaded_dqn"
+}
