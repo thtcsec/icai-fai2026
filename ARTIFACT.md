@@ -51,4 +51,4 @@ P1 and P3 differ in test population/prevalence and trained weights. Their F1 dif
 
 The release manifest lists included and excluded files; checksums identify the owned models and aggregate evidence. Local dataset archives and protected historical tables are preserved. GitHub's automatic source archives use the tagged tree, so historical dataset payloads and a row-level telemetry sample are removed from the new tree's index without deleting their local copies or rewriting the original submission tag. Historical notebooks with embedded outputs are also retained locally rather than repackaged.
 
-[Release notes](release/RELEASE_NOTES.md) describe the revision. GitHub Release remains a draft while CMT/public-sharing checks are unverified. Zenodo JSON is unpublished preparation; no DOI or acceptance is claimed.
+[Release notes](release/RELEASE_NOTES.md) describe the revision. The repository owner authorized the [code-only pre-release](https://github.com/thtcsec/icai-fai2026/releases/tag/icai2026-revision-20261028-v2). Manuscript distribution remains pending CMT/public-sharing verification. Zenodo JSON is unpublished preparation; no DOI or acceptance is claimed.

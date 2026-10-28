@@ -1,6 +1,6 @@
 # ICAI-2026 Paper 26 — Audited Research Artifact (Under Review)
 
-**Status:** draft pre-release preparation. Paper 26 is Submitted / Under Review, not accepted. No publisher DOI, indexing, IEEE publication or camera-ready status is claimed. Zenodo metadata is unpublished preparation only.
+**Status:** published code-only research pre-release, authorized by the repository owner. Paper 26 is Submitted / Under Review, not accepted. No publisher DOI, indexing, IEEE publication or camera-ready status is claimed. Zenodo metadata is unpublished preparation only.
 
 ## Research contribution
 
@@ -24,10 +24,13 @@ One test attack host-day, overlapping windows, third-party extract, no globally 
 
 ## Paper distribution and citation
 
-The approved five-page local PDF SHA-256 is `ccba97053f3c93ba27e7a8cf99ce422246ea63f698b835092f7d10a547f2b83d`. Revised PDF/TeX are withheld pending author confirmation of CMT replacement and conference sharing clearance. GitHub Release remains **draft** while those gates are unverified; no manuscript asset is attached.
+The approved five-page local PDF SHA-256 is `ccba97053f3c93ba27e7a8cf99ce422246ea63f698b835092f7d10a547f2b83d`. Revised PDF/TeX are withheld pending author confirmation of CMT replacement and conference sharing clearance. The repository owner has authorized publication of this code-only pre-release. The CMT/public-sharing gates continue to apply to manuscript distribution; no revised manuscript PDF or TeX is attached or included in the source archive.
 
 CITATION.cff identifies the audited hybrid title and approved author order. No ORCID or DOI is invented. Project code is MIT; datasets and logos retain their owners' rights. The publication manifest enumerates inclusions and exclusions for GitHub automatic source archives.
 
 ## Packaging revision v2
 
 Tag `icai2026-revision-20261028-v2` corrects JSON checksum newline portability identified by independent GitHub archive verification. The first revision tag is preserved and its draft is superseded. Scientific values, model bytes and the frozen local manuscript are unchanged. JSON hashes identify LF-canonical public Git bytes; Windows CRLF checkout conversion is handled explicitly.
+
+
+Publication scope: research code, owned checkpoints and aggregate evidence only. This GitHub pre-release does not mean conference acceptance, camera-ready publication or paper-distribution approval. Draft-preparation state recorded in the tagged packaging metadata is historical; the current publication state is the GitHub Release record.

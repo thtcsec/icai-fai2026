@@ -22,4 +22,4 @@ JSON copies preserve scientific values and normalize machine-specific paths. Log
 
 Closure audit: PASS WITH CAVEATS, 9/9 original P1 fixed, zero remaining confirmed P0/P1; local full suite 62 passed. Public checks are separately documented in [ARTIFACT.md](../../ARTIFACT.md). Limits remain: one test attack host-day, overlapping windows, third-party extract, no causal P1/P3 claim, no globally unseen-host/session claim, batch sensitivity, simulator policy and unenforced recommendations.
 
-The historical submission tag remains unchanged. Release publication is held as a draft while author-only CMT and sharing checks are pending.
+The historical submission tag remains unchanged. The owner authorized publication of the [code-only pre-release](https://github.com/thtcsec/icai-fai2026/releases/tag/icai2026-revision-20261028-v2). The revised manuscript remains local pending author-only CMT and sharing checks. Preparation-state fields in the evidence JSONs are historical snapshots; current release state is recorded on GitHub.
