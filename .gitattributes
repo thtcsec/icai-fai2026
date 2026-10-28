@@ -1,0 +1,6 @@
+# Stable public evidence bytes across Windows clones and GitHub archives.
+/revisions/icai2026_20261028/evidence/*.json text eol=lf
+/release/*.json text eol=lf
+*.pt binary
+*.png binary
+*.pdf binary

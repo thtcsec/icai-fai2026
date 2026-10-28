@@ -27,3 +27,7 @@ One test attack host-day, overlapping windows, third-party extract, no globally 
 The approved five-page local PDF SHA-256 is `ccba97053f3c93ba27e7a8cf99ce422246ea63f698b835092f7d10a547f2b83d`. Revised PDF/TeX are withheld pending author confirmation of CMT replacement and conference sharing clearance. GitHub Release remains **draft** while those gates are unverified; no manuscript asset is attached.
 
 CITATION.cff identifies the audited hybrid title and approved author order. No ORCID or DOI is invented. Project code is MIT; datasets and logos retain their owners' rights. The publication manifest enumerates inclusions and exclusions for GitHub automatic source archives.
+
+## Packaging revision v2
+
+Tag `icai2026-revision-20261028-v2` corrects JSON checksum newline portability identified by independent GitHub archive verification. The first revision tag is preserved and its draft is superseded. Scientific values, model bytes and the frozen local manuscript are unchanged. JSON hashes identify LF-canonical public Git bytes; Windows CRLF checkout conversion is handled explicitly.

@@ -4,7 +4,7 @@ from pathlib import Path
 import subprocess
 
 
-def package_project(output_zip="icai-fai2026-bundle.zip", ref="icai2026-revision-20261028"):
+def package_project(output_zip="icai-fai2026-bundle.zip", ref="icai2026-revision-20261028-v2"):
     root = Path(__file__).resolve().parent
     names = subprocess.check_output(["git", "ls-tree", "-r", "--name-only", ref], cwd=root, text=True).splitlines()
     for name in names:
@@ -22,7 +22,7 @@ def package_project(output_zip="icai-fai2026-bundle.zip", ref="icai2026-revision
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("--ref", default="icai2026-revision-20261028")
+    parser.add_argument("--ref", default="icai2026-revision-20261028-v2")
     parser.add_argument("--output", default="icai-fai2026-bundle.zip")
     args = parser.parse_args()
     package_project(args.output, args.ref)

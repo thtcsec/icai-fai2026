@@ -1,6 +1,7 @@
 {
-  "release_tag": "icai2026-revision-20261028",
+  "release_tag": "icai2026-revision-20261028-v2",
   "newly_included_files": [
+    ".gitattributes",
     ".zenodo.json",
     "AI-Native-Security-Platform/paper/README.md",
     "AI-Native-Security-Platform/prototype/cloud/policy_engine/observation.py",
@@ -56,6 +57,7 @@
     "tools/verify_public_artifact.py"
   ],
   "explicit_staging_allowlist": [
+    ".gitattributes",
     ".gitignore",
     ".zenodo.json",
     "AI-Native-Security-Platform/.gitignore",
@@ -465,6 +467,7 @@
   "paper_assets": [],
   "cmt_and_sharing_verified": false,
   "tagged_tree_files": [
+    ".gitattributes",
     ".gitignore",
     ".zenodo.json",
     "AI-Native-Security-Platform/.gitignore",
@@ -669,9 +672,11 @@
     "tools/verify_public_artifact.py"
   ],
   "counts": {
-    "tagged_files": 202,
-    "newly_included": 53,
+    "tagged_files": 203,
+    "newly_included": 54,
     "excluded_local_files": 125,
     "index_only_exclusions": 7
-  }
+  },
+  "superseded_tag": "icai2026-revision-20261028",
+  "supersession_reason": "JSON newline checksum portability; scientific values unchanged"
 }

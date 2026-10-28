@@ -34,7 +34,7 @@
 | **Affiliation** | Faculty of Information Technology, Ho Chi Minh City University of Foreign Languages — Information Technology (HUFLIT) |
 | **Conference** | ICAI-2026, CMC University, Hanoi, 3 December 2026 |
 | **Paper ID / status** | 26; Submitted / Under Review, **not accepted**. Status supplied by the repository owner; live CMT remains author-controlled. |
-| **Current artifact** | [Audited revision](revisions/icai2026_20261028/PUBLIC_ARTIFACT.md); tag `icai2026-revision-20261028` |
+| **Current artifact** | [Audited revision](revisions/icai2026_20261028/PUBLIC_ARTIFACT.md); tag `icai2026-revision-20261028-v2` |
 | **Historical submission** | [icai2026-submission-artifact](https://github.com/thtcsec/icai-fai2026/tree/icai2026-submission-artifact), preserved unchanged |
 | **Paper distribution** | Approved five-page PDF remains local pending confirmed CMT replacement and conference sharing clearance; no revised manuscript PDF or TeX is included in this code release. |
 | **License** | MIT for project code; dataset and logo owners retain their rights. No publisher DOI, acceptance, indexing or camera-ready status is claimed. |

@@ -10,7 +10,7 @@ authors:
     email: "thanhct@huflit.edu.vn"
     affiliation: "Faculty of Information Technology, Ho Chi Minh City University of Foreign Languages -- Information Technology"
 title: "Evaluating an Event-Driven Edge–Cloud Intrusion Detection Prototype: Host-Day Grouping and Threshold Transfer on InSDN"
-version: "2026.10.28"
+version: "2026.10.28.2"
 url: "https://github.com/thtcsec/icai-fai2026"
 repository-code: "https://github.com/thtcsec/icai-fai2026"
 license: MIT

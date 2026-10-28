@@ -1,5 +1,6 @@
 {
   "algorithm": "SHA-256",
+  "text_normalization": "JSON payload hashes use LF-canonical public Git bytes; CRLF checkouts are normalized for verification. Models/images use exact bytes.",
   "files": {
     "AI-Native-Security-Platform/results/checkpoints/dqn_policy_trained.pt": "41b7fb7cc2bcb68d9212f63483b1fa4d4b11c13fe0c653d32f0eb98ce420fce3",
     "AI-Native-Security-Platform/results/checkpoints/tcn_gru_ae_trained.pt": "1a260bcbfae4cae7cb0c0c24973a90a2d0948cbe0a160737fc6e7aed10b77e02",
@@ -8,14 +9,14 @@
     "assets/organizers/cmc.png": "539d62f71398c6f49cf18edcb628c7d90bde4f2814386642ff5bb2b08b12d93d",
     "assets/organizers/steinbeis.png": "1c40a5c5f0b81ac5ab69e94ed4106ec6ae06cf7619708341a39d669ffadb3035",
     "assets/organizers/tsinghua_shenzhen.png": "a8b57e6e00662e470932b0aa0675b847f740ea09a139d652747c3de4658483e4",
-    "revisions/icai2026_20261028/evidence/consumed_support.json": "cebac3b835946e5044e5134a63351fb244fc456d0a26a9001c68c83bdbf4bb0b",
-    "revisions/icai2026_20261028/evidence/experiment_manifest.json": "4f1afd7f1cade700809bc66fa42300af7be02889815ce8247bf3ef51c6ac0a89",
-    "revisions/icai2026_20261028/evidence/fixed_seed_support.json": "4e5ee55f6ca42a828a1387da5599870a7144d663c05a29c3978f25b043f7f6e8",
-    "revisions/icai2026_20261028/evidence/historical_repaired_latency.json": "fdda5e55bf5ed63c08df7687b5c8a7922665f04c367b9d4ed7c3d6726e08cd8c",
-    "revisions/icai2026_20261028/evidence/metric_integrity.json": "776b2c504167f49e97a3890f646398a20b7b2f5f66493d97ae470d6b620dab52",
-    "revisions/icai2026_20261028/evidence/p1_model_comparison.json": "d4ad7482788d5d1b436e2d8cfdef11f66ce2f7f29d06a576bf5b78b7393a4fe9",
-    "revisions/icai2026_20261028/evidence/p3_model_comparison.json": "0b1749ccea8f3786530c1b751090e32e0829918449d05df79d7b579b79c9cfab",
-    "revisions/icai2026_20261028/evidence/policy_evaluation.json": "5e7626796761cc58f8c5bcd6c92fce79b6c8fcdc8377b2cc700b0ff315484e2b",
-    "revisions/icai2026_20261028/evidence/scientific_freeze.json": "5d3590e4953e36416b6c0d2310c95b591645e26bc75eebce67c9fcbfa4f58e60"
+    "revisions/icai2026_20261028/evidence/consumed_support.json": "ed577fed0ab21fea86ea7782aa6c0be967fe3be82ea02d7503f63d226dc5ae1c",
+    "revisions/icai2026_20261028/evidence/experiment_manifest.json": "22959fc29d7f34d1a3fb9b527a9462d4bbc912c65cbddb1c1a9b4eb6df6cb6ea",
+    "revisions/icai2026_20261028/evidence/fixed_seed_support.json": "3d27c5d2dcb770f093c3b4b4f6386029cf9f4e87bc70c2e5e24c9edfbac4d759",
+    "revisions/icai2026_20261028/evidence/historical_repaired_latency.json": "5f31eb43ba8e376bcb71876d28f833d72ed4682c79310b52389178560713d8bb",
+    "revisions/icai2026_20261028/evidence/metric_integrity.json": "1147227aacaea6151e5150bce3a7a519a14f3384cb23dc47f6b40dab6bb78a73",
+    "revisions/icai2026_20261028/evidence/p1_model_comparison.json": "393853245e984ad831e6d916c57447daf5ac3aa76b3aad755b8dd5ec4c1482cc",
+    "revisions/icai2026_20261028/evidence/p3_model_comparison.json": "6ec71c35b003ce92627c463c9d889ef87910da83408ea293963f13fab3efd0c7",
+    "revisions/icai2026_20261028/evidence/policy_evaluation.json": "847daa352a3fbb23f93136ef734583ae941d023427cc197f7a4b3997ff4ffb54",
+    "revisions/icai2026_20261028/evidence/scientific_freeze.json": "93cab48a9a0b52ad3c48d71b7f1f29ca8ec473f8eae2e004bde43ef96f741a0d"
   }
 }

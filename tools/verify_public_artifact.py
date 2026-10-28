@@ -49,7 +49,12 @@ def main():
     for rel, expected in read("checksums.json")["files"].items():
         path = ROOT / rel
         assert path.is_file(), f"Missing release payload: {rel}"
-        assert hashlib.sha256(path.read_bytes()).hexdigest() == expected, f"Checksum mismatch: {rel}"
+        data = path.read_bytes()
+        # JSON hashes identify LF-canonical public Git bytes. Windows checkouts
+        # may translate text newlines; model/image bytes are never normalized.
+        if path.suffix == ".json":
+            data = data.replace(b"\r\n", b"\n")
+        assert hashlib.sha256(data).hexdigest() == expected, f"Checksum mismatch: {rel}"
         checked += 1
     # GitHub links resolve against the repository, not the local withheld packet.
     for rel in ["README.md", "ARTIFACT.md", "paper/README.md", "revisions/icai2026_20261028/PUBLIC_ARTIFACT.md"]:

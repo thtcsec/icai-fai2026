@@ -5,7 +5,7 @@
     "passed": 62,
     "skipped": 0,
     "warning_count": 1,
-    "seconds": 8.26,
+    "seconds": 5.92,
     "command": "project-venv python -B -: pytest AI-Native-Security-Platform/tests revisions/icai2026_20261028/test_p1_remediation.py tests --import-mode=importlib -o addopts= -q -p no:cacheprovider"
   },
   "clean_export_suite": {
@@ -13,10 +13,10 @@
     "skipped": 2,
     "deselected": 1,
     "warning_count": 1,
-    "seconds": 6.26,
+    "seconds": 8.17,
     "command": "python tools/run_public_checks.py",
-    "export_tree": "4350e1a46e7e99a543c960f830a47b711acbe8e1",
-    "scope": "Export before adding publication_manifest.json/verification.json; executable/scientific payload unchanged. Dataset-dependent checks skipped, root duplicate-logo preservation check deselected."
+    "export_tree": "14cd797cb603674858eb2813a97f059b2d425fb6",
+    "scope": "Exact LF Git-blob export; 42 passed, two dataset skips, one duplicate-root-logo test deselected. Both LF and CRLF JSON verification passed. Final metadata-only results update follows this check."
   },
   "limited_verifiers": {
     "local_claim_check": "PASS; limited smoke check",
@@ -39,7 +39,7 @@
     "machine_specific_paths_in_public_docs_json": 0,
     "index_only_exclusions": 7,
     "historical_tag_preserved": true,
-    "prospective_tree_files": 202,
+    "prospective_tree_files": 203,
     "python_files_compiled": 83,
     "credential_literal_review": "Only documented deterministic development HMAC fixture secret; no real credential literal found",
     "staged_whitespace_check": "PASS after removing an extra final blank line from a test (no scientific source changed)",
@@ -51,5 +51,13 @@
     "github_release_required_state": "draft",
     "revised_pdf_or_tex_in_public_git": false,
     "release_assets": []
+  },
+  "packaging_revision_v2": {
+    "first_remote_archive_verification": "Caught checksum mismatch for nine JSON payloads due to CRLF working files versus LF Git blobs; model/image hashes and all 202 committed blobs matched",
+    "fix": "LF-canonical JSON checksums and explicit .gitattributes; checker tolerates CRLF checkouts only for JSON text",
+    "scientific_change": false,
+    "first_tag_preserved": true,
+    "new_tag": "icai2026-revision-20261028-v2",
+    "lf_and_crlf_checks": "PASS"
   }
 }
